@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Học tiếng Việt — Learn & Practice</title>
+    
+    <!-- Подключение Manifest для PWA -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Теги для поддержки PWA на iOS Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tg: {
+                            bg: 'var(--tg-theme-bg-color, #f0f4f8)',
+                            text: 'var(--tg-theme-text-color, #2c3e50)',
+                            hint: 'var(--tg-theme-hint-color, #7f8c8d)',
+                            primary: 'var(--tg-theme-button-color, #1976d2)',
+                            primaryText: 'var(--tg-theme-button-text-color, #ffffff)',
+                            secondaryBg: 'var(--tg-theme-secondary-bg-color, #ffffff)',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.25s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(8px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: var(--tg-theme-bg-color, #f0f4f8);
+            color: var(--tg-theme-text-color, #2c3e50);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .playing {
+            transform: scale(0.92) !important;
+            opacity: 0.8;
+            border-color: var(--tg-theme-button-color, #1976d2) !important;
+            background-color: var(--tg-theme-button-color, #1976d2) !important;
+            color: var(--tg-theme-button-text-color, #ffffff) !important;
+        }
+
+        .icon-wrap svg { 
+            width: 100%; 
+            height: 100%; 
+            fill: currentColor; 
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="p-4 flex flex-col items-center transition-colors duration-300">
+
+<div class="w-full max-w-screen-md relative">
+    <!-- Контейнер для кнопок управления в правом верхнем углу -->
+    <div class="absolute top-1 right-0 flex items-center gap-1.5">
+        <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black px-3 py-1.5 rounded-xl text-xs uppercase active:scale-95 transition-transform" onclick="toggleLanguage()">
+            RU
+        </button>
+        <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text p-1.5 rounded-xl active:scale-95 transition-transform" onclick="toggleTheme()">
+            <!-- Иконка Луны / Солнца вставится через JS -->
+        </button>
+    </div>
+
+    <header class="text-center mb-4 mt-2">
+        <h1 class="text-tg-primary text-2xl font-black uppercase tracking-wide leading-tight">Học tiếng Việt</h1>
+        <p id="sub-title" class="text-tg-hint text-sm mt-0.5 font-medium transition-colors"></p>
+    </header>
+
+    <div class="flex bg-tg-hint/10 p-1 rounded-xl mb-6 border border-tg-hint/20 w-full overflow-x-auto no-scrollbar">
+        <button id="tab-vowels" class="flex-1 whitespace-nowrap px-2 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-colors bg-tg-primary text-tg-primaryText shadow-sm" onclick="switchTab('vowels')">
+            Гласные
+        </button>
+        <button id="tab-consonants" class="flex-1 whitespace-nowrap px-2 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-colors text-tg-text bg-transparent active:bg-tg-hint/20" onclick="switchTab('consonants')">
+            Согласные
+        </button>
+        <button id="tab-pronouns" class="flex-1 whitespace-nowrap px-2 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-colors text-tg-text bg-transparent active:bg-tg-hint/20" onclick="switchTab('pronouns')">
+            Местоимения
+        </button>
+        <button id="tab-vocabulary" class="flex-1 whitespace-nowrap px-2 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-colors text-tg-text bg-transparent active:bg-tg-hint/20" onclick="switchTab('vocabulary')">
+            Словарь
+        </button>
+    </div>
+    
+    <div id="grids-container" class="w-full"></div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    if (tg && tg.expand) tg.expand();
+    if (tg && tg.ready) tg.ready();
+
+    const globalAudio = new Audio();
+    let isUnlocked = false;
+    let currentTab = 'vowels';
+    let currentVocabTab = 'top';
+    let vocabPageIndex = 0; 
+    let currentTheme = 'light';
+    
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    let currentLang = 'ru';
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code) {
+        const userCode = tg.initDataUnsafe.user.language_code.toLowerCase();
+        currentLang = userCode.startsWith('ru') ? 'ru' : 'en';
+    }
+
+    const uiLabels = {
+        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа" },
+        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers" }
+    };
+
+    let selectedSpeaker = 'con';
+    let selectedListener = 'mẹ';
+
+    const allowedListeners = {
+        'con': ['ba', 'mẹ', 'cô', 'chú', 'bà', 'ông', 'thầy'],
+        'em': ['anh', 'chị', 'cô', 'chú', 'mẹ', 'ba', 'bà', 'ông', 'thầy'],
+        'bạn': ['bạn'],
+        'anh': ['em', 'bạn'],
+        'chị': ['em', 'bạn'],
+        'cô': ['con', 'em'],
+        'chú': ['con', 'em'],
+        'mẹ': ['con'],
+        'ba': ['con'],
+        'bà': ['con'],
+        'ông': ['con'],
+        'thầy': ['em', 'con']
+    };
+
+    const svgTable = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xml:space="preserve"><path style="fill:#D09B6A;" d="M470.9,139.7H41.1C18.4,139.7,0,158.1,0,180.8v41.1c0,22.7,18.4,41.1,41.1,41.1h429.7c22.7,0,41.1-18.4,41.1-41.1v-41.1C512,158.1,493.6,139.7,470.9,139.7z"/><path style="fill:#A1714E;" d="M68.7,263h30.2c5.6,0,10.2,4.6,10.2,10.2v191.7c0,5.6-4.6,10.2-10.2,10.2H68.7c-5.6,0-10.2-4.6-10.2-10.2V273.2C58.5,267.6,63.1,263,68.7,263z M413.1,263h30.2c5.6,0,10.2,4.6,10.2,10.2v191.7c0,5.6-4.6,10.2-10.2,10.2h-30.2c-5.6,0-10.2-4.6-10.2-10.2V273.2C402.9,267.6,407.5,263,413.1,263z"/><path style="fill:#83583C;" d="M129.5,263h18c5.6,0,10.2,4.6,10.2,10.2v191.7c0,5.6-4.6,10.2-10.2,10.2h-18c-5.6,0-10.2-4.6-10.2-10.2V273.2C119.3,267.6,123.9,263,129.5,263z M364.5,263h18c5.6,0,10.2,4.6,10.2,10.2v191.7c0,5.6-4.6,10.2-10.2,10.2h-18c-5.6,0-10.2-4.6-10.2-10.2V273.2C354.3,267.6,358.9,263,364.5,263z"/></svg>`;
+
+    const vowelsData = {
+        grid1: { title: "A, Ă, Â, Ơ, Ư", data: [
+            { title: 'A', sound: 'a', tones: [{w:'Bàn', t: {ru: 'Стол', en: 'Table'}, i: svgTable, isSvg: true}, {w:'Chanh', t: {ru: 'Лимон', en: 'Lemon'}, i:'🍋'}, {w:'Sữa', t: {ru: 'Молоко', en: 'Milk'}, i:'🥛'}, {w:'Dao', t: {ru: 'Нож', en: 'Knife'}, i:'🔪'}, {w:'Trà', t: {ru: 'Чай', en: 'Tea'}, i:'🍵'}, {w:'Cá', t: {ru: 'Рыба', en: 'Fish'}, i:'🐟'}]},
+            { title: 'Ă', sound: 'áh', tones: [{w:'Ăn', t: {ru: 'Кушать', en: 'Eat'}, i:'🥢'}, {w:'Khăn', t: {ru: 'Салфетка', en: 'Napkin'}, i:'🧻'}, {w:'Mặn', t: {ru: 'Соленый', en: 'Salty'}, i:'🧂'}, {w:'Ngắn', t: {ru: 'Короткий', en: 'Short'}, i:'📏'}, {w:'Cắt', t: {ru: 'Резать', en: 'Cut'}, i:'✂️'}, {w:'Bắp', t: {ru: 'Кукуруза', en: 'Corn'}, i:'🌽'}]},
+            { title: 'Â', sound: 'ớ', tones: [{w:'Nấm', t: {ru: 'Грибы', en: 'Mushroom'}, i:'🍄'}, {w:'Cần', t: {ru: 'Нужно', en: 'Need'}, i:'⚠️'}, {w:'Ấm', t: {ru: 'Теплый', en: 'Warm'}, i:'☀️'}, {w:'Vâng', t: {ru: 'Да', en: 'Yes (polite)'}, i:'🙋'}, {w:'Dầu', t: {ru: 'Масло', en: 'Oil'}, i:'🛢️'}, {w:'Giấm', t: {ru: 'Уксус', en: 'Vinegar'}, i:'🍶'}]},
+            { title: 'Ơ', sound: 'ơ', tones: [{w:'Phở', t: {ru: 'Суп Фо', en: 'Pho Soup'}, i:'🍜'}, {w:'Chợ', t: {ru: 'Рынок', en: 'Market'}, i:'🛒'}, {w:'Cơm', t: {ru: 'Рис', en: 'Cooked Rice'}, i:'🍚'}, {w:'Ớt', t: {ru: 'Чили', en: 'Chili'}, i:'🌶️'}, {w:'Bơ', t: {ru: 'Авокадо', en: 'Avocado'}, i:'🥑'}, {w:'Mới', t: {ru: 'Новый', en: 'New'}, i:'✨'}]},
+            { title: 'Ư', sound: 'ư', tones: [{w:'Nước', t: {ru: 'Вода/Сок', en: 'Water/Drink'}, i:'🥤'}, {w:'Đường', t: {ru: 'Сахар', en: 'Sugar'}, i:'🍬'}, {w:'Tươi', t: {ru: 'Свежий', en: 'Fresh'}, i:'🌿'}, {w:'Trứng', t: {ru: 'Яйцо', en: 'Egg'}, i:'🥚'}, {w:'Mực', t: {ru: 'Кальмар', en: 'Squid'}, i:'🦑'}, {w:'Thư', t: {ru: 'Письмо', en: 'Letter'}, i:'✉️'}]}
+        ]},
+        grid2: { title: "O, Ô, U", data: [
+            { title: 'O', sound: 'o', tones: [{w:'Ngon', t: {ru: 'Вкусно', en: 'Delicious'}, i:'😋'}, {w:'Cho', t: {ru: 'Дайте', en: 'Give/For'}, i:'🤲'}, {w:'Có', t: {ru: 'Есть', en: 'Have'}, i:'✅'}, {w:'Xoài', t: {ru: 'Манго', en: 'Mango'}, i:'🥭'}, {w:'Bò', t: {ru: 'Говядина', en: 'Beef'}, i:'🥩'}, {w:'Tỏi', t: {ru: 'Чеснок', en: 'Garlic'}, i:'🧄'}]},
+            { title: 'Ô', sound: 'ô', tones: [{w:'Ô', t: {ru: 'Зонтик', en: 'Umbrella'}, i:'☂️'}, {w:'Đổi', t: {ru: 'Сдача/Менять', en: 'Change'}, i:'🔄'}, {w:'Nồi', t: {ru: 'Кастрюля', en: 'Pot'}, i:'🍲'}, {w:'Tôm', t: {ru: 'Креветка', en: 'Shrimp'}, i:'🍤'}, {w:'Hộp', t: {ru: 'Контейнер', en: 'Box/Container'}, i:'📦'}, {w:'Ống', t: {ru: 'Трубочка', en: 'Straw'}, i:'🥤'}]},
+            { title: 'U', sound: 'u', tones: [{w:'Bún', t: {ru: 'Лапша Бун', en: 'Bun Noodles'}, i:'🥣'}, {w:'Đũa', t: {ru: 'Палочки', en: 'Chopsticks'}, i:'🥢'}, {w:'Chua', t: {ru: 'Кислый', en: 'Sour'}, i:'😖'}, {w:'Đủ', t: {ru: 'Достаточно', en: 'Enough'}, i:'✋'}, {w:'Mũ', t: {ru: 'Шляпа', en: 'Hat'}, i:'🎩'}, {w:'Đu đủ', t: {ru: 'Папайя', en: 'Papaya'}, i:'🍈'}]}
+        ]},
+        grid3: { title: "I/Y, E, Ê", data: [
+            { title: 'I / Y', sound: 'Ý', tones: [{w:'Mì', t: {ru: 'Лапша Ми', en: 'Noodles'}, i:'🍜'}, {w:'Ly', t: {ru: 'Стакан', en: 'Glass/Cup'}, i:'🥛'}, {w:'Bia', t: {ru: 'Пиво', en: 'Beer'}, i:'🍺'}, {w:'Kìa', t: {ru: 'Вон тот', en: 'Over there'}, i:'👉'}, {w:'Gì', t: {ru: 'Что?', en: 'What?'}, i:'❓'}, {w:'Chị', t: {ru: 'Старшая сестра', en: 'Older sister'}, i:'👩'}]},
+            { title: 'E', sound: 'e', tones: [{w:'Kem', t: {ru: 'Мороженое', en: 'Ice cream'}, i:'🍦'}, {w:'Chén', t: {ru: 'Чашка', en: 'Small bowl'}, i:'☕'}, {w:'Heo', t: {ru: 'Свинина', en: 'Pork'}, i:'🐷'}, {w:'Bò Né', t: {ru: 'Стейк', en: 'Beef Steak'}, i:'🍳'}, {w:'Rẻ', t: {ru: 'Дешево', en: 'Cheap'}, i:'🏷️'}, {w:'Mè', t: {ru: 'Кунжут', en: 'Sesame'}, i:'🥯'}]},
+            { title: 'Ê', sound: 'ê', tones: [{w:'Café', t: {ru: 'Кофе', en: 'Coffee'}, i:'☕'}, {w:'Thêm', t: {ru: 'Еще', en: 'More/Add'}, i:'➕'}, {w:'Ghế', t: {ru: 'Стул', en: 'Chair'}, i:'🪑'}, {w:'Bê', t: {ru: 'Телятина', en: 'Veal'}, i:'🐮'}, {w:'Ếch', t: {ru: 'Лягушка', en: 'Frog'}, i:'🐸'}, {w:'Hết', t: {ru: 'Закончилось', en: 'Finished'}, i:'🚫'}]}
+        ]}
+    };
+
+    const consonantsData = {
+        grid1: { title: "B, C, D, Đ", data: [
+            { title: 'B', sound: 'bờ', tones: [{w:'Ba', t: {ru: 'Папа', en: 'Father'}, i:'👨'}, {w:'Bò', t: {ru: 'Говядина', en: 'Beef'}, i:'🥩'}, {w:'Bia', t: {ru: 'Пиво', en: 'Beer'}, i:'🍺'}, {w:'Bút', t: {ru: 'Ручка', en: 'Pen'}, i:'🖊️'}, {w:'Bánh', t: {ru: 'Хлеб', en: 'Bread'}, i:'🥖'}, {w:'Bếp', t: {ru: 'Кухня', en: 'Kitchen'}, i:'🍳'}]},
+            { title: 'C', sound: 'cờ', tones: [{w:'Cá', t: {ru: 'Рыба', en: 'Fish'}, i:'🐟'}, {w:'Cơm', t: {ru: 'Рис', en: 'Cooked Rice'}, i:'🍚'}, {w:'Cửa', t: {ru: 'Дверь', en: 'Door'}, i:'🚪'}, {w:'Cỏ', t: {ru: 'Трава', en: 'Grass'}, i:'🌿'}, {w:'Cà phê', t: {ru: 'Кофе', en: 'Coffee'}, i:'☕'}, {w:'Cười', t: {ru: 'Смех', en: 'Smile'}, i:'😄'}]},
+            { title: 'D', sound: 'dờ', tones: [{w:'Dao', t: {ru: 'Нож', en: 'Knife'}, i:'🔪'}, {w:'Dâu', t: {ru: 'Клубника', en: 'Strawberry'}, i:'🍓'}, {w:'Dê', t: {ru: 'Коза', en: 'Goat'}, i:'🐐'}, {w:'Dừa', t: {ru: 'Кокос', en: 'Coconut'}, i:'🥥'}, {w:'Dép', t: {ru: 'Тапочки', en: 'Slippers'}, i:'🩴'}, {w:'Dễ', t: {ru: 'Легко', en: 'Easy'}, i:'✅'}]},
+            { title: 'Đ', sound: 'đờ', tones: [{w:'Đường', t: {ru: 'Сахар', en: 'Sugar'}, i:'🍬'}, {w:'Đá', t: {ru: 'Лед/Камень', en: 'Ice'}, i:'🧊'}, {w:'Đẹp', t: {ru: 'Красивый', en: 'Beautiful'}, i:'✨'}, {w:'Đỏ', t: {ru: 'Красный', en: 'Red'}, i:'🔴'}, {w:'Đi', t: {ru: 'Идти', en: 'Go'}, i:'🚶'}, {w:'Đảo', t: {ru: 'Остров', en: 'Island'}, i:'🏝️'}]}
+        ]},
+        grid2: { title: "G, H, K, L", data: [
+            { title: 'G', sound: 'gờ', tones: [{w:'Gà', t: {ru: 'Курица', en: 'Chicken'}, i:'🐔'}, {w:'Gạo', t: {ru: 'Рис (крупа)', en: 'Raw Rice'}, i:'🌾'}, {w:'Gương', t: {ru: 'Зеркало', en: 'Mirror'}, i:'🪞'}, {w:'Ghế', t: {ru: 'Стул', en: 'Chair'}, i:'🪑'}, {w:'Gỗ', t: {ru: 'Дерево', en: 'Wood'}, i:'🪵'}, {w:'Gần', t: {ru: 'Близко', en: 'Near'}, i:'📍'}]},
+            { title: 'H', sound: 'hờ', tones: [{w:'Hoa', t: {ru: 'Цветок', en: 'Flower'}, i:'🌸'}, {w:'Hỏi', t: {ru: 'Спрашивать', en: 'Ask'}, i:'❓'}, {w:'Hát', t: {ru: 'Петь', en: 'Sing'}, i:'🎤'}, {w:'Học', t: {ru: 'Учиться', en: 'Study'}, i:'📚'}, {w:'Hai', t: {ru: 'Два', en: 'Two'}, i:'2️⃣'}, {w:'Hộp', t: {ru: 'Коробка', en: 'Box'}, i:'📦'}]},
+            { title: 'K', sound: 'ca', tones: [{w:'Kéo', t: {ru: 'Ножницы', en: 'Scissors'}, i:'✂️'}, {w:'Kẹo', t: {ru: 'Конфета', en: 'Candy'}, i:'🍬'}, {w:'Kính', t: {ru: 'Очки', en: 'Glasses'}, i:'👓'}, {w:'Ký', t: {ru: 'Подпись', en: 'Sign'}, i:'✍️'}, {w:'Kém', t: {ru: 'Хуже', en: 'Poor'}, i:'📉'}, {w:'Kêu', t: {ru: 'Звать', en: 'Call'}, i:'🗣️'}]},
+            { title: 'L', sound: 'lờ', tones: [{w:'Lê', t: {ru: 'Груша', en: 'Pear'}, i:'🍐'}, {w:'Lạnh', t: {ru: 'Холодно', en: 'Cold'}, i:'❄️'}, {w:'Lá', t: {ru: 'Лист', en: 'Leaf'}, i:'🍃'}, {w:'Lửa', t: {ru: 'Огонь', en: 'Fire'}, i:'🔥'}, {w:'Lớн', t: {ru: 'Большой', en: 'Big'}, i:'🐘'}, {w:'Làm', t: {ru: 'Делать', en: 'Do'}, i:'🛠️'}]}
+        ]}
+    };
+
+    const pronounsData = [
+        { w: 'con', e: '👶', level: 0, t: { ru: 'Ребенок', en: 'Child' } },
+        { w: 'em', e: '👦', level: 1, t: { ru: 'Младший брат/сестра', en: 'Younger sibling' } },
+        { w: 'bạn', e: '🤝', level: 2, t: { ru: 'Друг', en: 'Friend' } },
+        { w: 'anh', e: '🧑', level: 3, t: { ru: 'Старший брат', en: 'Older brother' } },
+        { w: 'chị', e: '👩', level: 3, t: { ru: 'Старшая сестра', en: 'Older sister' } },
+        { w: 'cô', e: '👩‍🦱', level: 4, t: { ru: 'Тетя / Учительница', en: 'Aunt / Female Teacher' } },
+        { w: 'chú', e: '👨‍🦰', level: 4, t: { ru: 'Дядя', en: 'Uncle' } },
+        { w: 'mẹ', e: '👩‍🍼', level: 4, t: { ru: 'Мама', en: 'Mother' } },
+        { w: 'ba', e: '👨‍🍼', level: 4, t: { ru: 'Папа', en: 'Father' } },
+        { w: 'bà', e: '👵', level: 5, t: { ru: 'Бабушка', en: 'Grandmother' } },
+        { w: 'ông', e: '👴', level: 5, t: { ru: 'Дедушка', en: 'Grandfather' } },
+        { w: 'thầy', e: '👨‍🏫', level: 4, t: { ru: 'Учитель', en: 'Male Teacher' } }
+    ];
+
+    const vocabularyData = {
+        top: [
+            { w: 'chào (anh/chị/em/...)', e: '🙋', t: { ru: 'привет / здравствуйте', en: 'hello / hi' } },
+            { w: 'tạm biệt', e: '👋', t: { ru: 'до свидания', en: 'goodbye' } },
+            { w: 'hẹn gặp lại', e: '🤝', t: { ru: 'увидимся / до встречи', en: 'see you again' } },
+            { w: 'cảm ơn', e: '❤️', t: { ru: 'спасибо', en: 'thank you' } },
+            { w: 'xin lỗi', e: '🙇', t: { ru: 'извините', en: 'sorry / excuse me' } },
+            { w: 'dạ / vâng', e: '🙆', t: { ru: 'да (вежливо)', en: 'yes (polite)' } },
+            { w: 'không', e: '🙅', t: { ru: 'нет / не', en: 'no / not' } },
+            { w: 'làm ơn', e: '🙏', t: { ru: 'пожалуйста', en: 'please' } },
+            { w: 'cái này', e: '👇', t: { ru: 'этот (близко ко мне / в руках)', en: 'this (close to me / in hand)' } },
+            { w: 'cái đó', e: '👉', t: { ru: 'тот (ближе к тебе / средняя дистанция)', en: 'that (closer to you / medium distance)' } },
+            { w: 'cái kia', e: '🔭', t: { ru: 'вон тот (далеко от нас обоих)', en: 'that over there (far from both)' } },
+            { w: 'bao nhiêu', e: '💸', t: { ru: 'сколько?', en: 'how much/many?' } },
+            { w: 'bao nhiêu tiền', e: '💵', t: { ru: 'сколько стоит?', en: 'how much is it?' } }
+        ],
+        numbers: [
+            { w: 'không', e: '0️⃣', t: { ru: 'ноль', en: 'zero' } },
+            { w: 'một', e: '1️⃣', t: { ru: 'один', en: 'one' } },
+            { w: 'hai', e: '2️⃣', t: { ru: 'два', en: 'two' } },
+            { w: 'ba', e: '3️⃣', t: { ru: 'три', en: 'three' } },
+            { w: 'bốn', e: '4️⃣', t: { ru: 'четыре', en: 'four' } },
+            { w: 'năm', e: '5️⃣', t: { ru: 'пять', en: 'five' } },
+            { w: 'sáu', e: '6️⃣', t: { ru: 'шесть', en: 'six' } },
+            { w: 'bảy', e: '7️⃣', t: { ru: 'семь', en: 'seven' } },
+            { w: 'tám', e: '8️⃣', t: { ru: 'восемь', en: 'eight' } },
+            { w: 'chín', e: '9️⃣', t: { ru: 'девять', en: 'nine' } },
+            { w: 'mười', e: '🔟', t: { ru: 'десять', en: 'ten' } },
+            { w: 'mười một', e: '1️⃣1️⃣', t: { ru: 'одиннадцать', en: 'eleven' } },
+            { w: 'mười hai', e: '1️⃣2️⃣', t: { ru: 'двенадцать', en: 'twelve' } },
+            { w: 'mười ba', e: '1️⃣3️⃣', t: { ru: 'тринадцать', en: 'thirteen' } },
+            { w: 'mười bốn', e: '1️⃣4️⃣', t: { ru: 'четырнадцать', en: 'fourteen' } },
+            { w: 'mười lăm', e: '1️⃣5️⃣', t: { ru: 'пятнадцать', en: 'fifteen' } },
+            { w: 'mười sáu', e: '1️⃣6️⃣', t: { ru: 'шестнадцать', en: 'sixteen' } },
+            { w: 'mười bảy', e: '1️⃣7️⃣', t: { ru: 'семнадцать', en: 'seventeen' } },
+            { w: 'mười tám', e: '1️⃣8️⃣', t: { ru: 'восемнадцать', en: 'eighteen' } },
+            { w: 'mười chín', e: '1️⃣9️⃣', t: { ru: 'девятнадцать', en: 'nineteen' } },
+            { w: 'hai mươi', e: '2️⃣0️⃣', t: { ru: 'двадцать', en: 'twenty' } },
+            { w: 'năm mươi', e: '5️⃣0️⃣', t: { ru: 'пятьдесят', en: 'fifty' } },
+            { w: 'một trăm', e: '1️⃣0️⃣0️⃣', t: { ru: 'сто', en: 'one hundred' } },
+            { w: 'một nghìn', e: '1️⃣0️⃣0️⃣0️⃣', t: { ru: 'тысяча', en: 'one thousand' } }
+        ],
+        verbs: [
+            { w: 'có', e: '👍', t: { ru: 'есть / иметься', en: 'have / yes' } },
+            { w: 'biết', e: '🧠', t: { ru: 'знать', en: 'know' } },
+            { w: 'cần', e: '⚠️', t: { ru: 'нуждаться', en: 'need' } },
+            { w: 'học', e: '📚', t: { ru: 'учить', en: 'study' } },
+            { w: 'lấy', e: '🤲', t: { ru: 'брать', en: 'take' } },
+            { w: 'được', e: '✅', t: { ru: 'мочь / получать', en: 'can / get' } },
+            { w: 'muốn', e: '🥺', t: { ru: 'хотеть', en: 'want' } },
+            { w: 'cho', e: '🎁', t: { ru: 'давать', en: 'give' } },
+            { w: 'tính tiền', e: '🧮', t: { ru: 'считать (деньги)', en: 'calculate (money)' } },
+            { w: 'đi', e: '🚶', t: { ru: 'идти / ехать', en: 'go' } },
+            { w: 'rẽ', e: '↩️', t: { ru: 'поворачивать', en: 'turn' } },
+            { w: 'đến', e: '🏁', t: { ru: 'прибывать', en: 'arrive' } },
+            { w: 'ăn', e: '🍽️', t: { ru: 'кушать', en: 'eat' } },
+            { w: 'uống', e: '🥤', t: { ru: 'пить', en: 'drink' } },
+            { w: 'mua', e: '🛒', t: { ru: 'покупать', en: 'buy' } },
+            { w: 'xem', e: '👀', t: { ru: 'смотреть', en: 'watch / see' } },
+            { w: 'nói', e: '🗣️', t: { ru: 'говорить', en: 'speak' } },
+            { w: 'hiểu', e: '💡', t: { ru: 'понимать', en: 'understand' } },
+            { w: 'làm', e: '🛠️', t: { ru: 'делать', en: 'do / make' } },
+            { w: 'thích', e: '👍', t: { ru: 'нравиться', en: 'like' } },
+            { w: 'hỏi', e: '❓', t: { ru: 'спрашивать', en: 'ask' } }
+        ],
+        cafe: [
+            { w: 'nhà hàng', e: '🏨', t: { ru: 'ресторан', en: 'restaurant' } },
+            { w: 'món', e: '🍛', t: { ru: 'блюдо', en: 'dish' } },
+            { w: 'ngon', e: '😋', t: { ru: 'вкусный', en: 'delicious' } },
+            { w: 'nóng', e: '🔥', t: { ru: 'горячий', en: 'hot' } },
+            { w: 'lạnh', e: '❄️', t: { ru: 'холодный', en: 'cold' } },
+            { w: 'đá', e: '🧊', t: { ru: 'лёд', en: 'ice' } },
+            { w: 'đường', e: '🍬', t: { ru: 'сахар', en: 'sugar' } },
+            { w: 'sữa tươi', e: '🥛', t: { ru: 'молоко (не сгущенка)', en: 'fresh milk' } },
+            { w: 'rau', e: '🥬', t: { ru: 'овощи', en: 'vegetables' } },
+            { w: 'bình trà', e: '🫖', t: { ru: 'чайник чая', en: 'teapot' } },
+            { w: 'trái cây', e: '🍎', t: { ru: 'фрукты', en: 'fruits' } },
+            { w: 'dừa', e: '🥥', t: { ru: 'кокос', en: 'coconut' } },
+            { w: 'dứa', e: '🍍', t: { ru: 'ананас', en: 'pineapple' } },
+            { w: 'dưa', e: '🍈', t: { ru: 'дыня', en: 'melon' } },
+            { w: 'thịt bò', e: '🥩', t: { ru: 'говядина', en: 'beef' } },
+            { w: 'thịt gà', e: '🍗', t: { ru: 'курица', en: 'chicken' } },
+            { w: 'thịt heo', e: '🥓', t: { ru: 'свинина', en: 'pork' } },
+            { w: 'bánh mì', e: '🥖', t: { ru: 'баньми / хлеб', en: 'bread / sandwich' } },
+            { w: 'cà phê', e: '☕', t: { ru: 'кофе', en: 'coffee' } },
+            { w: 'nước', e: '💧', t: { ru: 'вода', en: 'water' } },
+            { w: 'ly', e: '🥛', t: { ru: 'стакан / бокал', en: 'glass / cup' } },
+            { w: 'chén', e: '🥣', t: { ru: 'пиала', en: 'small bowl' } },
+            { w: 'muỗng', e: '🥄', t: { ru: 'ложка', en: 'spoon' } }
+        ],
+        particles: [
+            { w: 'và', e: '➕', t: { ru: 'и', en: 'and' } },
+            { w: 'nhưng', e: '🛑', t: { ru: 'но', en: 'but' } },
+            { w: 'hay là', e: '⚖️', t: { ru: 'или', en: 'or' } },
+            { w: 'với', e: '🤝', t: { ru: 'с (кем/чем-то)', en: 'with' } },
+            { w: 'cũng', e: '👯', t: { ru: 'тоже', en: 'also / too' } },
+            { w: 'ít', e: '🤏', t: { ru: 'немного / мало', en: 'a little / few' } },
+            { w: 'nhiều', e: '👐', t: { ru: 'много', en: 'a lot / many' } },
+            { w: 'quá', e: '📈', t: { ru: 'слишком / очень', en: 'too / very' } },
+            { w: 'ở đâu', e: '🗺️', t: { ru: 'где?', en: 'where?' } }
+        ],
+        phrases: [
+            { w: 'Có món ... không?', e: '🍲', t: { ru: 'Есть ли блюдо...?', en: 'Do you have the dish...?' } },
+            { w: 'Nhà vệ sinh ở đâu?', e: '🚻', t: { ru: 'Где туалет?', en: 'Where is the restroom?' } },
+            { w: 'Tôi muốn...', e: '🎯', t: { ru: 'Я хочу...', en: 'I want...' } },
+            { w: 'Vui lòng cho...', e: '🤲', t: { ru: 'Дайте, пожалуйста...', en: 'Please give...' } },
+            { w: 'Ít đá, ít đường.', e: '📉', t: { ru: 'Немного льда и сахара.', en: 'Little ice, little sugar.' } },
+            { w: 'Cho em tính tiền nha.', e: '🧾', t: { ru: 'Рассчитайте меня, пожалуйста.', en: 'Check / Bill, please.' } },
+            { w: 'Đi thẳng, rẽ trái, rẽ phải.', e: '🛣️', t: { ru: 'Прямо, налево, направо.', en: 'Straight, turn left, turn right.' } },
+            { w: 'Cái này bao nhiêu tiền?', e: '🏷️', t: { ru: 'Сколько это стоит?', en: 'How much is this?' } },
+            { w: 'Mắc quá, giảm giá đi!', e: '📉', t: { ru: 'Очень дорого, дайте скидку!', en: 'Too expensive, discount please!' } },
+            { w: 'Tôi đến từ Nga.', e: '🇷🇺', t: { ru: 'Я приехал из России.', en: 'I come from Russia.' } },
+            { w: 'Tôi là người Nga.', e: '🪆', t: { ru: 'Я русский.', en: 'I am Russian.' } },
+            { w: 'Bạn bao nhiêu tuổi?', e: '🎂', t: { ru: 'Сколько вам лет?', en: 'How old are you?' } },
+            { w: 'Tôi ba mươi tư tuổi.', e: '3️⃣4️⃣', t: { ru: 'Мне тридцать четыре года.', en: 'I am thirty-four years old.' } },
+            { w: 'Cho tôi một ổ bánh mì với một ly cà phê nha.', e: '🥖☕', t: { ru: 'Дайте один баньми и кофе, пожалуйста.', en: 'One banh mi and coffee, please.' } },
+            { w: 'Cho tôi một ly cà phê không đường không đá.', e: '☕🚫', t: { ru: 'Мне кофе без сахара и без льда.', en: 'Coffee without sugar and ice.' } },
+            { w: 'Và cho vợ tôi một ly cà phê đen nóng.', e: '👩☕', t: { ru: 'И для моей жены горячий черный кофе.', en: 'And hot black coffee for my wife.' } },
+            { w: 'Bạn tên là gì?', e: '📛', t: { ru: 'Как вас зовут?', en: 'What is your name?' } },
+            { w: 'Tôi tên là...', e: '📝', t: { ru: 'Меня зовут...', en: 'My name is...' } },
+            { w: 'Rất vui được gặp bạn.', e: '🤝', t: { ru: 'Приятно познакомиться.', en: 'Nice to meet you.' } },
+            { w: 'Đất nước của bạn очень красива.', e: '🇻🇳', t: { ru: 'Ваша страна очень красива.', en: 'Your country is very beautiful.' } }
+        ]
+    };
+
+    function play(text, btn) {
+        if(btn) btn.classList.add('playing');
+        
+        if (tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred) {
+            tg.HapticFeedback.impactOccurred('light');
+        }
+        
+        if(btn) setTimeout(() => btn.classList.remove('playing'), 200);
+        
+        if (!isUnlocked) { 
+            globalAudio.play().catch(() => {}); 
+            isUnlocked = true; 
+        }
+        
+        // Очищаем текст от скобок перед отправкой в TTS
+        let cleanText = text.replace(/\s*\(.*?\)\s*/g, ' ').trim();
+        
+        let query = cleanText + '.';
+        if (cleanText === 'áh') query = 'ă '; 
+        if (cleanText === 'ớ') query = 'â ';  
+        
+        globalAudio.src = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(query)}&tl=vi&client=tw-ob`;
+        globalAudio.play();
+    }
+
+    const mainContainer = document.getElementById('grids-container');
+
+    function renderGrids(dataObj) {
+        mainContainer.innerHTML = '';
+        mainContainer.classList.remove('animate-fade-in');
+        void mainContainer.offsetWidth;
+        mainContainer.classList.add('animate-fade-in');
+
+        Object.keys(dataObj).forEach(key => {
+            const group = dataObj[key];
+            
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'w-full mt-2 mb-4 font-bold text-tg-hint uppercase tracking-widest border-b-2 border-tg-hint/20 pb-1 text-sm';
+            titleDiv.innerText = group.title;
+            mainContainer.appendChild(titleDiv);
+            
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6';
+            
+            group.data.forEach(cardData => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'bg-tg-secondaryBg rounded-2xl p-4 shadow-sm border-t-4 border-tg-primary flex flex-col transition-colors duration-300';
+                
+                cardDiv.innerHTML = `<button class="bg-tg-primary text-tg-primaryText rounded-xl text-[2.2rem] font-black py-3 mb-4 w-full transition-transform active:scale-95" onclick="play('${cardData.sound}', this)">${cardData.title}</button>`;
+                
+                const tonesGroup = document.createElement('div');
+                tonesGroup.className = 'grid grid-cols-2 gap-2';
+                
+                cardData.tones.forEach(tone => {
+                    const tBtn = document.createElement('button');
+                    tBtn.className = 'bg-tg-bg border border-tg-hint/20 rounded-xl p-2.5 flex flex-col items-center transition-all active:scale-95 active:border-tg-primary';
+                    
+                    const translatedText = tone.t[currentLang] || tone.t['en'];
+                    const iconContent = tone.isSvg ? tone.i : tone.i;
+                    
+                    tBtn.innerHTML = `
+                        <span class="icon-wrap text-2xl mb-1 flex items-center justify-center w-6 h-6">${iconContent}</span>
+                        <span class="text-[1.15rem] font-bold text-tg-text leading-tight">${tone.w}</span>
+                        <span class="text-[0.7rem] text-tg-hint text-center leading-tight mt-1">${translatedText}</span>
+                    `;
+                    tBtn.onclick = () => play(tone.w, tBtn);
+                    tonesGroup.appendChild(tBtn);
+                });
+                
+                cardDiv.appendChild(tonesGroup);
+                grid.appendChild(cardDiv);
+            });
+            
+            mainContainer.appendChild(grid);
+        });
+    }
+
+    function renderPronounsSection() {
+        mainContainer.innerHTML = '';
+        mainContainer.classList.remove('animate-fade-in');
+        void mainContainer.offsetWidth;
+        mainContainer.classList.add('animate-fade-in');
+
+        const dictTitle = document.createElement('div');
+        dictTitle.className = 'w-full mt-2 mb-4 font-bold text-tg-hint uppercase tracking-widest border-b-2 border-tg-hint/20 pb-1 text-sm';
+        dictTitle.innerText = uiLabels[currentLang].dictTitle;
+        mainContainer.appendChild(dictTitle);
+
+        const dictGrid = document.createElement('div');
+        dictGrid.className = 'grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8';
+
+        pronounsData.forEach(item => {
+            const itemBtn = document.createElement('button');
+            itemBtn.className = 'bg-tg-secondaryBg border border-tg-hint/10 rounded-2xl p-4 flex flex-col items-center shadow-sm transition-all active:scale-95 active:border-tg-primary';
+            
+            itemBtn.innerHTML = `
+                <span class="text-3xl mb-1">${item.e}</span>
+                <span class="text-xl font-black text-tg-primary">${item.w}</span>
+                <span class="text-[0.75rem] text-tg-hint text-center leading-tight mt-1">${item.t[currentLang]}</span>
+            `;
+            itemBtn.onclick = () => play(item.w, itemBtn);
+            dictGrid.appendChild(itemBtn);
+        });
+        mainContainer.appendChild(dictGrid);
+
+        const trainerTitle = document.createElement('div');
+        trainerTitle.className = 'w-full mt-4 mb-4 font-bold text-tg-hint uppercase tracking-widest border-b-2 border-tg-hint/20 pb-1 text-sm';
+        trainerTitle.innerText = uiLabels[currentLang].trainerTitle;
+        mainContainer.appendChild(trainerTitle);
+
+        const trainerBox = document.createElement('div');
+        trainerBox.id = 'trainer-box';
+        trainerBox.className = 'bg-tg-secondaryBg rounded-2xl p-4 shadow-sm w-full border border-tg-hint/10 flex flex-col gap-4 mb-6';
+        mainContainer.appendChild(trainerBox);
+
+        updateTrainerUI();
+    }
+
+    function updateTrainerUI() {
+        const trainerBox = document.getElementById('trainer-box');
+        if (!trainerBox) return;
+
+        const currentHeight = trainerBox.offsetHeight;
+        if (currentHeight > 0) {
+            trainerBox.style.minHeight = currentHeight + 'px';
+        }
+
+        let speakerHtml = `<div class="flex flex-col gap-1.5">
+            <span class="text-xs font-bold text-tg-hint uppercase tracking-wider">${uiLabels[currentLang].speakerLabel}</span>
+            <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">`;
+        
+        pronounsData.forEach(item => {
+            const isSelected = selectedSpeaker === item.w;
+            const btnClass = isSelected 
+                ? 'bg-tg-primary text-tg-primaryText font-bold' 
+                : 'bg-tg-bg text-tg-text border border-tg-hint/10';
+            speakerHtml += `<button class="px-3.5 py-2 rounded-xl text-sm whitespace-nowrap active:scale-95 transition-transform ${btnClass}" onclick="setSpeaker('${item.w}')">${item.e} ${item.w}</button>`;
+        });
+        speakerHtml += `</div></div>`;
+
+        let listenerHtml = `<div class="flex flex-col gap-1.5">
+            <span class="text-xs font-bold text-tg-hint uppercase tracking-wider">${uiLabels[currentLang].listenerLabel}</span>
+            <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">`;
+
+        const allowed = allowedListeners[selectedSpeaker] || [];
+        pronounsData.forEach(item => {
+            if (!allowed.includes(item.w)) return;
+            
+            const isSelected = selectedListener === item.w;
+            const btnClass = isSelected 
+                ? 'bg-tg-primary text-tg-primaryText font-bold' 
+                : 'bg-tg-bg text-tg-text border border-tg-hint/10';
+            listenerHtml += `<button class="px-3.5 py-2 rounded-xl text-sm whitespace-nowrap active:scale-95 transition-transform ${btnClass}" onclick="setListener('${item.w}')">${item.e} ${item.w}</button>`;
+        });
+        listenerHtml += `</div></div>`;
+
+        const spkObj = pronounsData.find(p => p.w === selectedSpeaker);
+        const lstObj = pronounsData.find(p => p.w === selectedListener);
+
+        let finalPhrase = "";
+        let descRu = "";
+        let descEn = "";
+
+        if (selectedListener === 'bạn') {
+            finalPhrase = "Chào bạn.";
+            descRu = "Привет, друг. (Общение равных по статусу)";
+            descEn = "Hi, friend. (Equal status greeting)";
+        } else if (lstObj.level > spkObj.level || ['cô', 'chú', 'mẹ', 'ba', 'bà', 'ông', 'thầy'].includes(selectedListener)) {
+            finalPhrase = `Dạ, ${selectedSpeaker} chào ${selectedListener} ạ.`;
+            descRu = `Здравствуйте! (Уважительно, с "Dạ" и "ạ" от: ${spkObj.t.ru})`;
+            descEn = `Hello! (Polite respectful form with "Dạ" and "ạ", by: ${spkObj.t.en})`;
+        } else {
+            finalPhrase = `Chào ${selectedListener} nha.`;
+            descRu = `Привет. (Дружелюбно от старшего к младшему: ${lstObj.t.ru})`;
+            descEn = `Hi/Hello. (Friendly from older to younger: ${lstObj.t.en})`;
+        }
+
+        if (selectedSpeaker === selectedListener) {
+            finalPhrase = `Chào ${selectedListener}.`;
+            descRu = `Привет. (Обращение к человеку равного возраста/статуса)`;
+            descEn = `Hello. (Speaking to someone of the identical role)`;
+        }
+
+        const resultDisplayHtml = `
+            <div class="mt-2 p-4 bg-tg-bg rounded-xl border border-tg-hint/10 text-center flex flex-col items-center gap-2">
+                <div class="text-2xl font-black text-tg-primary tracking-wide mb-1">${finalPhrase}</div>
+                <div class="text-xs text-tg-text font-medium">${currentLang === 'ru' ? descRu : descEn}</div>
+                <button class="mt-3 bg-tg-primary text-tg-primaryText font-bold px-6 py-2.5 rounded-xl text-sm w-full sm:w-auto active:scale-95 transition-transform shadow-sm" onclick="play('${finalPhrase}', this)">
+                    🔊 ${currentLang === 'ru' ? 'Прослушать фразу' : 'Listen to phrase'}
+                </button>
+            </div>
+        `;
+
+        trainerBox.innerHTML = speakerHtml + listenerHtml + resultDisplayHtml;
+
+        setTimeout(() => {
+            trainerBox.style.minHeight = 'auto';
+        }, 10);
+    }
+
+    // --- НАВИГАЦИЯ ПО СТРАНИЦАМ СЛОВАРЯ ---
+    window.navigateVocabPage = function(direction) {
+        const currentData = vocabularyData[currentVocabTab];
+        const isMobile = window.innerWidth < 640;
+        const pageSize = isMobile ? 7 : 10;
+        const totalPages = Math.ceil(currentData.length / pageSize);
+
+        const nextPageIndex = vocabPageIndex + direction;
+        if (nextPageIndex >= 0 && nextPageIndex < totalPages) {
+            vocabPageIndex = nextPageIndex;
+            renderVocabularySection();
+        }
+    };
+
+    function handleGesture() {
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+        const minSwipe = 50;
+
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > minSwipe) {
+            if (diffX < 0) {
+                navigateVocabPage(1);
+            } else {
+                navigateVocabPage(-1);
+            }
+        }
+    }
+
+    function renderVocabularySection() {
+        mainContainer.innerHTML = '';
+        mainContainer.classList.remove('animate-fade-in');
+        void mainContainer.offsetWidth;
+        mainContainer.classList.add('animate-fade-in');
+
+        // Меню подкатегорий словаря
+        const subNav = document.createElement('div');
+        subNav.className = 'flex flex-wrap justify-center gap-2 mb-6 w-full';
+        
+        const categories = [
+            { id: 'top', label: uiLabels[currentLang].top },
+            { id: 'verbs', label: uiLabels[currentLang].verbs },
+            { id: 'cafe', label: uiLabels[currentLang].cafe },
+            { id: 'particles', label: uiLabels[currentLang].particles },
+            { id: 'numbers', label: uiLabels[currentLang].numbers },
+            { id: 'phrases', label: uiLabels[currentLang].phrases }
+        ];
+
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            const isActive = currentVocabTab === cat.id;
+            const btnClass = isActive 
+                ? 'bg-tg-primary text-tg-primaryText border-tg-primary' 
+                : 'bg-transparent text-tg-text border-tg-hint/30';
+            
+            btn.className = `px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold border transition-colors ${btnClass}`;
+            btn.innerText = cat.label;
+            btn.onclick = () => {
+                currentVocabTab = cat.id;
+                vocabPageIndex = 0; 
+                renderVocabularySection();
+            };
+            subNav.appendChild(btn);
+        });
+        mainContainer.appendChild(subNav);
+
+        // Список слов выбранной подкатегории
+        const vocabGrid = document.createElement('div');
+        vocabGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full pb-2 touch-pan-y';
+        
+        const currentData = vocabularyData[currentVocabTab];
+        
+        // Адаптивное определение размера страницы
+        const isMobile = window.innerWidth < 640;
+        const pageSize = isMobile ? 7 : 10;
+        const totalPages = Math.ceil(currentData.length / pageSize);
+
+        if (vocabPageIndex >= totalPages) vocabPageIndex = 0;
+
+        const pageItems = currentData.slice(vocabPageIndex * pageSize, (vocabPageIndex + 1) * pageSize);
+        
+        pageItems.forEach(item => {
+            const rowBtn = document.createElement('button');
+            rowBtn.className = 'bg-tg-secondaryBg rounded-xl p-3 flex items-center justify-between shadow-sm active:scale-95 transition-transform border border-tg-hint/10 w-full text-left';
+            
+            const translation = item.t[currentLang];
+            
+            rowBtn.innerHTML = `
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <span class="text-2xl shrink-0">${item.e}</span>
+                    <div class="flex flex-col overflow-hidden">
+                        <span class="font-black text-[1.1rem] text-tg-text truncate">${item.w}</span>
+                        <span class="text-[0.75rem] text-tg-hint truncate mt-0.5">${translation}</span>
+                    </div>
+                </div>
+            `;
+            
+            rowBtn.onclick = () => play(item.w, rowBtn);
+            vocabGrid.appendChild(rowBtn);
+        });
+
+        vocabGrid.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        vocabGrid.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleGesture();
+        }, { passive: true });
+
+        mainContainer.appendChild(vocabGrid);
+
+        // Рендер панели управления пагинацией (стрелки + точки)
+        if (totalPages > 1) {
+            const paginationControls = document.createElement('div');
+            paginationControls.className = 'flex items-center justify-center gap-4 mt-6 mb-8 w-full select-none';
+
+            // Левая стрелка
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
+            prevBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
+            prevBtn.onclick = () => navigateVocabPage(-1);
+
+            // Точки-индикаторы
+            const dotsContainer = document.createElement('div');
+            dotsContainer.className = 'flex items-center gap-2';
+            for (let i = 0; i < totalPages; i++) {
+                const dot = document.createElement('button');
+                const isActive = i === vocabPageIndex;
+                dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
+                dot.onclick = () => {
+                    vocabPageIndex = i;
+                    renderVocabularySection();
+                };
+                dotsContainer.appendChild(dot);
+            }
+
+            // Правая стрелка
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === totalPages - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
+            nextBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`;
+            nextBtn.onclick = () => navigateVocabPage(1);
+
+            paginationControls.appendChild(prevBtn);
+            paginationControls.appendChild(dotsContainer);
+            paginationControls.appendChild(nextBtn);
+            mainContainer.appendChild(paginationControls);
+        }
+    }
+
+    window.setSpeaker = function(speaker) {
+        selectedSpeaker = speaker;
+        const allowed = allowedListeners[speaker] || [];
+        if (!allowed.includes(selectedListener)) {
+            selectedListener = allowed[0] || 'con';
+        }
+        updateTrainerUI();
+    };
+
+    window.setListener = function(listener) {
+        selectedListener = listener;
+        updateTrainerUI();
+    };
+
+    function updateLanguageUI() {
+        const langBtn = document.getElementById('lang-toggle');
+        const vowelsBtn = document.getElementById('tab-vowels');
+        const consonantsBtn = document.getElementById('tab-consonants');
+        const pronounsBtn = document.getElementById('tab-pronouns');
+        const vocabBtn = document.getElementById('tab-vocabulary');
+        const subTitle = document.getElementById('sub-title');
+
+        langBtn.innerText = currentLang === 'ru' ? 'EN' : 'RU';
+        vowelsBtn.innerText = uiLabels[currentLang].vowels;
+        consonantsBtn.innerText = uiLabels[currentLang].consonants;
+        pronounsBtn.innerText = uiLabels[currentLang].pronouns;
+        vocabBtn.innerText = uiLabels[currentLang].vocabulary;
+        subTitle.innerText = uiLabels[currentLang].subtitle;
+    }
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'ru' ? 'en' : 'ru';
+        updateLanguageUI();
+        if (currentTab === 'vowels') renderGrids(vowelsData);
+        else if (currentTab === 'consonants') renderGrids(consonantsData);
+        else if (currentTab === 'pronouns') renderPronounsSection();
+        else if (currentTab === 'vocabulary') renderVocabularySection();
+    }
+
+    function switchTab(tabName) {
+        currentTab = tabName;
+        const btnVowels = document.getElementById('tab-vowels');
+        const btnConsonants = document.getElementById('tab-consonants');
+        const btnPronouns = document.getElementById('tab-pronouns');
+        const btnVocab = document.getElementById('tab-vocabulary');
+        
+        const activeClass = ['bg-tg-primary', 'text-tg-primaryText', 'shadow-sm'];
+        const inactiveClass = ['text-tg-text', 'bg-transparent'];
+
+        [btnVowels, btnConsonants, btnPronouns, btnVocab].forEach(btn => {
+            btn.classList.remove(...activeClass);
+            btn.classList.add(...inactiveClass);
+        });
+
+        if (tabName === 'vowels') {
+            btnVowels.classList.add(...activeClass);
+            btnVowels.classList.remove(...inactiveClass);
+            renderGrids(vowelsData);
+        } else if (tabName === 'consonants') {
+            btnConsonants.classList.add(...activeClass);
+            btnConsonants.classList.remove(...inactiveClass);
+            renderGrids(consonantsData);
+        } else if (tabName === 'pronouns') {
+            btnPronouns.classList.add(...activeClass);
+            btnPronouns.classList.remove(...inactiveClass);
+            renderPronounsSection();
+        } else if (tabName === 'vocabulary') {
+            btnVocab.classList.add(...activeClass);
+            btnVocab.classList.remove(...inactiveClass);
+            vocabPageIndex = 0; 
+            renderVocabularySection();
+        }
+    }
+
+    function applyTheme(theme) {
+        currentTheme = theme;
+        const root = document.documentElement;
+        
+        const palettes = {
+            light: {
+                '--tg-theme-bg-color': '#f0f4f8',
+                '--tg-theme-text-color': '#2c3e50',
+                '--tg-theme-hint-color': '#7f8c8d',
+                '--tg-theme-button-color': '#1976d2',
+                '--tg-theme-button-text-color': '#ffffff',
+                '--tg-theme-secondary-bg-color': '#ffffff'
+            },
+            dark: {
+                '--tg-theme-bg-color': '#151f2b',
+                '--tg-theme-text-color': '#f5f6f7',
+                '--tg-theme-hint-color': '#7e8b9a',
+                '--tg-theme-button-color': '#2481cc',
+                '--tg-theme-button-text-color': '#ffffff',
+                '--tg-theme-secondary-bg-color': '#1d2733'
+            }
+        };
+
+        const colors = palettes[theme];
+        for (const [key, val] of Object.entries(colors)) {
+            root.style.setProperty(key, val);
+        }
+        
+        localStorage.setItem('app-theme', theme);
+        updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+        const btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+
+        if (currentTheme === 'dark') {
+            btn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21M4.22 4.22l1.59 1.59m12.38 12.38l1.59 1.59M21 12h-2.25m-13.5 0H3m16.28-7.78l-1.59 1.59M5.81 18.19l-1.59 1.59M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            `;
+        } else {
+            btn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                </svg>
+            `;
+        }
+    }
+
+    window.toggleTheme = function() {
+        const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+        applyTheme(nextTheme);
+    };
+
+    let lastWidth = window.innerWidth;
+    window.addEventListener('resize', () => {
+        const currentWidth = window.innerWidth;
+        const crossedBreakpoint = (lastWidth < 640 && currentWidth >= 640) || (lastWidth >= 640 && currentWidth < 640);
+        if (crossedBreakpoint) {
+            lastWidth = currentWidth;
+            if (currentTab === 'vocabulary') {
+                renderVocabularySection();
+            }
+        }
+    });
+
+    let savedTheme = localStorage.getItem('app-theme');
+    if (!savedTheme) {
+        if (tg && tg.colorScheme) {
+            savedTheme = tg.colorScheme;
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            savedTheme = 'dark';
+        } else {
+            savedTheme = 'light';
+        }
+    }
+    applyTheme(savedTheme);
+
+    updateLanguageUI();
+    renderGrids(vowelsData);
+
+    // Регистрация Сервис-воркера для поддержки PWA установки
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered', reg))
+                .catch(err => console.error('Service Worker registration failed', err));
+        });
+    }
+
+</script>
+</body>
+</html>
