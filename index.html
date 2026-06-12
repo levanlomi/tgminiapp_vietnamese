@@ -8,13 +8,10 @@
     <!-- Подключение Manifest для PWA -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- Чиним вывод звука в браузере из сети -->
-    <meta name="referrer" content="no-referrer">
-
     <!-- Теги для поддержки PWA на iOS Safari -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link class="apple-touch-icon" href="icon-192.png">
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -309,7 +306,7 @@
             { w: 'với', e: '🤝', t: { ru: 'с (кем/чем-то)', en: 'with' } },
             { w: 'cũng', e: '👯', t: { ru: 'тоже', en: 'also / too' } },
             { w: 'ít', e: '🤏', t: { ru: 'немного / мало', en: 'a little / few' } },
-            { w: 'nhiều', e: '👐', t: { ru: 'много', en: 'a lot / many' } },
+            { w: 'nhiều', e: '👐', t: { ru: 'mắt', en: 'a lot / many' } },
             { w: 'quá', e: '📈', t: { ru: 'слишком / очень', en: 'too / very' } },
             { w: 'ở đâu', e: '🗺️', t: { ru: 'где?', en: 'where?' } }
         ],
@@ -347,19 +344,54 @@
         if(btn) setTimeout(() => btn.classList.remove('playing'), 200);
         
         if (!isUnlocked) { 
-            globalAudio.play().catch(() => {}); 
+            try {
+                globalAudio.play().catch(() => {});
+            } catch(e){} 
             isUnlocked = true; 
         }
         
         // Очищаем текст от скобок перед отправкой в TTS
         let cleanText = text.replace(/\s*\(.*?\)\s*/g, ' ').trim();
         
+        // Специальная замена для фонетических тестов гласных
+        if (cleanText === 'áh') cleanText = 'á'; 
+        if (cleanText === 'ớ') cleanText = 'ớ';  
+        
+        // 1. Попытка воспроизведения через встроенный Web Speech API (speechSynthesis)
+        if ('speechSynthesis' in window) {
+            try {
+                window.speechSynthesis.cancel(); // Останавливаем текущую озвучку
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.lang = 'vi-VN'; // Устанавливаем вьетнамский язык
+                utterance.rate = 0.82;    // Комфортная скорость для обучения (чуть медленнее)
+                
+                // Ищем вьетнамский голос на устройстве
+                const voices = window.speechSynthesis.getVoices();
+                const viVoice = voices.find(v => v.lang.startsWith('vi'));
+                if (viVoice) utterance.voice = viVoice;
+                
+                window.speechSynthesis.speak(utterance);
+                return; // Успешно запустили нативную озвучку
+            } catch (e) {
+                console.warn('Native speechSynthesis failed, falling back to network TTS:', e);
+            }
+        }
+        
+        // 2. Резервный фоллбэк на Google TTS (если нативный API не поддерживается)
         let query = cleanText + '.';
-        if (cleanText === 'áh') query = 'ă '; 
-        if (cleanText === 'ớ') query = 'â ';  
+        if (cleanText === 'áh') query = 'á '; 
+        if (cleanText === 'ớ') query = 'ớ ';  
         
         globalAudio.src = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(query)}&tl=vi&client=tw-ob`;
-        globalAudio.play();
+        globalAudio.play().catch(e => console.error('Audio playback error:', e));
+    }
+
+    // Предварительная загрузка голосов (требуется для некоторых браузеров на Chrome/Android)
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.getVoices();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
     }
 
     const mainContainer = document.getElementById('grids-container');
