@@ -193,7 +193,7 @@
             { title: 'G', sound: 'gờ', tones: [{w:'Gà', t: {ru: 'Курица', en: 'Chicken'}, i:'🐔'}, {w:'Gạo', t: {ru: 'Рис (крупа)', en: 'Raw Rice'}, i:'🌾'}, {w:'Gương', t: {ru: 'Зеркало', en: 'Mirror'}, i:'🪞'}, {w:'Ghế', t: {ru: 'Стул', en: 'Chair'}, i:'🪑'}, {w:'Gỗ', t: {ru: 'Дерево', en: 'Wood'}, i:'🪵'}, {w:'Gần', t: {ru: 'Близко', en: 'Near'}, i:'📍'}]},
             { title: 'H', sound: 'hờ', tones: [{w:'Hoa', t: {ru: 'Цветок', en: 'Flower'}, i:'🌸'}, {w:'Hỏi', t: {ru: 'Спрашивать', en: 'Ask'}, i:'❓'}, {w:'Hát', t: {ru: 'Петь', en: 'Sing'}, i:'🎤'}, {w:'Học', t: {ru: 'Учиться', en: 'Study'}, i:'📚'}, {w:'Hai', t: {ru: 'Два', en: 'Two'}, i:'2️⃣'}, {w:'Hộp', t: {ru: 'Коробка', en: 'Box'}, i:'📦'}]},
             { title: 'K', sound: 'ca', tones: [{w:'Kéo', t: {ru: 'Ножницы', en: 'Scissors'}, i:'✂️'}, {w:'Kẹo', t: {ru: 'Конфета', en: 'Candy'}, i:'🍬'}, {w:'Kính', t: {ru: 'Очки', en: 'Glasses'}, i:'👓'}, {w:'Ký', t: {ru: 'Подпись', en: 'Sign'}, i:'✍️'}, {w:'Kém', t: {ru: 'Хуже', en: 'Poor'}, i:'📉'}, {w:'Kêu', t: {ru: 'Звать', en: 'Call'}, i:'🗣️'}]},
-            { title: 'L', sound: 'lờ', tones: [{w:'Lê', t: {ru: 'Груша', en: 'Pear'}, i:'🍐'}, {w:'Lạnh', t: {ru: 'Холодно', en: 'Cold'}, i:'❄️'}, {w:'Lá', t: {ru: 'Лист', en: 'Leaf'}, i:'🍃'}, {w:'Lửa', t: {ru: 'Огонь', en: 'Fire'}, i:'🔥'}, {w:'Lớн', t: {ru: 'Большой', en: 'Big'}, i:'🐘'}, {w:'Làm', t: {ru: 'Делать', en: 'Do'}, i:'🛠️'}]}
+            { title: 'L', sound: 'lờ', tones: [{w:'Lê', t: {ru: 'Груша', en: 'Pear'}, i:'🍐'}, {w:'Lạnh', t: {ru: 'Холодно', en: 'Cold'}, i:'❄️'}, {w:'Lá', t: {ru: 'Лист', en: 'Leaf'}, i:'🍃'}, {w:'Lửa', t: {ru: 'Огонь', en: 'Fire'}, i:'🔥'}, {w:'Lớn', t: {ru: 'Большой', en: 'Big'}, i:'🐘'}, {w:'Làm', t: {ru: 'Делать', en: 'Do'}, i:'🛠️'}]}
         ]}
     };
 
@@ -366,14 +366,6 @@
         
         globalAudio.src = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(query)}&tl=vi&client=tw-ob`;
         globalAudio.play().catch(e => console.error('Audio playback error:', e));
-    }
-
-    // Предварительная загрузка голосов (требуется для некоторых браузеров на Chrome/Android)
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.getVoices();
-        if (window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-        }
     }
 
     const mainContainer = document.getElementById('grids-container');
@@ -561,7 +553,7 @@
         const nextPageIndex = vocabPageIndex + direction;
         if (nextPageIndex >= 0 && nextPageIndex < totalPages) {
             vocabPageIndex = nextPageIndex;
-            renderVocabularySection();
+            renderVocabPageOnly();
         }
     };
 
@@ -585,9 +577,9 @@
         void mainContainer.offsetWidth;
         mainContainer.classList.add('animate-fade-in');
 
-        // Меню подкатегорий словаря
+        // Меню подкатегорий словаря (Рендерится ОДИН РАЗ при входе во вкладку)
         const subNav = document.createElement('div');
-        subNav.className = 'flex flex-wrap justify-center gap-2 mb-6 w-full';
+        subNav.className = 'flex flex-wrap justify-center gap-3 mb-6 w-full';
         
         const categories = [
             { id: 'top', label: uiLabels[currentLang].top },
@@ -600,23 +592,60 @@
 
         categories.forEach(cat => {
             const btn = document.createElement('button');
+            btn.id = `vocab-cat-btn-${cat.id}`;
             const isActive = currentVocabTab === cat.id;
-            const btnClass = isActive 
-                ? 'bg-tg-primary text-tg-primaryText border-tg-primary' 
-                : 'bg-transparent text-tg-text border-tg-hint/30';
             
-            btn.className = `px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold border transition-colors ${btnClass}`;
+            // УВЕЛИЧЕННЫЕ ОТСТУПЫ: px-5 py-3
+            btn.className = `px-5 py-3 rounded-full text-xs sm:text-sm font-bold border transition-all duration-200 active:scale-95 ${
+                isActive 
+                    ? 'bg-tg-primary text-tg-primaryText border-tg-primary shadow-sm' 
+                    : 'bg-transparent text-tg-text border-tg-hint/30 active:bg-tg-hint/10'
+            }`;
+            
             btn.innerText = cat.label;
             btn.onclick = () => {
+                if (currentVocabTab === cat.id) return;
                 currentVocabTab = cat.id;
                 vocabPageIndex = 0; 
-                renderVocabularySection();
+                
+                // Обновляем стили кнопок без их пересоздания
+                categories.forEach(c => {
+                    const b = document.getElementById(`vocab-cat-btn-${c.id}`);
+                    if (b) {
+                        const active = currentVocabTab === c.id;
+                        b.className = `px-5 py-3 rounded-full text-xs sm:text-sm font-bold border transition-all duration-200 active:scale-95 ${
+                            active 
+                                ? 'bg-tg-primary text-tg-primaryText border-tg-primary shadow-sm' 
+                                : 'bg-transparent text-tg-text border-tg-hint/30 active:bg-tg-hint/10'
+                        }`;
+                    }
+                });
+                
+                renderVocabPageOnly();
             };
             subNav.appendChild(btn);
         });
         mainContainer.appendChild(subNav);
 
-        // Список слов выбранной подкатегории
+        // Изолированный контейнер для карточек (Чтобы меню категорий не мерцало при свайпе)
+        const pageContainer = document.createElement('div');
+        pageContainer.id = 'vocab-page-container';
+        pageContainer.className = 'w-full';
+        mainContainer.appendChild(pageContainer);
+
+        renderVocabPageOnly();
+    }
+
+    function renderVocabPageOnly() {
+        const pageContainer = document.getElementById('vocab-page-container');
+        if (!pageContainer) return;
+
+        pageContainer.innerHTML = '';
+        pageContainer.classList.remove('animate-fade-in');
+        void pageContainer.offsetWidth;
+        pageContainer.classList.add('animate-fade-in');
+
+        // Список слов текущей страницы
         const vocabGrid = document.createElement('div');
         vocabGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full pb-2 touch-pan-y';
         
@@ -662,7 +691,7 @@
             handleGesture();
         }, { passive: true });
 
-        mainContainer.appendChild(vocabGrid);
+        pageContainer.appendChild(vocabGrid);
 
         // Рендер панели управления пагинацией (стрелки + точки)
         if (totalPages > 1) {
@@ -684,7 +713,7 @@
                 dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
                 dot.onclick = () => {
                     vocabPageIndex = i;
-                    renderVocabularySection();
+                    renderVocabPageOnly();
                 };
                 dotsContainer.appendChild(dot);
             }
@@ -698,7 +727,7 @@
             paginationControls.appendChild(prevBtn);
             paginationControls.appendChild(dotsContainer);
             paginationControls.appendChild(nextBtn);
-            mainContainer.appendChild(paginationControls);
+            pageContainer.appendChild(paginationControls);
         }
     }
 
@@ -839,7 +868,7 @@
         if (crossedBreakpoint) {
             lastWidth = currentWidth;
             if (currentTab === 'vocabulary') {
-                renderVocabularySection();
+                renderVocabPageOnly();
             }
         }
     });
