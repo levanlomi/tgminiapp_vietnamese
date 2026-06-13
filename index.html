@@ -859,12 +859,23 @@
     updateLanguageUI();
     renderGrids(vowelsData);
 
-    // Регистрация Сервис-воркера для поддержки PWA установки
+// Регистрация Сервис-воркера с автоматическим обновлением страницы
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker registered', reg))
+                .then(reg => {
+                    console.log('Service Worker registered', reg);
+                })
                 .catch(err => console.error('Service Worker registration failed', err));
+        });
+
+        // Слушаем смену активного воркера и автоматически перезагружаем страницу
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                window.location.reload();
+                refreshing = true;
+            }
         });
     }
 

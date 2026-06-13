@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tieng-viet-v1';
+const CACHE_NAME = 'tieng-viet-v2'; // <--- Изменяем версию кэша каждый раз при обновлении кода
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -7,11 +7,11 @@ const ASSETS_TO_CACHE = [
   './icon-512.png'
 ];
 
-// Установка сервис-воркера и кэширование файлов
+// Установка воркера
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // <--- Заставляем новый воркер сразу вытеснить старый в памяти телефона
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Используем force-запросы, чтобы не закэшировать битые файлы
       return Promise.all(
         ASSETS_TO_CACHE.map(url => {
           return fetch(url, { cache: 'reload' })
@@ -26,7 +26,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Активация воркера и очистка старого кэша
+// Активация и удаление старого кэша
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -37,17 +37,15 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // <--- Немедленно берем управление над открытыми страницами
   );
 });
 
-// Перехват сетевых запросов (для работы оффлайн)
+// Перехват сетевых запросов
 self.addEventListener('fetch', (event) => {
-  // Запросы к сторонней озвучке Google Translate не кэшируем, отправляем сразу в сеть
   if (event.request.url.includes('translate.google.com')) {
     return;
   }
-
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return cachedResponse || fetch(event.request);
