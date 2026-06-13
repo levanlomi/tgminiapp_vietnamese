@@ -8,7 +8,7 @@
     <!-- Подключение Manifest для PWA -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- Чиним вывод звука в браузере из сети -->
+    <!-- Чиним вывод звука в браузере из сети (скрываем Referer для Google) -->
     <meta name="referrer" content="no-referrer">
 
     <!-- Теги для поддержки PWA на iOS Safari -->
@@ -203,7 +203,7 @@
         { w: 'bạn', e: '🤝', level: 2, t: { ru: 'Друг', en: 'Friend' } },
         { w: 'anh', e: '🧑', level: 3, t: { ru: 'Старший брат', en: 'Older brother' } },
         { w: 'chị', e: '👩', level: 3, t: { ru: 'Старшая сестра', en: 'Older sister' } },
-        { w: 'cô', e: '👩‍🦱', level: 4, t: { ru: 'Тетя / Учительница', en: 'Aunt / Female Teacher' } },
+        { w: 'cô', e: '👩‍🦱', level: 4, t: { ru: 'Tетя / Учительница', en: 'Aunt / Female Teacher' } },
         { w: 'chú', e: '👨‍🦰', level: 4, t: { ru: 'Дядя', en: 'Uncle' } },
         { w: 'mẹ', e: '👩‍🍼', level: 4, t: { ru: 'Мама', en: 'Mother' } },
         { w: 'ba', e: '👨‍🍼', level: 4, t: { ru: 'Папа', en: 'Father' } },
@@ -219,13 +219,12 @@
             { w: 'hẹn gặp lại', e: '🤝', t: { ru: 'увидимся / до встречи', en: 'see you again' } },
             { w: 'cảm ơn', e: '❤️', t: { ru: 'спасибо', en: 'thank you' } },
             { w: 'xin lỗi', e: '🙇', t: { ru: 'извините', en: 'sorry / excuse me' } },
-            { w: 'dạ / vâng', e: '🙆', t: { ru: 'да (вежливо)', en: 'yes (polite)' } },
+            { w: 'vâng', e: '🙆', t: { ru: 'да (вежливо)', en: 'yes (polite)' } },
             { w: 'không', e: '🙅', t: { ru: 'нет / не', en: 'no / not' } },
             { w: 'làm ơn', e: '🙏', t: { ru: 'пожалуйста', en: 'please' } },
             { w: 'cái này', e: '👇', t: { ru: 'этот (близко ко мне / в руках)', en: 'this (close to me / in hand)' } },
+            { w: 'cái kia', e: '↗️', t: { ru: 'вон тот (далеко от нас обоих)', en: 'that over there (far from both)' } },
             { w: 'cái đó', e: '👉', t: { ru: 'тот (ближе к тебе / средняя дистанция)', en: 'that (closer to you / medium distance)' } },
-            { w: 'cái kia', e: '🔭', t: { ru: 'вон тот (далеко от нас обоих)', en: 'that over there (far from both)' } },
-            { w: 'bao nhiêu', e: '💸', t: { ru: 'сколько?', en: 'how much/many?' } },
             { w: 'bao nhiêu tiền', e: '💵', t: { ru: 'сколько стоит?', en: 'how much is it?' } }
         ],
         numbers: [
@@ -333,7 +332,7 @@
             { w: 'Bạn tên là gì?', e: '📛', t: { ru: 'Как вас зовут?', en: 'What is your name?' } },
             { w: 'Tôi tên là...', e: '📝', t: { ru: 'Меня зовут...', en: 'My name is...' } },
             { w: 'Rất vui được gặp bạn.', e: '🤝', t: { ru: 'Приятно познакомиться.', en: 'Nice to meet you.' } },
-            { w: 'Đất nước của bạn очень красива.', e: '🇻🇳', t: { ru: 'Ваша страна очень красива.', en: 'Your country is very beautiful.' } }
+            { w: 'Đất nước của bạn rất đẹp.', e: '🇻🇳', t: { ru: 'Ваша страна очень красива.', en: 'Your country is very beautiful.' } }
         ]
     };
 
@@ -347,19 +346,34 @@
         if(btn) setTimeout(() => btn.classList.remove('playing'), 200);
         
         if (!isUnlocked) { 
-            globalAudio.play().catch(() => {}); 
+            try {
+                globalAudio.play().catch(() => {});
+            } catch(e){} 
             isUnlocked = true; 
         }
         
         // Очищаем текст от скобок перед отправкой в TTS
         let cleanText = text.replace(/\s*\(.*?\)\s*/g, ' ').trim();
         
+        // Специальная замена для фонетических тестов гласных
+        if (cleanText === 'áh') cleanText = 'á'; 
+        if (cleanText === 'ớ') cleanText = 'ớ';  
+        
+        // Прямой сетевой запрос к Google Translate TTS
         let query = cleanText + '.';
-        if (cleanText === 'áh') query = 'ă '; 
-        if (cleanText === 'ớ') query = 'â ';  
+        if (cleanText === 'áh') query = 'á '; 
+        if (cleanText === 'ớ') query = 'ớ ';  
         
         globalAudio.src = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(query)}&tl=vi&client=tw-ob`;
-        globalAudio.play();
+        globalAudio.play().catch(e => console.error('Audio playback error:', e));
+    }
+
+    // Предварительная загрузка голосов (требуется для некоторых браузеров на Chrome/Android)
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.getVoices();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
     }
 
     const mainContainer = document.getElementById('grids-container');
