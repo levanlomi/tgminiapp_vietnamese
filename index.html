@@ -5,13 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Học tiếng Việt — Learn & Practice</title>
     
-    <!-- Подключение Manifest для PWA -->
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Чиним вывод звука в браузере из сети (скрываем Referer для Google) -->
     <meta name="referrer" content="no-referrer">
-
-    <!-- Теги для поддержки PWA на iOS Safari -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -81,15 +76,25 @@
 <body class="p-4 flex flex-col items-center transition-colors duration-300">
 
 <div class="w-full max-w-screen-md relative">
-    <!-- Контейнер для кнопок управления в правом верхнем углу -->
-    <div class="absolute top-1 right-0 flex items-center gap-1.5">
-        <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black px-3 py-1.5 rounded-xl text-xs uppercase active:scale-95 transition-transform" onclick="toggleLanguage()">
-            RU
-        </button>
-        <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text p-1.5 rounded-xl active:scale-95 transition-transform" onclick="toggleTheme()">
-            <!-- Иконка Луны / Солнца вставится через JS -->
-        </button>
-    </div>
+  
+<div class="absolute top-1 right-0 flex items-center gap-1.5">
+    <button id="speed-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text px-2 py-1.5 rounded-xl active:scale-95 transition-transform flex items-center gap-1" onclick="toggleSpeed()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 14 4-4"/>
+            <path d="M3.34 19a10 10 0 1 1 17.32 0"/>
+        </svg>
+        <span id="speed-label" class="text-xs font-black">0.75x</span>
+    </button>
+
+    <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black px-3 py-1.5 rounded-xl text-xs uppercase active:scale-95 transition-transform" onclick="toggleLanguage()">
+        RU
+    </button>
+    
+    <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text p-1.5 rounded-xl active:scale-95 transition-transform" onclick="toggleTheme()">
+    </button>
+</div>
+
+
 
     <header class="text-center mb-4 mt-2">
         <h1 class="text-tg-primary text-2xl font-black uppercase tracking-wide leading-tight">Học tiếng Việt</h1>
@@ -120,6 +125,22 @@
     if (tg && tg.ready) tg.ready();
 
     const globalAudio = new Audio();
+    let currentPlaybackSpeed = 0.75; // Дефолтная скорость
+
+function toggleSpeed() {
+    const speedLabel = document.getElementById('speed-label');
+    
+    // Переключаем значение скорости
+    currentPlaybackSpeed = currentPlaybackSpeed === 0.75 ? 1.0 : 0.75;
+    
+    // Обновляем текст на кнопке
+    speedLabel.textContent = currentPlaybackSpeed === 0.75 ? '0.75x' : '1x';
+    
+    // Если аудио уже проигрывается или загружено, сразу меняем скорость на лету
+    if (globalAudio) {
+        globalAudio.playbackRate = currentPlaybackSpeed;
+    }
+}
     let isUnlocked = false;
     let currentTab = 'vowels';
     let currentVocabTab = 'top';
@@ -352,20 +373,35 @@
             isUnlocked = true; 
         }
         
-        // Очищаем текст от скобок перед отправкой в TTS
+        // 1. Очищаем текст от скобок
         let cleanText = text.replace(/\s*\(.*?\)\s*/g, ' ').trim();
         
-        // Специальная замена для фонетических тестов гласных
-        if (cleanText === 'áh') cleanText = 'á'; 
-        if (cleanText === 'ớ') cleanText = 'ớ';  
+        // 2. Исключения для спец. звуков
+        let filename = '';
+        if (cleanText === 'áh') {
+            filename = 'am_a_ngan';
+        } else if (cleanText === 'ớ') {
+            filename = 'am_a_mu';
+        } else if (cleanText === 'Ý') {
+            filename = 'am_y_dai';
+        } else {
+            // 3. Та самая логика кодирования URI!
+            cleanText = cleanText.toLowerCase();
+            let encoded = encodeURIComponent(cleanText);
+            let safeName = encoded.replace(/%/g, '_').replace(/[^a-z0-9_]/gi, '_');
+            filename = safeName.replace(/_+/g, '_').replace(/^_|_$/g, '');
+        }
+
+        // 4. Устанавливаем путь к локальному файлу 
+        // Если вы назвали папку на github по-другому - поменяйте "audio_0.75" ниже:
+        globalAudio.src = `./audio_0.75/${filename}.mp3`;
         
-        // Прямой сетевой запрос к Google Translate TTS
-        let query = cleanText + '.';
-        if (cleanText === 'áh') query = 'á '; 
-        if (cleanText === 'ớ') query = 'ớ ';  
+        // 5. Замедляем скорость в браузере
+        globalAudio.playbackRate = currentPlaybackSpeed; 
         
-        globalAudio.src = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(query)}&tl=vi&client=tw-ob`;
-        globalAudio.play().catch(e => console.error('Audio playback error:', e));
+        globalAudio.play().catch(e => {
+            console.error(`❌ Ошибка воспроизведения файла ./audio_0.75/${filename}.mp3`, e);
+        });
     }
 
     const mainContainer = document.getElementById('grids-container');
@@ -577,7 +613,7 @@
         void mainContainer.offsetWidth;
         mainContainer.classList.add('animate-fade-in');
 
-        // Меню подкатегорий словаря (Рендерится ОДИН РАЗ при входе во вкладку)
+        // Меню подкатегорий словаря
         const subNav = document.createElement('div');
         subNav.className = 'flex flex-wrap justify-center gap-3 mb-6 w-full';
         
@@ -595,7 +631,6 @@
             btn.id = `vocab-cat-btn-${cat.id}`;
             const isActive = currentVocabTab === cat.id;
             
-            // УВЕЛИЧЕННЫЕ ОТСТУПЫ: px-5 py-3
             btn.className = `px-5 py-3 rounded-full text-xs sm:text-sm font-bold border transition-all duration-200 active:scale-95 ${
                 isActive 
                     ? 'bg-tg-primary text-tg-primaryText border-tg-primary shadow-sm' 
@@ -608,7 +643,6 @@
                 currentVocabTab = cat.id;
                 vocabPageIndex = 0; 
                 
-                // Обновляем стили кнопок без их пересоздания
                 categories.forEach(c => {
                     const b = document.getElementById(`vocab-cat-btn-${c.id}`);
                     if (b) {
@@ -627,7 +661,7 @@
         });
         mainContainer.appendChild(subNav);
 
-        // Изолированный контейнер для карточек (Чтобы меню категорий не мерцало при свайпе)
+        // Изолированный контейнер для карточек
         const pageContainer = document.createElement('div');
         pageContainer.id = 'vocab-page-container';
         pageContainer.className = 'w-full';
@@ -645,7 +679,6 @@
         void pageContainer.offsetWidth;
         pageContainer.classList.add('animate-fade-in');
 
-        // Список слов текущей страницы
         const vocabGrid = document.createElement('div');
         vocabGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full pb-2 touch-pan-y';
         
@@ -693,7 +726,7 @@
 
         pageContainer.appendChild(vocabGrid);
 
-        // Рендер панели управления пагинацией (стрелки + точки)
+        // Рендер панели управления пагинацией
         if (totalPages > 1) {
             const paginationControls = document.createElement('div');
             paginationControls.className = 'flex items-center justify-center gap-4 mt-6 mb-8 w-full select-none';
@@ -888,7 +921,6 @@
     updateLanguageUI();
     renderGrids(vowelsData);
 
-// Регистрация Сервис-воркера с автоматическим обновлением страницы
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
@@ -898,7 +930,6 @@
                 .catch(err => console.error('Service Worker registration failed', err));
         });
 
-        // Слушаем смену активного воркера и автоматически перезагружаем страницу
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (!refreshing) {
