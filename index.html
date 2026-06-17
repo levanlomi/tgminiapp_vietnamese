@@ -77,22 +77,20 @@
 
 <div class="w-full max-w-screen-md relative">
   
-<div class="absolute top-1 right-0 flex flex-col items-end gap-1.5">
-    
-    <div class="flex items-center gap-1.5">
-        <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black px-3 py-1.5 rounded-xl text-xs uppercase active:scale-95 transition-transform" onclick="toggleLanguage()">
-            RU
-        </button>
-        <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text p-1.5 rounded-xl active:scale-95 transition-transform" onclick="toggleTheme()">
-            </button>
-    </div>
-
+<div class="absolute top-1 right-0 flex items-center gap-1.5">
     <button id="speed-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text px-2 py-1.5 rounded-xl active:scale-95 transition-transform flex items-center gap-1" onclick="toggleSpeed()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m12 14 4-4"/>
             <path d="M3.34 19a10 10 0 1 1 17.32 0"/>
         </svg>
         <span id="speed-label" class="text-xs font-black">0.75x</span>
+    </button>
+
+    <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black px-3 py-1.5 rounded-xl text-xs uppercase active:scale-95 transition-transform" onclick="toggleLanguage()">
+        RU
+    </button>
+    
+    <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text p-1.5 rounded-xl active:scale-95 transition-transform" onclick="toggleTheme()">
     </button>
 </div>
 
