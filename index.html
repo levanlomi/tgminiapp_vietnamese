@@ -77,7 +77,16 @@
 
 <div class="w-full max-w-screen-md relative">
   
-<div class="absolute top-1 right-0 flex items-center gap-1.5">
+<div class="absolute top-1 right-0 flex flex-col items-end gap-1.5">
+    
+    <div class="flex items-center gap-1.5">
+        <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black px-3 py-1.5 rounded-xl text-xs uppercase active:scale-95 transition-transform" onclick="toggleLanguage()">
+            RU
+        </button>
+        <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text p-1.5 rounded-xl active:scale-95 transition-transform" onclick="toggleTheme()">
+            </button>
+    </div>
+
     <button id="speed-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text px-2 py-1.5 rounded-xl active:scale-95 transition-transform flex items-center gap-1" onclick="toggleSpeed()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m12 14 4-4"/>
@@ -85,16 +94,7 @@
         </svg>
         <span id="speed-label" class="text-xs font-black">0.75x</span>
     </button>
-
-    <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black px-3 py-1.5 rounded-xl text-xs uppercase active:scale-95 transition-transform" onclick="toggleLanguage()">
-        RU
-    </button>
-    
-    <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text p-1.5 rounded-xl active:scale-95 transition-transform" onclick="toggleTheme()">
-    </button>
 </div>
-
-
 
     <header class="text-center mb-4 mt-2">
         <h1 class="text-tg-primary text-2xl font-black uppercase tracking-wide leading-tight">Học tiếng Việt</h1>
@@ -125,18 +125,14 @@
     if (tg && tg.ready) tg.ready();
 
     const globalAudio = new Audio();
-    let currentPlaybackSpeed = 0.75; // Дефолтная скорость
+    let currentPlaybackSpeed = 0.75; 
 
 function toggleSpeed() {
     const speedLabel = document.getElementById('speed-label');
     
-    // Переключаем значение скорости
     currentPlaybackSpeed = currentPlaybackSpeed === 0.75 ? 1.0 : 0.75;
-    
-    // Обновляем текст на кнопке
     speedLabel.textContent = currentPlaybackSpeed === 0.75 ? '0.75x' : '1x';
     
-    // Если аудио уже проигрывается или загружено, сразу меняем скорость на лету
     if (globalAudio) {
         globalAudio.playbackRate = currentPlaybackSpeed;
     }
@@ -159,8 +155,8 @@ function toggleSpeed() {
     }
 
     const uiLabels = {
-        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа" },
-        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers" }
+        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа", questions: "Вопросы", datetime: "Дата и время" },
+        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers", questions: "Questions", datetime: "Date & Time" }
     };
 
     let selectedSpeaker = 'con';
@@ -240,13 +236,56 @@ function toggleSpeed() {
             { w: 'hẹn gặp lại', e: '🤝', t: { ru: 'увидимся / до встречи', en: 'see you again' } },
             { w: 'cảm ơn', e: '❤️', t: { ru: 'спасибо', en: 'thank you' } },
             { w: 'xin lỗi', e: '🙇', t: { ru: 'извините', en: 'sorry / excuse me' } },
+            { w: 'không sao', e: '👌', t: { ru: 'нет проблем', en: 'no problem' } },
+            { w: 'không có gì', e: '💁', t: { ru: 'не за что', en: 'you are welcome' } },
             { w: 'vâng', e: '🙆', t: { ru: 'да (вежливо)', en: 'yes (polite)' } },
             { w: 'không', e: '🙅', t: { ru: 'нет / не', en: 'no / not' } },
             { w: 'làm ơn', e: '🙏', t: { ru: 'пожалуйста', en: 'please' } },
             { w: 'cái này', e: '👇', t: { ru: 'этот (близко ко мне / в руках)', en: 'this (close to me / in hand)' } },
             { w: 'cái kia', e: '↗️', t: { ru: 'вон тот (далеко от нас обоих)', en: 'that over there (far from both)' } },
             { w: 'cái đó', e: '👉', t: { ru: 'тот (ближе к тебе / средняя дистанция)', en: 'that (closer to you / medium distance)' } },
-            { w: 'bao nhiêu tiền', e: '💵', t: { ru: 'сколько стоит?', en: 'how much is it?' } }
+            { w: 'cô ấy', e: '👩', t: { ru: 'она', en: 'she' } },
+            { w: 'anh ấy', e: '👨', t: { ru: 'он', en: 'he' } },
+            { w: 'đúng rồi', e: '✅', t: { ru: 'правильно (верно)', en: 'that is right' } },
+            { w: 'sai', e: '❌', t: { ru: 'неправильный', en: 'wrong' } },
+            { w: 'đẹp', e: '✨', t: { ru: 'красиво (о вещи)', en: 'beautiful (thing)' } },
+            { w: 'hay', e: '👍', t: { ru: 'красиво/интересно (о действии)', en: 'good/interesting (action)' } },
+            { w: 'mọi người', e: '👨‍👩‍👧‍👦', t: { ru: 'все (обращение)', en: 'everyone' } }
+        ],
+        datetime: [
+            { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
+            { w: 'phút', e: '⏲️', t: { ru: 'минута', en: 'minute' } },
+            { w: 'giờ / tiếng', e: '⏳', t: { ru: 'час', en: 'hour' } },
+            { w: 'ngày', e: '📅', t: { ru: 'день', en: 'day' } },
+            { w: 'tuần', e: '📆', t: { ru: 'неделя', en: 'week' } },
+            { w: 'tháng', e: '🗓️', t: { ru: 'месяц', en: 'month' } },
+            { w: 'năm', e: '🌍', t: { ru: 'год', en: 'year' } },
+            { w: 'sáng', e: '🌅', t: { ru: 'утро', en: 'morning' } },
+            { w: 'trưa', e: '☀️', t: { ru: 'полдень / день', en: 'noon / afternoon' } },
+            { w: 'chiều', e: '🌇', t: { ru: 'вечер', en: 'late afternoon / evening' } },
+            { w: 'tối / đêm', e: '🌙', t: { ru: 'ночь / поздний вечер', en: 'night / late evening' } },
+            { w: 'hôm qua', e: '⏪', t: { ru: 'вчера', en: 'yesterday' } },
+            { w: 'hôm nay', e: '🔽', t: { ru: 'сегодня', en: 'today' } },
+            { w: 'ngày mai', e: '⏩', t: { ru: 'завтра', en: 'tomorrow' } },
+            { w: 'thứ hai', e: '2️⃣', t: { ru: 'понедельник', en: 'Monday' } },
+            { w: 'thứ ba', e: '3️⃣', t: { ru: 'вторник', en: 'Tuesday' } },
+            { w: 'thứ tư', e: '4️⃣', t: { ru: 'среда', en: 'Wednesday' } },
+            { w: 'thứ năm', e: '5️⃣', t: { ru: 'четверг', en: 'Thursday' } },
+            { w: 'thứ sáu', e: '6️⃣', t: { ru: 'пятница', en: 'Friday' } },
+            { w: 'thứ bảy', e: '7️⃣', t: { ru: 'суббота', en: 'Saturday' } },
+            { w: 'chủ nhật', e: '☀️', t: { ru: 'воскресенье', en: 'Sunday' } },
+            { w: 'tháng một', e: '1️⃣', t: { ru: 'январь', en: 'January' } },
+            { w: 'tháng hai', e: '2️⃣', t: { ru: 'февраль', en: 'February' } },
+            { w: 'tháng ba', e: '3️⃣', t: { ru: 'март', en: 'March' } },
+            { w: 'tháng tư', e: '4️⃣', t: { ru: 'апрель', en: 'April' } },
+            { w: 'tháng năm', e: '5️⃣', t: { ru: 'май', en: 'May' } },
+            { w: 'tháng sáu', e: '6️⃣', t: { ru: 'июнь', en: 'June' } },
+            { w: 'tháng bảy', e: '7️⃣', t: { ru: 'июль', en: 'July' } },
+            { w: 'tháng tám', e: '8️⃣', t: { ru: 'август', en: 'August' } },
+            { w: 'tháng chín', e: '9️⃣', t: { ru: 'сентябрь', en: 'September' } },
+            { w: 'tháng mười', e: '🔟', t: { ru: 'октябрь', en: 'October' } },
+            { w: 'tháng mười một', e: '1️⃣1️⃣', t: { ru: 'ноябрь', en: 'November' } },
+            { w: 'tháng mười hai', e: '1️⃣2️⃣', t: { ru: 'декабрь', en: 'December' } }
         ],
         numbers: [
             { w: 'không', e: '0️⃣', t: { ru: 'ноль', en: 'zero' } },
@@ -269,7 +308,10 @@ function toggleSpeed() {
             { w: 'mười bảy', e: '1️⃣7️⃣', t: { ru: 'семнадцать', en: 'seventeen' } },
             { w: 'mười tám', e: '1️⃣8️⃣', t: { ru: 'восемнадцать', en: 'eighteen' } },
             { w: 'mười chín', e: '1️⃣9️⃣', t: { ru: 'девятнадцать', en: 'nineteen' } },
-            { w: 'hai mươi', e: '2️⃣0️⃣', t: { ru: 'двадцать', en: 'twenty' } },
+            { w: 'hai mươi', e: '2️⃣0️⃣', t: { ru: 'двадцать (с 20 тон у "десяти" ровный)', en: 'twenty' } },
+            { w: 'ba mươi tư', e: '3️⃣4️⃣', t: { ru: 'тридцать четыре', en: 'thirty-four' } },
+            { w: 'bốn mươi tư', e: '4️⃣4️⃣', t: { ru: 'сорок четыре', en: 'forty-four' } },
+            { w: 'năm mươi lăm', e: '5️⃣5️⃣', t: { ru: 'пятьдесят пять', en: 'fifty-five' } },
             { w: 'năm mươi', e: '5️⃣0️⃣', t: { ru: 'пятьдесят', en: 'fifty' } },
             { w: 'một trăm', e: '1️⃣0️⃣0️⃣', t: { ru: 'сто', en: 'one hundred' } },
             { w: 'một nghìn', e: '1️⃣0️⃣0️⃣0️⃣', t: { ru: 'тысяча', en: 'one thousand' } }
@@ -287,6 +329,7 @@ function toggleSpeed() {
             { w: 'đi', e: '🚶', t: { ru: 'идти / ехать', en: 'go' } },
             { w: 'rẽ', e: '↩️', t: { ru: 'поворачивать', en: 'turn' } },
             { w: 'đến', e: '🏁', t: { ru: 'прибывать', en: 'arrive' } },
+            { w: 'về nhà', e: '🏠', t: { ru: 'возвращаться домой', en: 'go home' } },
             { w: 'ăn', e: '🍽️', t: { ru: 'кушать', en: 'eat' } },
             { w: 'uống', e: '🥤', t: { ru: 'пить', en: 'drink' } },
             { w: 'mua', e: '🛒', t: { ru: 'покупать', en: 'buy' } },
@@ -330,30 +373,32 @@ function toggleSpeed() {
             { w: 'cũng', e: '👯', t: { ru: 'тоже', en: 'also / too' } },
             { w: 'ít', e: '🤏', t: { ru: 'немного / мало', en: 'a little / few' } },
             { w: 'nhiều', e: '👐', t: { ru: 'много', en: 'a lot / many' } },
-            { w: 'quá', e: '📈', t: { ru: 'слишком / очень', en: 'too / very' } },
-            { w: 'ở đâu', e: '🗺️', t: { ru: 'где?', en: 'where?' } }
+            { w: 'quá', e: '📈', t: { ru: 'слишком / очень', en: 'too / very' } }
         ],
         phrases: [
             { w: 'Có món ... không?', e: '🍲', t: { ru: 'Есть ли блюдо...?', en: 'Do you have the dish...?' } },
-            { w: 'Nhà vệ sinh ở đâu?', e: '🚻', t: { ru: 'Где туалет?', en: 'Where is the restroom?' } },
             { w: 'Tôi muốn...', e: '🎯', t: { ru: 'Я хочу...', en: 'I want...' } },
             { w: 'Vui lòng cho...', e: '🤲', t: { ru: 'Дайте, пожалуйста...', en: 'Please give...' } },
             { w: 'Ít đá, ít đường.', e: '📉', t: { ru: 'Немного льда и сахара.', en: 'Little ice, little sugar.' } },
             { w: 'Cho em tính tiền nha.', e: '🧾', t: { ru: 'Рассчитайте меня, пожалуйста.', en: 'Check / Bill, please.' } },
             { w: 'Đi thẳng, rẽ trái, rẽ phải.', e: '🛣️', t: { ru: 'Прямо, налево, направо.', en: 'Straight, turn left, turn right.' } },
-            { w: 'Cái này bao nhiêu tiền?', e: '🏷️', t: { ru: 'Сколько это стоит?', en: 'How much is this?' } },
             { w: 'Mắc quá, giảm giá đi!', e: '📉', t: { ru: 'Очень дорого, дайте скидку!', en: 'Too expensive, discount please!' } },
             { w: 'Tôi đến từ Nga.', e: '🇷🇺', t: { ru: 'Я приехал из России.', en: 'I come from Russia.' } },
             { w: 'Tôi là người Nga.', e: '🪆', t: { ru: 'Я русский.', en: 'I am Russian.' } },
-            { w: 'Bạn bao nhiêu tuổi?', e: '🎂', t: { ru: 'Сколько вам лет?', en: 'How old are you?' } },
-            { w: 'Tôi ba mươi tư tuổi.', e: '3️⃣4️⃣', t: { ru: 'Мне тридцать четыре года.', en: 'I am thirty-four years old.' } },
             { w: 'Cho tôi một ổ bánh mì với một ly cà phê nha.', e: '🥖☕', t: { ru: 'Дайте один баньми и кофе, пожалуйста.', en: 'One banh mi and coffee, please.' } },
             { w: 'Cho tôi một ly cà phê không đường không đá.', e: '☕🚫', t: { ru: 'Мне кофе без сахара и без льда.', en: 'Coffee without sugar and ice.' } },
-            { w: 'Và cho vợ tôi một ly cà phê đen nóng.', e: '👩☕', t: { ru: 'И для моей жены горячий черный кофе.', en: 'And hot black coffee for my wife.' } },
-            { w: 'Bạn tên là gì?', e: '📛', t: { ru: 'Как вас зовут?', en: 'What is your name?' } },
-            { w: 'Tôi tên là...', e: '📝', t: { ru: 'Меня зовут...', en: 'My name is...' } },
             { w: 'Rất vui được gặp bạn.', e: '🤝', t: { ru: 'Приятно познакомиться.', en: 'Nice to meet you.' } },
             { w: 'Đất nước của bạn rất đẹp.', e: '🇻🇳', t: { ru: 'Ваша страна очень красива.', en: 'Your country is very beautiful.' } }
+        ],
+        questions: [
+            { w: 'Đây là ai?', e: '👤', t: { ru: 'кто это?', en: 'who is this?' } },
+            { w: 'Đây là cái gì?', e: '📦', t: { ru: 'что это?', en: 'what is this?' } },
+            { w: 'Tên là gì?', e: '📛', t: { ru: 'как твое имя?', en: 'what is your name?' } },
+            { w: 'Ở đâu?', e: '🗺️', t: { ru: 'где?', en: 'where?' } },
+            { w: '(anh/chị) bao nhiêu tuổi?', e: '🎂', t: { ru: 'сколько тебе лет?', en: 'how old are you?' } },
+            { w: 'Bao nhiêu tiền?', e: '💵', t: { ru: 'сколько стоит?', en: 'how much is it?' } },
+            { w: '(anh/chị) đến từ đâu?', e: '🌍', t: { ru: 'откуда ты друг?', en: 'where are you from?' } },
+            { w: 'Nhà vệ sinh ở đâu?', e: '🚻', t: { ru: 'где туалет?', en: 'where is the restroom?' } }
         ]
     };
 
@@ -619,11 +664,13 @@ function toggleSpeed() {
         
         const categories = [
             { id: 'top', label: uiLabels[currentLang].top },
+            { id: 'datetime', label: uiLabels[currentLang].datetime },
             { id: 'verbs', label: uiLabels[currentLang].verbs },
             { id: 'cafe', label: uiLabels[currentLang].cafe },
             { id: 'particles', label: uiLabels[currentLang].particles },
             { id: 'numbers', label: uiLabels[currentLang].numbers },
-            { id: 'phrases', label: uiLabels[currentLang].phrases }
+            { id: 'phrases', label: uiLabels[currentLang].phrases },
+            { id: 'questions', label: uiLabels[currentLang].questions }
         ];
 
         categories.forEach(cat => {
@@ -792,6 +839,11 @@ function toggleSpeed() {
         pronounsBtn.innerText = uiLabels[currentLang].pronouns;
         vocabBtn.innerText = uiLabels[currentLang].vocabulary;
         subTitle.innerText = uiLabels[currentLang].subtitle;
+        
+        // Обновляем текст на кнопках подразделов, если открыта вкладка "Словарь"
+        if (currentTab === 'vocabulary') {
+            renderVocabularySection();
+        }
     }
 
     function toggleLanguage() {
