@@ -127,21 +127,22 @@
     const globalAudio = new Audio();
     let currentPlaybackSpeed = 0.75; 
 
-function toggleSpeed() {
-    const speedLabel = document.getElementById('speed-label');
-    
-    currentPlaybackSpeed = currentPlaybackSpeed === 0.75 ? 1.0 : 0.75;
-    speedLabel.textContent = currentPlaybackSpeed === 0.75 ? '0.75x' : '1x';
-    
-    if (globalAudio) {
-        globalAudio.playbackRate = currentPlaybackSpeed;
+    function toggleSpeed() {
+        const speedLabel = document.getElementById('speed-label');
+        currentPlaybackSpeed = currentPlaybackSpeed === 0.75 ? 1.0 : 0.75;
+        speedLabel.textContent = currentPlaybackSpeed === 0.75 ? '0.75x' : '1x';
+        if (globalAudio) {
+            globalAudio.playbackRate = currentPlaybackSpeed;
+        }
     }
-}
+
     let isUnlocked = false;
     let currentTab = 'vowels';
     let currentVocabTab = 'top';
     let vocabPageIndex = 0; 
     let currentTheme = 'light';
+    
+    let globalDictionary = [];
     
     let touchStartX = 0;
     let touchStartY = 0;
@@ -155,8 +156,8 @@ function toggleSpeed() {
     }
 
     const uiLabels = {
-        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа", questions: "Вопросы", datetime: "Дата и время" },
-        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers", questions: "Questions", datetime: "Date & Time" }
+        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа", questions: "Вопросы", datetime: "Дата и время", searchPlaceholder: "Поиск слов..." },
+        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers", questions: "Questions", datetime: "Date & Time", searchPlaceholder: "Search words..." }
     };
 
     let selectedSpeaker = 'con';
@@ -437,6 +438,33 @@ function toggleSpeed() {
         ]
     };
 
+    // 1. УМНЫЙ СБОРЩИК ГЛОБАЛЬНОГО СЛОВАРЯ (С ПРИОРИТЕТАМИ И БЕЗ ДУБЛИКАТОВ)
+    function getGlobalDictionary() {
+        const allWords = [];
+        const seen = new Set(); 
+
+        function addWord(item) {
+            // Создаем уникальный ключ из слова и его иконки
+            const icon = item.e || item.i || '';
+            const key = item.w.toLowerCase() + '_' + icon;
+            
+            if (!seen.has(key)) {
+                seen.add(key);
+                allWords.push(item);
+            }
+        }
+
+        // Приоритет 1: Словарь (он самый подробный)
+        Object.values(vocabularyData).forEach(arr => arr.forEach(addWord));
+        // Приоритет 2: Местоимения
+        pronounsData.forEach(addWord);
+        // Приоритет 3: Фонетика (что осталось)
+        Object.values(vowelsData).forEach(group => group.data.forEach(l => l.tones.forEach(addWord)));
+        Object.values(consonantsData).forEach(group => group.data.forEach(l => l.tones.forEach(addWord)));
+
+        return allWords;
+    }
+
     function play(text, btn) {
         if(btn) btn.classList.add('playing');
         
@@ -453,10 +481,8 @@ function toggleSpeed() {
             isUnlocked = true; 
         }
         
-        // 1. Очищаем текст от скобок
         let cleanText = text.replace(/\s*\(.*?\)\s*/g, ' ').trim();
         
-        // 2. Исключения для спец. звуков
         let filename = '';
         if (cleanText === 'áh') {
             filename = 'am_a_ngan';
@@ -465,18 +491,13 @@ function toggleSpeed() {
         } else if (cleanText === 'Ý') {
             filename = 'am_y_dai';
         } else {
-            // 3. Та самая логика кодирования URI!
             cleanText = cleanText.toLowerCase();
             let encoded = encodeURIComponent(cleanText);
             let safeName = encoded.replace(/%/g, '_').replace(/[^a-z0-9_]/gi, '_');
             filename = safeName.replace(/_+/g, '_').replace(/^_|_$/g, '');
         }
 
-        // 4. Устанавливаем путь к локальному файлу 
-        // Если вы назвали папку на github по-другому - поменяйте "audio_0.75" ниже:
         globalAudio.src = `./audio_0.75/${filename}.mp3`;
-        
-        // 5. Замедляем скорость в браузере
         globalAudio.playbackRate = currentPlaybackSpeed; 
         
         globalAudio.play().catch(e => {
@@ -517,10 +538,19 @@ function toggleSpeed() {
                     tBtn.className = 'bg-tg-bg border border-tg-hint/20 rounded-xl p-2.5 flex flex-col items-center transition-all active:scale-95 active:border-tg-primary';
                     
                     const translatedText = tone.t[currentLang] || tone.t['en'];
-                    const iconContent = tone.isSvg ? tone.i : tone.i;
+                    
+                    // БЕЗОПАСНЫЙ РЕНДЕРИНГ ИКОНОК
+                    let iconContent = '';
+                    if (tone.e) {
+                        iconContent = tone.e;
+                    } else if (tone.isSvg) {
+                        iconContent = `<span class="icon-wrap w-6 h-6 flex items-center justify-center">${tone.i}</span>`;
+                    } else {
+                        iconContent = tone.i;
+                    }
                     
                     tBtn.innerHTML = `
-                        <span class="icon-wrap text-2xl mb-1 flex items-center justify-center w-6 h-6">${iconContent}</span>
+                        <span class="text-2xl mb-1 flex items-center justify-center">${iconContent}</span>
                         <span class="text-[1.15rem] font-bold text-tg-text leading-tight">${tone.w}</span>
                         <span class="text-[0.7rem] text-tg-hint text-center leading-tight mt-1">${translatedText}</span>
                     `;
@@ -659,7 +689,6 @@ function toggleSpeed() {
         }, 10);
     }
 
-    // --- НАВИГАЦИЯ ПО СТРАНИЦАМ СЛОВАРЯ ---
     window.navigateVocabPage = function(direction) {
         const currentData = vocabularyData[currentVocabTab];
         const isMobile = window.innerWidth < 640;
@@ -695,7 +724,7 @@ function toggleSpeed() {
 
         // Меню подкатегорий словаря
         const subNav = document.createElement('div');
-        subNav.className = 'flex flex-wrap justify-center gap-3 mb-6 w-full';
+        subNav.className = 'flex overflow-x-auto no-scrollbar gap-2.5 mb-4 w-full py-1';
         
         const categories = [
             { id: 'top', label: uiLabels[currentLang].top },
@@ -713,7 +742,7 @@ function toggleSpeed() {
             btn.id = `vocab-cat-btn-${cat.id}`;
             const isActive = currentVocabTab === cat.id;
             
-            btn.className = `px-5 py-3 rounded-full text-xs sm:text-sm font-bold border transition-all duration-200 active:scale-95 ${
+            btn.className = `whitespace-nowrap flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold border transition-all duration-200 active:scale-95 ${
                 isActive 
                     ? 'bg-tg-primary text-tg-primaryText border-tg-primary shadow-sm' 
                     : 'bg-transparent text-tg-text border-tg-hint/30 active:bg-tg-hint/10'
@@ -725,11 +754,16 @@ function toggleSpeed() {
                 currentVocabTab = cat.id;
                 vocabPageIndex = 0; 
                 
+                // Сбрасываем поиск при переключении таба
+                const searchInput = document.getElementById('vocab-search');
+                if(searchInput) searchInput.value = '';
+                document.getElementById('clear-search').classList.add('hidden');
+
                 categories.forEach(c => {
                     const b = document.getElementById(`vocab-cat-btn-${c.id}`);
                     if (b) {
                         const active = currentVocabTab === c.id;
-                        b.className = `px-5 py-3 rounded-full text-xs sm:text-sm font-bold border transition-all duration-200 active:scale-95 ${
+                        b.className = `whitespace-nowrap flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold border transition-all duration-200 active:scale-95 ${
                             active 
                                 ? 'bg-tg-primary text-tg-primaryText border-tg-primary shadow-sm' 
                                 : 'bg-transparent text-tg-text border-tg-hint/30 active:bg-tg-hint/10'
@@ -743,47 +777,130 @@ function toggleSpeed() {
         });
         mainContainer.appendChild(subNav);
 
+        // --- БЛОК ПОИСКА ---
+        const searchContainer = document.createElement('div');
+        searchContainer.className = 'relative w-full mb-6 px-1';
+        
+        searchContainer.innerHTML = `
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-tg-hint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <input type="text" id="vocab-search" class="w-full bg-tg-bg border border-tg-hint/20 text-tg-text rounded-2xl pl-10 pr-10 py-3 outline-none focus:border-tg-primary focus:ring-1 focus:ring-tg-primary transition-all text-sm" placeholder="${uiLabels[currentLang].searchPlaceholder}">
+            <button id="clear-search" class="absolute inset-y-0 right-0 pr-4 flex items-center hidden active:scale-90 transition-transform">
+                <svg class="w-5 h-5 text-tg-hint hover:text-tg-text transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        `;
+        mainContainer.appendChild(searchContainer);
+
         // Изолированный контейнер для карточек
         const pageContainer = document.createElement('div');
         pageContainer.id = 'vocab-page-container';
         pageContainer.className = 'w-full';
         mainContainer.appendChild(pageContainer);
 
+        // Логика поиска
+        const searchInput = document.getElementById('vocab-search');
+        const clearBtn = document.getElementById('clear-search');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            
+            if (query.length > 0) {
+                clearBtn.classList.remove('hidden');
+                
+                const allWords = getGlobalDictionary();
+                const filtered = allWords.filter(item => {
+                    const wordVi = item.w.toLowerCase();
+                    const transRu = item.t.ru ? item.t.ru.toLowerCase() : '';
+                    const transEn = item.t.en ? item.t.en.toLowerCase() : '';
+                    return wordVi.includes(query) || transRu.includes(query) || transEn.includes(query);
+                });
+                
+                renderVocabPageOnly(filtered); // Передаем отфильтрованные данные
+            } else {
+                clearBtn.classList.add('hidden');
+                renderVocabPageOnly(); // Рендерим стандартную вкладку без фильтра
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearBtn.classList.add('hidden');
+            renderVocabPageOnly();
+        });
+
+        // Первичный рендер
         renderVocabPageOnly();
     }
 
-    function renderVocabPageOnly() {
+    // Измененная функция рендера (принимает опциональный массив для поиска)
+    function renderVocabPageOnly(filteredData = null) {
         const pageContainer = document.getElementById('vocab-page-container');
         if (!pageContainer) return;
 
         pageContainer.innerHTML = '';
-        pageContainer.classList.remove('animate-fade-in');
-        void pageContainer.offsetWidth;
-        pageContainer.classList.add('animate-fade-in');
+        
+        // Если это поиск (filteredData не null), мы не делаем анимацию fade-in 
+        if (!filteredData) {
+            pageContainer.classList.remove('animate-fade-in');
+            void pageContainer.offsetWidth;
+            pageContainer.classList.add('animate-fade-in');
+        }
 
         const vocabGrid = document.createElement('div');
         vocabGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full pb-2 touch-pan-y';
         
-        const currentData = vocabularyData[currentVocabTab];
-        
-        // Адаптивное определение размера страницы
-        const isMobile = window.innerWidth < 640;
-        const pageSize = isMobile ? 7 : 10;
-        const totalPages = Math.ceil(currentData.length / pageSize);
+        let itemsToRender = [];
+        let showPagination = false;
+        let totalPages = 1;
 
-        if (vocabPageIndex >= totalPages) vocabPageIndex = 0;
-
-        const pageItems = currentData.slice(vocabPageIndex * pageSize, (vocabPageIndex + 1) * pageSize);
+        if (filteredData) {
+            // Режим поиска: показываем все найденные элементы единым списком
+            itemsToRender = filteredData;
+            
+            if (itemsToRender.length === 0) {
+                vocabGrid.innerHTML = `
+                    <div class="col-span-1 sm:col-span-2 text-center text-tg-hint py-8 text-sm">
+                        ${currentLang === 'ru' ? 'Ничего не найдено 😕' : 'Nothing found 😕'}
+                    </div>
+                `;
+            }
+        } else {
+            // Стандартный режим вкладок: используем пагинацию
+            const currentData = vocabularyData[currentVocabTab];
+            const isMobile = window.innerWidth < 640;
+            const pageSize = isMobile ? 7 : 10;
+            totalPages = Math.ceil(currentData.length / pageSize);
+            
+            if (vocabPageIndex >= totalPages) vocabPageIndex = 0;
+            
+            itemsToRender = currentData.slice(vocabPageIndex * pageSize, (vocabPageIndex + 1) * pageSize);
+            showPagination = totalPages > 1;
+        }
         
-        pageItems.forEach(item => {
+        itemsToRender.forEach(item => {
             const rowBtn = document.createElement('button');
             rowBtn.className = 'bg-tg-secondaryBg rounded-xl p-3 flex items-center justify-between shadow-sm active:scale-95 transition-transform border border-tg-hint/10 w-full text-left';
             
-            const translation = item.t[currentLang];
+            const translation = item.t[currentLang] || item.t['en'];
+            
+            // ИСПРАВЛЕННЫЙ БЛОК: Безопасный рендеринг иконок
+            let iconContent = '';
+            if (item.e) {
+                iconContent = item.e;
+            } else if (item.isSvg) {
+                iconContent = `<span class="icon-wrap w-6 h-6 flex items-center justify-center">${item.i}</span>`;
+            } else {
+                iconContent = item.i;
+            }
             
             rowBtn.innerHTML = `
                 <div class="flex items-center gap-3 overflow-hidden">
-                    <span class="text-2xl shrink-0">${item.e}</span>
+                    <span class="text-2xl shrink-0 flex items-center justify-center w-8 h-8">${iconContent}</span>
                     <div class="flex flex-col overflow-hidden">
                         <span class="font-black text-[1.1rem] text-tg-text truncate">${item.w}</span>
                         <span class="text-[0.75rem] text-tg-hint truncate mt-0.5">${translation}</span>
@@ -795,21 +912,24 @@ function toggleSpeed() {
             vocabGrid.appendChild(rowBtn);
         });
 
-        vocabGrid.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
+        // Жесты добавляем только если мы НЕ в режиме поиска
+        if (!filteredData) {
+            vocabGrid.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
 
-        vocabGrid.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            touchEndY = e.changedTouches[0].screenY;
-            handleGesture();
-        }, { passive: true });
+            vocabGrid.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                touchEndY = e.changedTouches[0].screenY;
+                handleGesture();
+            }, { passive: true });
+        }
 
         pageContainer.appendChild(vocabGrid);
 
-        // Рендер панели управления пагинацией
-        if (totalPages > 1) {
+        // Рендер панели управления пагинацией (только если не поиск)
+        if (showPagination) {
             const paginationControls = document.createElement('div');
             paginationControls.className = 'flex items-center justify-center gap-4 mt-6 mb-8 w-full select-none';
 
@@ -875,7 +995,7 @@ function toggleSpeed() {
         vocabBtn.innerText = uiLabels[currentLang].vocabulary;
         subTitle.innerText = uiLabels[currentLang].subtitle;
         
-        // Обновляем текст на кнопках подразделов, если открыта вкладка "Словарь"
+        // Обновляем текст на кнопках подразделов и плейсхолдер поиска
         if (currentTab === 'vocabulary') {
             renderVocabularySection();
         }
