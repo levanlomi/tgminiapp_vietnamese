@@ -77,26 +77,45 @@
 
 <div class="w-full max-w-screen-md relative">
   
-<div class="absolute top-1 right-0 flex flex-col items-end gap-1.5">
-    
-    <div class="flex items-center gap-1.5">
-        <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black px-3 py-1.5 rounded-xl text-xs uppercase active:scale-95 transition-transform" onclick="toggleLanguage()">
+<div class="absolute top-0 right-0 flex flex-col items-end gap-1 z-10">
+    <div class="flex items-center gap-1">
+        <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black w-10 h-8 rounded-lg text-[11px] uppercase active:scale-95 transition-transform flex items-center justify-center" onclick="toggleLanguage()">
             RU
         </button>
-        <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text p-1.5 rounded-xl active:scale-95 transition-transform" onclick="toggleTheme()">
+        <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text w-8 h-8 rounded-lg active:scale-95 transition-transform flex items-center justify-center" onclick="toggleTheme()">
             </button>
     </div>
 
-    <button id="speed-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text px-2 py-1.5 rounded-xl active:scale-95 transition-transform flex items-center gap-1" onclick="toggleSpeed()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m12 14 4-4"/>
-            <path d="M3.34 19a10 10 0 1 1 17.32 0"/>
-        </svg>
-        <span id="speed-label" class="text-xs font-black">0.75x</span>
-    </button>
+    <div class="flex items-center gap-1">
+        <button id="speed-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text w-10 h-8 rounded-lg active:scale-95 transition-transform flex items-center justify-center" onclick="toggleSpeed()">
+            <span id="speed-label" class="text-[11px] font-black">0.75x</span>
+        </button>
+
+        <button id="download-all-btn" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text w-8 h-8 rounded-lg active:scale-95 transition-transform flex items-center justify-center" onclick="downloadAllAudio()" title="Скачать аудио для офлайн работы">
+            <svg id="download-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <svg id="download-spinner" class="hidden animate-spin text-tg-primary" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="2" x2="12" y2="6"></line>
+                <line x1="12" y1="18" x2="12" y2="22"></line>
+                <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                <line x1="2" y1="12" x2="6" y2="12"></line>
+                <line x1="18" y1="12" x2="22" y2="12"></line>
+                <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+            </svg>
+            <svg id="download-check" class="hidden text-green-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </button>
+    </div>
 </div>
 
-    <header class="text-center mb-4 mt-2">
+
+    <header class="text-center mb-6 mt-1">
         <h1 class="text-tg-primary text-2xl font-black uppercase tracking-wide leading-tight">Học tiếng Việt</h1>
         <p id="sub-title" class="text-tg-hint text-sm mt-0.5 font-medium transition-colors"></p>
     </header>
@@ -1145,6 +1164,90 @@
             }
         });
     }
+
+// --- ЛОГИКА ФОНОВОГО СКАЧИВАНИЯ --- //
+    window.addEventListener('DOMContentLoaded', () => {
+        // Проверяем, скачивали ли мы аудио ранее
+        if (localStorage.getItem('audio-offline-ready') === 'true') {
+            const btn = document.getElementById('download-all-btn');
+            const icon = document.getElementById('download-icon');
+            const check = document.getElementById('download-check');
+            
+            if (btn && icon && check) {
+                icon.classList.add('hidden');
+                check.classList.remove('hidden');
+                btn.disabled = true;
+            }
+        }
+    });
+
+    async function downloadAllAudio() {
+        const btn = document.getElementById('download-all-btn');
+        const icon = document.getElementById('download-icon');
+        const spinner = document.getElementById('download-spinner');
+        const check = document.getElementById('download-check');
+
+        // Включаем визуальную загрузку
+        btn.disabled = true;
+        icon.classList.add('hidden');
+        spinner.classList.remove('hidden');
+
+        try {
+            const allWords = new Set();
+
+            // Собираем все слова из баз
+            if (typeof vowelsData !== 'undefined') {
+                Object.values(vowelsData).forEach(g => g.data.forEach(d => d.tones.forEach(t => allWords.add(t.w))));
+            }
+            if (typeof consonantsData !== 'undefined') {
+                Object.values(consonantsData).forEach(g => g.data.forEach(d => d.tones.forEach(t => allWords.add(t.w))));
+            }
+            if (typeof pronounsData !== 'undefined') {
+                pronounsData.forEach(item => allWords.add(item.w));
+            }
+            if (typeof vocabularyData !== 'undefined') {
+                Object.values(vocabularyData).forEach(arr => arr.forEach(item => allWords.add(item.w)));
+            }
+            if (typeof globalDictionary !== 'undefined' && globalDictionary.length > 0) {
+                globalDictionary.forEach(item => allWords.add(item.w));
+            }
+
+            const urlsToFetch = [];
+            
+            // Формируем ссылки
+            allWords.forEach(word => {
+                let cleanText = word.toLowerCase();
+                let encoded = encodeURIComponent(cleanText);
+                let safeName = encoded.replace(/%/g, '_').replace(/[^a-z0-9_]/gi, '_');
+                let filename = safeName.replace(/_+/g, '_').replace(/^_|_$/g, '');
+                
+                urlsToFetch.push(`./audio_0.75/${filename}.mp3`);
+            });
+
+            // Скачиваем пачками по 15 файлов
+            const batchSize = 15; 
+            for (let i = 0; i < urlsToFetch.length; i += batchSize) {
+                const batch = urlsToFetch.slice(i, i + batchSize);
+                await Promise.all(batch.map(url => fetch(url).catch(e => console.log('Fetch skipped:', url))));
+            }
+
+            // Запоминаем успех
+            localStorage.setItem('audio-offline-ready', 'true');
+
+            // Показываем галочку
+            spinner.classList.add('hidden');
+            check.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Ошибка при скачивании базы:', error);
+            alert('Не удалось скачать аудио. Проверьте подключение к интернету.');
+            
+            spinner.classList.add('hidden');
+            icon.classList.remove('hidden');
+            btn.disabled = false;
+        }
+    }
+
 
 </script>
 </body>
