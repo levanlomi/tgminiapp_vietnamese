@@ -598,7 +598,7 @@
     function initTrainerData() {
         const allWords = getGlobalDictionary();
         let shuffled = shuffleArray([...allWords]);
-        let selected = shuffled.slice(0, 5);
+        let selected = shuffled.slice(0, 6);
         
         trainerLeft = [...selected];
         trainerRight = shuffleArray([...selected]);
@@ -684,7 +684,7 @@
         leftCol.innerHTML = '';
         rightCol.innerHTML = '';
 
-        for(let i = 0; i < 5; i++) {
+        for(let i = 0; i < 6; i++) {
             const lBtn = document.createElement('button');
             lBtn.id = `t-left-${i}`;
             lBtn.className = getTrainerBtnClass('left', i);
@@ -719,7 +719,7 @@
             }
         }
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 6; i++) {
             const lBtn = document.getElementById(`t-left-${i}`);
             const rBtn = document.getElementById(`t-right-${i}`);
             if (lBtn) lBtn.className = getTrainerBtnClass('left', i);
