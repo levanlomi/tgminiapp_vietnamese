@@ -108,7 +108,7 @@
 
     <div class="flex items-center gap-1">
         <button id="speed-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text w-10 h-8 rounded-lg active:scale-95 transition-transform flex items-center justify-center" onclick="toggleSpeed()">
-            <span id="speed-label" class="text-[11px] font-black">0.75x</span>
+            <span id="speed-label" class="text-[11px] font-black">1x</span>
         </button>
 
         <button id="download-all-btn" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text w-8 h-8 rounded-lg active:scale-95 transition-transform flex items-center justify-center" onclick="downloadAllAudio()" title="Скачать аудио для офлайн работы">
@@ -164,12 +164,12 @@
     if (tg && tg.ready) tg.ready();
 
     const globalAudio = new Audio();
-    let currentPlaybackSpeed = 0.75; 
+    let currentPlaybackSpeed = 1.0; 
 
     function toggleSpeed() {
         const speedLabel = document.getElementById('speed-label');
-        currentPlaybackSpeed = currentPlaybackSpeed === 0.75 ? 1.0 : 0.75;
-        speedLabel.textContent = currentPlaybackSpeed === 0.75 ? '0.75x' : '1x';
+        currentPlaybackSpeed = currentPlaybackSpeed === 1.0 ? 0.75 : 1.0;
+        speedLabel.textContent = currentPlaybackSpeed === 1.0 ? '1x' : '0.75x';
         if (globalAudio) {
             globalAudio.playbackRate = currentPlaybackSpeed;
         }
