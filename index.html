@@ -159,12 +159,16 @@
 </div>
 
 <script>
+    // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
+    // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
+    const APP_VERSION = 'v12'; 
+
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
     if (tg && tg.ready) tg.ready();
 
     const globalAudio = new Audio();
-    let currentPlaybackSpeed = 1.0; 
+    let currentPlaybackSpeed = 1.0;
 
     function toggleSpeed() {
         const speedLabel = document.getElementById('speed-label');
@@ -1409,13 +1413,26 @@
     };
 
     let lastWidth = window.innerWidth;
-    window.addEventListener('resize', () => {
-        const currentWidth = window.innerWidth;
-        const crossedBreakpoint = (lastWidth < 640 && currentWidth >= 640) || (lastWidth >= 640 && currentWidth < 640);
-        if (crossedBreakpoint) {
-            lastWidth = currentWidth;
-            if (currentTab === 'vocabulary') {
-                renderVocabPageOnly();
+    window.addEventListener('DOMContentLoaded', () => {
+        const currentCacheKey = `audio-offline-ready-${APP_VERSION}`;
+        
+        // Очищаем старые версии флагов из памяти
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('audio-offline-ready-') && key !== currentCacheKey) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        // Проверяем скачана ли текущая версия
+        if (localStorage.getItem(currentCacheKey) === 'true') {
+            const btn = document.getElementById('download-all-btn');
+            const icon = document.getElementById('download-icon');
+            const check = document.getElementById('download-check');
+            
+            if (btn && icon && check) {
+                icon.classList.add('hidden');
+                check.classList.remove('hidden');
+                btn.disabled = true;
             }
         }
     });
@@ -1513,7 +1530,8 @@
                 await Promise.all(batch.map(url => fetch(url).catch(e => console.log('Fetch skipped:', url))));
             }
 
-            localStorage.setItem('audio-offline-ready', 'true');
+            // Сохраняем флаг УСПЕХА для конкретной версии
+            localStorage.setItem(`audio-offline-ready-${APP_VERSION}`, 'true');
 
             spinner.classList.add('hidden');
             check.classList.remove('hidden');
