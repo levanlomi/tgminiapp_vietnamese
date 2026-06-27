@@ -71,19 +71,39 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        /* Анимация ошибки для тренажера */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-4px); }
+            40% { transform: translateX(4px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .shake-anim {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
     </style>
 </head>
 <body class="p-4 flex flex-col items-center transition-colors duration-300">
 
 <div class="w-full max-w-screen-md relative">
   
+<!-- ВЕРХНЯЯ ПАНЕЛЬ С КНОПКАМИ -->
+<div class="absolute top-0 left-0 flex flex-col items-start gap-1 z-10">
+    <!-- КНОПКА ТРЕНАЖЕРА -->
+    <button id="trainer-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black w-10 h-8 rounded-lg text-[16px] active:scale-95 transition-transform flex items-center justify-center shadow-sm" onclick="switchTab('trainer')" title="Тренажер слов">
+        🎮
+    </button>
+</div>
+
 <div class="absolute top-0 right-0 flex flex-col items-end gap-1 z-10">
     <div class="flex items-center gap-1">
         <button id="lang-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black w-10 h-8 rounded-lg text-[11px] uppercase active:scale-95 transition-transform flex items-center justify-center" onclick="toggleLanguage()">
             RU
         </button>
         <button id="theme-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text w-8 h-8 rounded-lg active:scale-95 transition-transform flex items-center justify-center" onclick="toggleTheme()">
-            </button>
+        </button>
     </div>
 
     <div class="flex items-center gap-1">
@@ -463,7 +483,6 @@
         const seen = new Set(); 
 
         function addWord(item) {
-            // Создаем уникальный ключ из слова и его иконки
             const icon = item.e || item.i || '';
             const key = item.w.toLowerCase() + '_' + icon;
             
@@ -473,11 +492,8 @@
             }
         }
 
-        // Приоритет 1: Словарь (он самый подробный)
         Object.values(vocabularyData).forEach(arr => arr.forEach(addWord));
-        // Приоритет 2: Местоимения
         pronounsData.forEach(addWord);
-        // Приоритет 3: Фонетика (что осталось)
         Object.values(vowelsData).forEach(group => group.data.forEach(l => l.tones.forEach(addWord)));
         Object.values(consonantsData).forEach(group => group.data.forEach(l => l.tones.forEach(addWord)));
 
@@ -526,6 +542,258 @@
 
     const mainContainer = document.getElementById('grids-container');
 
+    // === ТРЕНАЖЕР СЛОВ ===
+    let trainerLeft = [];
+    let trainerRight = [];
+    let tSelectedLeft = -1;
+    let tSelectedRight = -1;
+    let tIsAnimating = false;
+
+    function getRandomWord(excludeWords = []) {
+        const all = getGlobalDictionary();
+        const available = all.filter(item => !excludeWords.includes(item.w));
+        if (available.length === 0) return all[Math.floor(Math.random() * all.length)];
+        return available[Math.floor(Math.random() * available.length)];
+    }
+
+    function shuffleArray(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex != 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    function initTrainerData() {
+        const allWords = getGlobalDictionary();
+        let shuffled = shuffleArray([...allWords]);
+        let selected = shuffled.slice(0, 4);
+        
+        trainerLeft = [...selected];
+        trainerRight = shuffleArray([...selected]);
+    }
+
+    function renderTrainerSection() {
+        mainContainer.innerHTML = '';
+        mainContainer.classList.remove('animate-fade-in');
+        void mainContainer.offsetWidth;
+        mainContainer.classList.add('animate-fade-in');
+
+        const header = document.createElement('div');
+        header.className = 'flex justify-between items-center w-full mb-6 mt-2 border-b-2 border-tg-hint/20 pb-2';
+        header.innerHTML = `
+            <div class="font-bold text-tg-primary uppercase tracking-widest text-sm flex items-center gap-2">
+                🎮 ${currentLang === 'ru' ? 'Тренажер слов' : 'Word Trainer'}
+            </div>
+            <button class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform flex items-center gap-1 shadow-sm" onclick="trainerReroll()">
+                🎲 ${currentLang === 'ru' ? 'Обновить' : 'Reroll'}
+            </button>
+        `;
+        mainContainer.appendChild(header);
+
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-2 gap-3 w-full';
+        
+        const leftCol = document.createElement('div');
+        leftCol.className = 'flex flex-col gap-3';
+        leftCol.id = 'trainer-left-col';
+
+        const rightCol = document.createElement('div');
+        rightCol.className = 'flex flex-col gap-3';
+        rightCol.id = 'trainer-right-col';
+
+        grid.appendChild(leftCol);
+        grid.appendChild(rightCol);
+        mainContainer.appendChild(grid);
+
+        if (trainerLeft.length === 0) {
+            initTrainerData();
+        }
+
+        drawTrainerColumns();
+    }
+
+    function getTrainerBtnClass(side, index) {
+        let base = 'bg-tg-secondaryBg border-2 border-tg-hint/20 rounded-xl p-3 min-h-[72px] flex items-center justify-center shadow-sm transition-all duration-300 w-full overflow-hidden active:scale-95';
+        let isSelected = (side === 'left' && tSelectedLeft === index) || (side === 'right' && tSelectedRight === index);
+        
+        if (isSelected) {
+            base += ' border-tg-primary bg-tg-primary/10 text-tg-primary';
+        } else {
+            base += ' text-tg-text';
+        }
+        return base;
+    }
+
+    function updateTrainerBtnContent(side, i) {
+        const btn = document.getElementById(`t-${side}-${i}`);
+        if (!btn) return;
+        
+        if (side === 'left') {
+            btn.innerHTML = `<span class="font-black text-lg text-center leading-tight">${trainerLeft[i].w}</span>`;
+        } else {
+            let iconContent = '';
+            if (trainerRight[i].e) {
+                iconContent = trainerRight[i].e;
+            } else if (trainerRight[i].isSvg) {
+                iconContent = `<span class="icon-wrap w-5 h-5 inline-block align-middle">${trainerRight[i].i}</span>`;
+            } else {
+                iconContent = trainerRight[i].i;
+            }
+            const transText = trainerRight[i].t[currentLang] || trainerRight[i].t['en'];
+            btn.innerHTML = `<div class="flex items-center gap-2 w-full"><span class="text-xl shrink-0 flex items-center justify-center">${iconContent}</span><span class="text-[0.8rem] font-bold text-left leading-tight line-clamp-2">${transText}</span></div>`;
+        }
+    }
+
+    function drawTrainerColumns() {
+        const leftCol = document.getElementById('trainer-left-col');
+        const rightCol = document.getElementById('trainer-right-col');
+        if (!leftCol || !rightCol) return;
+
+        leftCol.innerHTML = '';
+        rightCol.innerHTML = '';
+
+        for(let i = 0; i < 4; i++) {
+            const lBtn = document.createElement('button');
+            lBtn.id = `t-left-${i}`;
+            lBtn.className = getTrainerBtnClass('left', i);
+            lBtn.onclick = () => handleTrainerClick('left', i);
+            leftCol.appendChild(lBtn);
+            updateTrainerBtnContent('left', i);
+
+            const rBtn = document.createElement('button');
+            rBtn.id = `t-right-${i}`;
+            rBtn.className = getTrainerBtnClass('right', i);
+            rBtn.onclick = () => handleTrainerClick('right', i);
+            rightCol.appendChild(rBtn);
+            updateTrainerBtnContent('right', i);
+        }
+    }
+
+    function handleTrainerClick(side, index) {
+        if (tIsAnimating) return;
+
+        if (side === 'left') {
+            if (tSelectedLeft === index) {
+                tSelectedLeft = -1; 
+            } else {
+                tSelectedLeft = index;
+                play(trainerLeft[index].w, null);
+            }
+        } else {
+            if (tSelectedRight === index) {
+                tSelectedRight = -1;
+            } else {
+                tSelectedRight = index;
+            }
+        }
+
+        for (let i = 0; i < 4; i++) {
+            const lBtn = document.getElementById(`t-left-${i}`);
+            const rBtn = document.getElementById(`t-right-${i}`);
+            if (lBtn) lBtn.className = getTrainerBtnClass('left', i);
+            if (rBtn) rBtn.className = getTrainerBtnClass('right', i);
+        }
+
+        if (tSelectedLeft !== -1 && tSelectedRight !== -1) {
+            checkTrainerMatch();
+        }
+    }
+
+    function checkTrainerMatch() {
+        tIsAnimating = true;
+        const lIndex = tSelectedLeft;
+        const rIndex = tSelectedRight;
+        
+        const lWord = trainerLeft[lIndex].w;
+        const rWord = trainerRight[rIndex].w;
+
+        const lBtn = document.getElementById(`t-left-${lIndex}`);
+        const rBtn = document.getElementById(`t-right-${rIndex}`);
+
+        if (lWord === rWord) {
+            lBtn.className = 'bg-green-500/20 border-2 border-green-500 text-green-500 rounded-xl p-3 min-h-[72px] flex items-center justify-center shadow-sm transition-all duration-500 w-full overflow-hidden scale-[1.02]';
+            rBtn.className = 'bg-green-500/20 border-2 border-green-500 text-green-500 rounded-xl p-3 min-h-[72px] flex items-center justify-center shadow-sm transition-all duration-500 w-full overflow-hidden scale-[1.02]';
+            
+            if (tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+
+            // ТАЙМЕР 1: Задержка перед тем, как слова начнут исчезать (было 400ms, стало 800ms)
+            // Карточки будут дольше "гореть" зеленым
+            setTimeout(() => {
+                lBtn.style.opacity = '0';
+                lBtn.style.transform = 'scale(0.8)';
+                rBtn.style.opacity = '0';
+                rBtn.style.transform = 'scale(0.8)';
+                
+                // ТАЙМЕР 2: Длительность анимации затухания (было 250ms, стало 500ms)
+                setTimeout(() => {
+                    const currentWordsOnScreen = [...trainerLeft.map(i => i.w)];
+                    const newWord = getRandomWord(currentWordsOnScreen);
+                    
+                    trainerLeft[lIndex] = newWord;
+                    trainerRight[rIndex] = newWord;
+                    
+                    tSelectedLeft = -1;
+                    tSelectedRight = -1;
+                    
+                    updateTrainerBtnContent('left', lIndex);
+                    updateTrainerBtnContent('right', rIndex);
+                    
+                    lBtn.className = getTrainerBtnClass('left', lIndex);
+                    rBtn.className = getTrainerBtnClass('right', rIndex);
+                    
+                    void lBtn.offsetWidth;
+                    void rBtn.offsetWidth;
+                    
+                    lBtn.style.opacity = '1';
+                    lBtn.style.transform = 'scale(1)';
+                    rBtn.style.opacity = '1';
+                    rBtn.style.transform = 'scale(1)';
+                    
+                    // ТАЙМЕР 3: Длительность анимации проявления новых слов (было 300ms, стало 500ms)
+                    setTimeout(() => {
+                        lBtn.style = '';
+                        rBtn.style = '';
+                        tIsAnimating = false;
+                    }, 500);
+                }, 500);
+            }, 800);
+
+        } else {
+            // Анимация при ошибке (тряска)
+            lBtn.className = 'bg-red-500/20 border-2 border-red-500 text-red-500 rounded-xl p-3 min-h-[72px] flex items-center justify-center shadow-sm transition-all w-full overflow-hidden shake-anim';
+            rBtn.className = 'bg-red-500/20 border-2 border-red-500 text-red-500 rounded-xl p-3 min-h-[72px] flex items-center justify-center shadow-sm transition-all w-full overflow-hidden shake-anim';
+            
+            if (tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred) {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+
+            setTimeout(() => {
+                tSelectedLeft = -1;
+                tSelectedRight = -1;
+                
+                if (lBtn) lBtn.className = getTrainerBtnClass('left', lIndex);
+                if (rBtn) rBtn.className = getTrainerBtnClass('right', rIndex);
+                
+                tIsAnimating = false;
+            }, 500);
+        }
+    }
+
+    function trainerReroll() {
+        if (tIsAnimating) return;
+        initTrainerData();
+        tSelectedLeft = -1;
+        tSelectedRight = -1;
+        renderTrainerSection();
+    }
+    // ==========================================
+
+
     function renderGrids(dataObj) {
         mainContainer.innerHTML = '';
         mainContainer.classList.remove('animate-fade-in');
@@ -558,7 +826,6 @@
                     
                     const translatedText = tone.t[currentLang] || tone.t['en'];
                     
-                    // БЕЗОПАСНЫЙ РЕНДЕРИНГ ИКОНОК
                     let iconContent = '';
                     if (tone.e) {
                         iconContent = tone.e;
@@ -741,7 +1008,6 @@
         void mainContainer.offsetWidth;
         mainContainer.classList.add('animate-fade-in');
 
-        // Меню подкатегорий словаря
         const subNav = document.createElement('div');
         subNav.className = 'flex overflow-x-auto no-scrollbar gap-2.5 mb-4 w-full py-1';
         
@@ -773,7 +1039,6 @@
                 currentVocabTab = cat.id;
                 vocabPageIndex = 0; 
                 
-                // Сбрасываем поиск при переключении таба
                 const searchInput = document.getElementById('vocab-search');
                 if(searchInput) searchInput.value = '';
                 document.getElementById('clear-search').classList.add('hidden');
@@ -796,7 +1061,6 @@
         });
         mainContainer.appendChild(subNav);
 
-        // --- БЛОК ПОИСКА ---
         const searchContainer = document.createElement('div');
         searchContainer.className = 'relative w-full mb-6 px-1';
         
@@ -815,13 +1079,11 @@
         `;
         mainContainer.appendChild(searchContainer);
 
-        // Изолированный контейнер для карточек
         const pageContainer = document.createElement('div');
         pageContainer.id = 'vocab-page-container';
         pageContainer.className = 'w-full';
         mainContainer.appendChild(pageContainer);
 
-        // Логика поиска
         const searchInput = document.getElementById('vocab-search');
         const clearBtn = document.getElementById('clear-search');
 
@@ -839,10 +1101,10 @@
                     return wordVi.includes(query) || transRu.includes(query) || transEn.includes(query);
                 });
                 
-                renderVocabPageOnly(filtered); // Передаем отфильтрованные данные
+                renderVocabPageOnly(filtered); 
             } else {
                 clearBtn.classList.add('hidden');
-                renderVocabPageOnly(); // Рендерим стандартную вкладку без фильтра
+                renderVocabPageOnly(); 
             }
         });
 
@@ -852,18 +1114,15 @@
             renderVocabPageOnly();
         });
 
-        // Первичный рендер
         renderVocabPageOnly();
     }
 
-    // Измененная функция рендера (принимает опциональный массив для поиска)
     function renderVocabPageOnly(filteredData = null) {
         const pageContainer = document.getElementById('vocab-page-container');
         if (!pageContainer) return;
 
         pageContainer.innerHTML = '';
         
-        // Если это поиск (filteredData не null), мы не делаем анимацию fade-in 
         if (!filteredData) {
             pageContainer.classList.remove('animate-fade-in');
             void pageContainer.offsetWidth;
@@ -878,7 +1137,6 @@
         let totalPages = 1;
 
         if (filteredData) {
-            // Режим поиска: показываем все найденные элементы единым списком
             itemsToRender = filteredData;
             
             if (itemsToRender.length === 0) {
@@ -889,7 +1147,6 @@
                 `;
             }
         } else {
-            // Стандартный режим вкладок: используем пагинацию
             const currentData = vocabularyData[currentVocabTab];
             const isMobile = window.innerWidth < 640;
             const pageSize = isMobile ? 7 : 10;
@@ -907,7 +1164,6 @@
             
             const translation = item.t[currentLang] || item.t['en'];
             
-            // ИСПРАВЛЕННЫЙ БЛОК: Безопасный рендеринг иконок
             let iconContent = '';
             if (item.e) {
                 iconContent = item.e;
@@ -931,7 +1187,6 @@
             vocabGrid.appendChild(rowBtn);
         });
 
-        // Жесты добавляем только если мы НЕ в режиме поиска
         if (!filteredData) {
             vocabGrid.addEventListener('touchstart', e => {
                 touchStartX = e.changedTouches[0].screenX;
@@ -947,18 +1202,15 @@
 
         pageContainer.appendChild(vocabGrid);
 
-        // Рендер панели управления пагинацией (только если не поиск)
         if (showPagination) {
             const paginationControls = document.createElement('div');
             paginationControls.className = 'flex items-center justify-center gap-4 mt-6 mb-8 w-full select-none';
 
-            // Левая стрелка
             const prevBtn = document.createElement('button');
             prevBtn.className = `p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
             prevBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
             prevBtn.onclick = () => navigateVocabPage(-1);
 
-            // Точки-индикаторы
             const dotsContainer = document.createElement('div');
             dotsContainer.className = 'flex items-center gap-2';
             for (let i = 0; i < totalPages; i++) {
@@ -972,7 +1224,6 @@
                 dotsContainer.appendChild(dot);
             }
 
-            // Правая стрелка
             const nextBtn = document.createElement('button');
             nextBtn.className = `p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === totalPages - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
             nextBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`;
@@ -1014,9 +1265,10 @@
         vocabBtn.innerText = uiLabels[currentLang].vocabulary;
         subTitle.innerText = uiLabels[currentLang].subtitle;
         
-        // Обновляем текст на кнопках подразделов и плейсхолдер поиска
         if (currentTab === 'vocabulary') {
             renderVocabularySection();
+        } else if (currentTab === 'trainer') {
+            renderTrainerSection();
         }
     }
 
@@ -1026,7 +1278,6 @@
         if (currentTab === 'vowels') renderGrids(vowelsData);
         else if (currentTab === 'consonants') renderGrids(consonantsData);
         else if (currentTab === 'pronouns') renderPronounsSection();
-        else if (currentTab === 'vocabulary') renderVocabularySection();
     }
 
     function switchTab(tabName) {
@@ -1035,6 +1286,7 @@
         const btnConsonants = document.getElementById('tab-consonants');
         const btnPronouns = document.getElementById('tab-pronouns');
         const btnVocab = document.getElementById('tab-vocabulary');
+        const btnTrainer = document.getElementById('trainer-toggle');
         
         const activeClass = ['bg-tg-primary', 'text-tg-primaryText', 'shadow-sm'];
         const inactiveClass = ['text-tg-text', 'bg-transparent'];
@@ -1043,6 +1295,9 @@
             btn.classList.remove(...activeClass);
             btn.classList.add(...inactiveClass);
         });
+        
+        btnTrainer.classList.remove('bg-tg-primary', 'text-tg-primaryText');
+        btnTrainer.classList.add('bg-tg-hint/10', 'text-tg-text');
 
         if (tabName === 'vowels') {
             btnVowels.classList.add(...activeClass);
@@ -1061,6 +1316,10 @@
             btnVocab.classList.remove(...inactiveClass);
             vocabPageIndex = 0; 
             renderVocabularySection();
+        } else if (tabName === 'trainer') {
+            btnTrainer.classList.remove('bg-tg-hint/10', 'text-tg-text');
+            btnTrainer.classList.add('bg-tg-primary', 'text-tg-primaryText');
+            renderTrainerSection();
         }
     }
 
@@ -1165,9 +1424,7 @@
         });
     }
 
-// --- ЛОГИКА ФОНОВОГО СКАЧИВАНИЯ --- //
     window.addEventListener('DOMContentLoaded', () => {
-        // Проверяем, скачивали ли мы аудио ранее
         if (localStorage.getItem('audio-offline-ready') === 'true') {
             const btn = document.getElementById('download-all-btn');
             const icon = document.getElementById('download-icon');
@@ -1187,7 +1444,6 @@
         const spinner = document.getElementById('download-spinner');
         const check = document.getElementById('download-check');
 
-        // Включаем визуальную загрузку
         btn.disabled = true;
         icon.classList.add('hidden');
         spinner.classList.remove('hidden');
@@ -1195,7 +1451,6 @@
         try {
             const allWords = new Set();
 
-            // Собираем все слова из баз
             if (typeof vowelsData !== 'undefined') {
                 Object.values(vowelsData).forEach(g => g.data.forEach(d => d.tones.forEach(t => allWords.add(t.w))));
             }
@@ -1214,7 +1469,6 @@
 
             const urlsToFetch = [];
             
-            // Формируем ссылки
             allWords.forEach(word => {
                 let cleanText = word.toLowerCase();
                 let encoded = encodeURIComponent(cleanText);
@@ -1224,17 +1478,14 @@
                 urlsToFetch.push(`./audio_0.75/${filename}.mp3`);
             });
 
-            // Скачиваем пачками по 15 файлов
             const batchSize = 15; 
             for (let i = 0; i < urlsToFetch.length; i += batchSize) {
                 const batch = urlsToFetch.slice(i, i + batchSize);
                 await Promise.all(batch.map(url => fetch(url).catch(e => console.log('Fetch skipped:', url))));
             }
 
-            // Запоминаем успех
             localStorage.setItem('audio-offline-ready', 'true');
 
-            // Показываем галочку
             spinner.classList.add('hidden');
             check.classList.remove('hidden');
 
@@ -1247,8 +1498,6 @@
             btn.disabled = false;
         }
     }
-
-
 </script>
 </body>
 </html>
