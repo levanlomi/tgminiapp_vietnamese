@@ -221,52 +221,81 @@
 
     const vowelsData = {
         grid1: { title: "A, Ă, Â, Ơ, Ư", data: [
-            { title: 'A', sound: 'a', tones: [{w:'Bàn', t: {ru: 'Стол', en: 'Table'}, i: svgTable, isSvg: true}, {w:'Chanh', t: {ru: 'Лимон', en: 'Lemon'}, i:'🍋'}, {w:'Sữa', t: {ru: 'Молоко', en: 'Milk'}, i:'🥛'}, {w:'Dao', t: {ru: 'Нож', en: 'Knife'}, i:'🔪'}, {w:'Trà', t: {ru: 'Чай', en: 'Tea'}, i:'🍵'}, {w:'Cá', t: {ru: 'Рыба', en: 'Fish'}, i:'🐟'}]},
-            { title: 'Ă', sound: 'áh', tones: [{w:'Ăn', t: {ru: 'Кушать', en: 'Eat'}, i:'🥢'}, {w:'Khăn', t: {ru: 'Салфетка', en: 'Napkin'}, i:'🧻'}, {w:'Mặn', t: {ru: 'Соленый', en: 'Salty'}, i:'🧂'}, {w:'Ngắn', t: {ru: 'Короткий', en: 'Short'}, i:'📏'}, {w:'Cắt', t: {ru: 'Резать', en: 'Cut'}, i:'✂️'}, {w:'Bắp', t: {ru: 'Кукуруза', en: 'Corn'}, i:'🌽'}]},
-            { title: 'Â', sound: 'ớ', tones: [{w:'Nấm', t: {ru: 'Грибы', en: 'Mushroom'}, i:'🍄'}, {w:'Cần', t: {ru: 'Нужно', en: 'Need'}, i:'⚠️'}, {w:'Ấm', t: {ru: 'Теплый', en: 'Warm'}, i:'☀️'}, {w:'Vâng', t: {ru: 'Да', en: 'Yes (polite)'}, i:'🙋'}, {w:'Dầu', t: {ru: 'Масло', en: 'Oil'}, i:'🛢️'}, {w:'Giấm', t: {ru: 'Уксус', en: 'Vinegar'}, i:'🍶'}]},
-            { title: 'Ơ', sound: 'ơ', tones: [{w:'Phở', t: {ru: 'Суп Фо', en: 'Pho Soup'}, i:'🍜'}, {w:'Chợ', t: {ru: 'Рынок', en: 'Market'}, i:'🛒'}, {w:'Cơm', t: {ru: 'Рис', en: 'Cooked Rice'}, i:'🍚'}, {w:'Ớt', t: {ru: 'Чили', en: 'Chili'}, i:'🌶️'}, {w:'Bơ', t: {ru: 'Авокадо', en: 'Avocado'}, i:'🥑'}, {w:'Mới', t: {ru: 'Новый', en: 'New'}, i:'✨'}]},
-            { title: 'Ư', sound: 'ư', tones: [{w:'Nước', t: {ru: 'Вода/Сок', en: 'Water/Drink'}, i:'🥤'}, {w:'Đường', t: {ru: 'Сахар', en: 'Sugar'}, i:'🍬'}, {w:'Tươi', t: {ru: 'Свежий', en: 'Fresh'}, i:'🌿'}, {w:'Trứng', t: {ru: 'Яйцо', en: 'Egg'}, i:'🥚'}, {w:'Mực', t: {ru: 'Кальмар', en: 'Squid'}, i:'🦑'}, {w:'Thư', t: {ru: 'Письмо', en: 'Letter'}, i:'✉️'}]}
+            { title: 'A', sound: 'a', tones: [{w:'bàn', t: {ru: 'стол', en: 'table'}, i: svgTable, isSvg: true}, {w:'chanh', t: {ru: 'лимон', en: 'lemon'}, i:'🍋'}, {w:'sữa', t: {ru: 'молоко', en: 'milk'}, i:'🥛'}, {w:'dao', t: {ru: 'нож', en: 'knife'}, i:'🔪'}, {w:'trà', t: {ru: 'чай', en: 'tea'}, i:'🍵'}, {w:'cá', t: {ru: 'рыба', en: 'fish'}, i:'🐟'}]},
+            { title: 'Ă', sound: 'áh', tones: [{w:'ăn', t: {ru: 'кушать', en: 'eat'}, i:'🥢'}, {w:'khăn', t: {ru: 'салфетка', en: 'napkin'}, i:'🧻'}, {w:'mặn', t: {ru: 'соленый', en: 'salty'}, i:'🧂'}, {w:'ngắn', t: {ru: 'короткий', en: 'short'}, i:'📏'}, {w:'cắt', t: {ru: 'резать', en: 'cut'}, i:'✂️'}, {w:'bắp', t: {ru: 'кукуруза', en: 'corn'}, i:'🌽'}]},
+            { title: 'Â', sound: 'ớ', tones: [{w:'nấm', t: {ru: 'грибы', en: 'mushroom'}, i:'🍄'}, {w:'cần', t: {ru: 'нужно', en: 'need'}, i:'⚠️'}, {w:'ấm', t: {ru: 'теплый', en: 'warm'}, i:'☀️'}, {w:'vâng', t: {ru: 'да', en: 'yes (polite)'}, i:'🙋'}, {w:'dầu', t: {ru: 'масло', en: 'oil'}, i:'🛢️'}, {w:'giấm', t: {ru: 'уксус', en: 'vinegar'}, i:'🍶'}]},
+            { title: 'Ơ', sound: 'ơ', tones: [{w:'phở', t: {ru: 'суп фо', en: 'pho soup'}, i:'🍜'}, {w:'chợ', t: {ru: 'рынок', en: 'market'}, i:'🛒'}, {w:'cơm', t: {ru: 'рис', en: 'cooked rice'}, i:'🍚'}, {w:'ớt', t: {ru: 'чили', en: 'chili'}, i:'🌶️'}, {w:'bơ', t: {ru: 'авокадо', en: 'avocado'}, i:'🥑'}, {w:'mới', t: {ru: 'новый', en: 'new'}, i:'✨'}]},
+            { title: 'Ư', sound: 'ư', tones: [{w:'nước', t: {ru: 'вода/сок', en: 'water/drink'}, i:'🥤'}, {w:'đường', t: {ru: 'сахар', en: 'sugar'}, i:'🍬'}, {w:'tươi', t: {ru: 'свежий', en: 'fresh'}, i:'🌿'}, {w:'trứng', t: {ru: 'яйцо', en: 'egg'}, i:'🥚'}, {w:'mực', t: {ru: 'кальмар', en: 'squid'}, i:'🦑'}, {w:'thư', t: {ru: 'письмо', en: 'letter'}, i:'✉️'}]}
         ]},
         grid2: { title: "O, Ô, U", data: [
-            { title: 'O', sound: 'o', tones: [{w:'Ngon', t: {ru: 'Вкусно', en: 'Delicious'}, i:'😋'}, {w:'Cho', t: {ru: 'Дайте', en: 'Give/For'}, i:'🤲'}, {w:'Có', t: {ru: 'Есть', en: 'Have'}, i:'✅'}, {w:'Xoài', t: {ru: 'Манго', en: 'Mango'}, i:'🥭'}, {w:'Bò', t: {ru: 'Говядина', en: 'Beef'}, i:'🥩'}, {w:'Tỏi', t: {ru: 'Чеснок', en: 'Garlic'}, i:'🧄'}]},
-            { title: 'Ô', sound: 'ô', tones: [{w:'Ô', t: {ru: 'Зонтик', en: 'Umbrella'}, i:'☂️'}, {w:'Đổi', t: {ru: 'Сдача/Менять', en: 'Change'}, i:'🔄'}, {w:'Nồi', t: {ru: 'Кастрюля', en: 'Pot'}, i:'🍲'}, {w:'Tôm', t: {ru: 'Креветка', en: 'Shrimp'}, i:'🍤'}, {w:'Hộp', t: {ru: 'Контейнер', en: 'Box/Container'}, i:'📦'}, {w:'Ống', t: {ru: 'Трубочка', en: 'Straw'}, i:'🥤'}]},
-            { title: 'U', sound: 'u', tones: [{w:'Bún', t: {ru: 'Лапша Бун', en: 'Bun Noodles'}, i:'🥣'}, {w:'Đũa', t: {ru: 'Палочки', en: 'Chopsticks'}, i:'🥢'}, {w:'Chua', t: {ru: 'Кислый', en: 'Sour'}, i:'😖'}, {w:'Đủ', t: {ru: 'Достаточно', en: 'Enough'}, i:'✋'}, {w:'Mũ', t: {ru: 'Шляпа', en: 'Hat'}, i:'🎩'}, {w:'Đu đủ', t: {ru: 'Папайя', en: 'Papaya'}, i:'🍈'}]}
+            { title: 'O', sound: 'o', tones: [{w:'ngon', t: {ru: 'вкусно', en: 'delicious'}, i:'😋'}, {w:'cho', t: {ru: 'дайте', en: 'give/for'}, i:'🤲'}, {w:'có', t: {ru: 'есть', en: 'have'}, i:'✅'}, {w:'xoài', t: {ru: 'манго', en: 'mango'}, i:'🥭'}, {w:'bò', t: {ru: 'говядина', en: 'beef'}, i:'🥩'}, {w:'tỏi', t: {ru: 'чеснок', en: 'garlic'}, i:'🧄'}]},
+            { title: 'Ô', sound: 'ô', tones: [{w:'ô', t: {ru: 'зонтик', en: 'umbrella'}, i:'☂️'}, {w:'đổi', t: {ru: 'сдача/менять', en: 'change'}, i:'🔄'}, {w:'nồi', t: {ru: 'кастрюля', en: 'pot'}, i:'🍲'}, {w:'tôm', t: {ru: 'креветка', en: 'shrimp'}, i:'🍤'}, {w:'hộp', t: {ru: 'контейнер', en: 'box/container'}, i:'📦'}, {w:'ống', t: {ru: 'трубочка', en: 'straw'}, i:'🥤'}]},
+            { title: 'U', sound: 'u', tones: [{w:'bún', t: {ru: 'лапша бун', en: 'bun noodles'}, i:'🥣'}, {w:'đũa', t: {ru: 'палочки', en: 'chopsticks'}, i:'🥢'}, {w:'chua', t: {ru: 'кислый', en: 'sour'}, i:'😖'}, {w:'đủ', t: {ru: 'достаточно', en: 'enough'}, i:'✋'}, {w:'mũ', t: {ru: 'шляпа', en: 'hat'}, i:'🎩'}, {w:'đu đủ', t: {ru: 'папайя', en: 'papaya'}, i:'🍈'}]}
         ]},
         grid3: { title: "I/Y, E, Ê", data: [
-            { title: 'I / Y', sound: 'Ý', tones: [{w:'Mì', t: {ru: 'Лапша Ми', en: 'Noodles'}, i:'🍜'}, {w:'Ly', t: {ru: 'Стакан', en: 'Glass/Cup'}, i:'🥛'}, {w:'Bia', t: {ru: 'Пиво', en: 'Beer'}, i:'🍺'}, {w:'Kìa', t: {ru: 'Вон тот', en: 'Over there'}, i:'👉'}, {w:'Gì', t: {ru: 'Что?', en: 'What?'}, i:'❓'}, {w:'Chị', t: {ru: 'Старшая сестра', en: 'Older sister'}, i:'👩'}]},
-            { title: 'E', sound: 'e', tones: [{w:'Kem', t: {ru: 'Мороженое', en: 'Ice cream'}, i:'🍦'}, {w:'Chén', t: {ru: 'Чашка', en: 'Small bowl'}, i:'☕'}, {w:'Heo', t: {ru: 'Свинина', en: 'Pork'}, i:'🐷'}, {w:'Bò Né', t: {ru: 'Стейк', en: 'Beef Steak'}, i:'🍳'}, {w:'Rẻ', t: {ru: 'Дешево', en: 'Cheap'}, i:'🏷️'}, {w:'Mè', t: {ru: 'Кунжут', en: 'Sesame'}, i:'🥯'}]},
-            { title: 'Ê', sound: 'ê', tones: [{w:'Café', t: {ru: 'Кофе', en: 'Coffee'}, i:'☕'}, {w:'Thêm', t: {ru: 'Еще', en: 'More/Add'}, i:'➕'}, {w:'Ghế', t: {ru: 'Стул', en: 'Chair'}, i:'🪑'}, {w:'Bê', t: {ru: 'Телятина', en: 'Veal'}, i:'🐮'}, {w:'Ếch', t: {ru: 'Лягушка', en: 'Frog'}, i:'🐸'}, {w:'Hết', t: {ru: 'Закончилось', en: 'Finished'}, i:'🚫'}]}
+            { title: 'I / Y', sound: 'Ý', tones: [{w:'mì', t: {ru: 'лапша ми', en: 'noodles'}, i:'🍜'}, {w:'ly', t: {ru: 'стакан', en: 'glass/cup'}, i:'🥛'}, {w:'bia', t: {ru: 'пиво', en: 'beer'}, i:'🍺'}, {w:'kìa', t: {ru: 'вон тот', en: 'over there'}, i:'👉'}, {w:'gì', t: {ru: 'что?', en: 'what?'}, i:'❓'}, {w:'chị', t: {ru: 'старшая сестра', en: 'older sister'}, i:'👩'}]},
+            { title: 'E', sound: 'e', tones: [{w:'kem', t: {ru: 'мороженое', en: 'ice cream'}, i:'🍦'}, {w:'chén', t: {ru: 'чашка', en: 'small bowl'}, i:'☕'}, {w:'heo', t: {ru: 'свинина', en: 'pork'}, i:'🐷'}, {w:'bò né', t: {ru: 'стейк', en: 'beef steak'}, i:'🍳'}, {w:'rẻ', t: {ru: 'дешево', en: 'cheap'}, i:'🏷️'}, {w:'mè', t: {ru: 'кунжут', en: 'sesame'}, i:'🥯'}]},
+            { title: 'Ê', sound: 'ê', tones: [{w:'café', t: {ru: 'кофе', en: 'coffee'}, i:'☕'}, {w:'thêm', t: {ru: 'еще', en: 'more/add'}, i:'➕'}, {w:'ghế', t: {ru: 'стул', en: 'chair'}, i:'🪑'}, {w:'bê', t: {ru: 'телятина', en: 'veal'}, i:'🐮'}, {w:'ếch', t: {ru: 'лягушка', en: 'frog'}, i:'🐸'}, {w:'hết', t: {ru: 'закончилось', en: 'finished'}, i:'🚫'}]}
         ]}
     };
 
     const consonantsData = {
         grid1: { title: "B, C, D, Đ", data: [
-            { title: 'B', sound: 'bờ', tones: [{w:'Ba', t: {ru: 'Папа', en: 'Father'}, i:'👨'}, {w:'Bò', t: {ru: 'Говядина', en: 'Beef'}, i:'🥩'}, {w:'Bia', t: {ru: 'Пиво', en: 'Beer'}, i:'🍺'}, {w:'Bút', t: {ru: 'Ручка', en: 'Pen'}, i:'🖊️'}, {w:'Bánh', t: {ru: 'Хлеб', en: 'Bread'}, i:'🥖'}, {w:'Bếp', t: {ru: 'Кухня', en: 'Kitchen'}, i:'🍳'}]},
-            { title: 'C', sound: 'cờ', tones: [{w:'Cá', t: {ru: 'Рыба', en: 'Fish'}, i:'🐟'}, {w:'Cơm', t: {ru: 'Рис', en: 'Cooked Rice'}, i:'🍚'}, {w:'Cửa', t: {ru: 'Дверь', en: 'Door'}, i:'🚪'}, {w:'Cỏ', t: {ru: 'Трава', en: 'Grass'}, i:'🌿'}, {w:'Cà phê', t: {ru: 'Кофе', en: 'Coffee'}, i:'☕'}, {w:'Cười', t: {ru: 'Смех', en: 'Smile'}, i:'😄'}]},
-            { title: 'D', sound: 'dờ', tones: [{w:'Dao', t: {ru: 'Нож', en: 'Knife'}, i:'🔪'}, {w:'Dâu', t: {ru: 'Клубника', en: 'Strawberry'}, i:'🍓'}, {w:'Dê', t: {ru: 'Коза', en: 'Goat'}, i:'🐐'}, {w:'Dừa', t: {ru: 'Кокос', en: 'Coconut'}, i:'🥥'}, {w:'Dép', t: {ru: 'Тапочки', en: 'Slippers'}, i:'🩴'}, {w:'Dễ', t: {ru: 'Легко', en: 'Easy'}, i:'✅'}]},
-            { title: 'Đ', sound: 'đờ', tones: [{w:'Đường', t: {ru: 'Сахар', en: 'Sugar'}, i:'🍬'}, {w:'Đá', t: {ru: 'Лед/Камень', en: 'Ice'}, i:'🧊'}, {w:'Đẹp', t: {ru: 'Красивый', en: 'Beautiful'}, i:'✨'}, {w:'Đỏ', t: {ru: 'Красный', en: 'Red'}, i:'🔴'}, {w:'Đi', t: {ru: 'Идти', en: 'Go'}, i:'🚶'}, {w:'Đảo', t: {ru: 'Остров', en: 'Island'}, i:'🏝️'}]}
+            { title: 'B', sound: 'bờ', tones: [{w:'ba', t: {ru: 'папа', en: 'father'}, i:'👨'}, {w:'bò', t: {ru: 'говядина', en: 'beef'}, i:'🥩'}, {w:'bia', t: {ru: 'пиво', en: 'beer'}, i:'🍺'}, {w:'bút', t: {ru: 'ручка', en: 'pen'}, i:'🖊️'}, {w:'bánh', t: {ru: 'хлеб', en: 'bread'}, i:'🥖'}, {w:'bếp', t: {ru: 'кухня', en: 'kitchen'}, i:'🍳'}]},
+            { title: 'C', sound: 'cờ', tones: [{w:'cá', t: {ru: 'рыба', en: 'fish'}, i:'🐟'}, {w:'cơm', t: {ru: 'рис', en: 'cooked rice'}, i:'🍚'}, {w:'cửa', t: {ru: 'дверь', en: 'door'}, i:'🚪'}, {w:'cỏ', t: {ru: 'трава', en: 'grass'}, i:'🌿'}, {w:'cà phê', t: {ru: 'кофе', en: 'coffee'}, i:'☕'}, {w:'cười', t: {ru: 'смех', en: 'smile'}, i:'😄'}]},
+            { title: 'D', sound: 'dờ', tones: [{w:'dao', t: {ru: 'нож', en: 'knife'}, i:'🔪'}, {w:'dâu', t: {ru: 'клубника', en: 'strawberry'}, i:'🍓'}, {w:'dê', t: {ru: 'коза', en: 'goat'}, i:'🐐'}, {w:'dừa', t: {ru: 'кокос', en: 'coconut'}, i:'🥥'}, {w:'dép', t: {ru: 'тапочки', en: 'slippers'}, i:'🩴'}, {w:'dễ', t: {ru: 'легко', en: 'easy'}, i:'✅'}]},
+            { title: 'Đ', sound: 'đờ', tones: [{w:'đường', t: {ru: 'сахар', en: 'sugar'}, i:'🍬'}, {w:'đá', t: {ru: 'лед/камень', en: 'ice'}, i:'🧊'}, {w:'đẹp', t: {ru: 'красивый', en: 'beautiful'}, i:'✨'}, {w:'đỏ', t: {ru: 'красный', en: 'red'}, i:'🔴'}, {w:'đi', t: {ru: 'идти', en: 'go'}, i:'🚶'}, {w:'đảo', t: {ru: 'остров', en: 'island'}, i:'🏝️'}]}
         ]},
         grid2: { title: "G, H, K, L", data: [
-            { title: 'G', sound: 'gờ', tones: [{w:'Gà', t: {ru: 'Курица', en: 'Chicken'}, i:'🐔'}, {w:'Gạo', t: {ru: 'Рис (крупа)', en: 'Raw Rice'}, i:'🌾'}, {w:'Gương', t: {ru: 'Зеркало', en: 'Mirror'}, i:'🪞'}, {w:'Ghế', t: {ru: 'Стул', en: 'Chair'}, i:'🪑'}, {w:'Gỗ', t: {ru: 'Дерево', en: 'Wood'}, i:'🪵'}, {w:'Gần', t: {ru: 'Близко', en: 'Near'}, i:'📍'}]},
-            { title: 'H', sound: 'hờ', tones: [{w:'Hoa', t: {ru: 'Цветок', en: 'Flower'}, i:'🌸'}, {w:'Hỏi', t: {ru: 'Спрашивать', en: 'Ask'}, i:'❓'}, {w:'Hát', t: {ru: 'Петь', en: 'Sing'}, i:'🎤'}, {w:'Học', t: {ru: 'Учиться', en: 'Study'}, i:'📚'}, {w:'Hai', t: {ru: 'Два', en: 'Two'}, i:'2️⃣'}, {w:'Hộp', t: {ru: 'Коробка', en: 'Box'}, i:'📦'}]},
-            { title: 'K', sound: 'ca', tones: [{w:'Kéo', t: {ru: 'Ножницы', en: 'Scissors'}, i:'✂️'}, {w:'Kẹo', t: {ru: 'Конфета', en: 'Candy'}, i:'🍬'}, {w:'Kính', t: {ru: 'Очки', en: 'Glasses'}, i:'👓'}, {w:'Ký', t: {ru: 'Подпись', en: 'Sign'}, i:'✍️'}, {w:'Kém', t: {ru: 'Хуже', en: 'Poor'}, i:'📉'}, {w:'Kêu', t: {ru: 'Звать', en: 'Call'}, i:'🗣️'}]},
-            { title: 'L', sound: 'lờ', tones: [{w:'Lê', t: {ru: 'Груша', en: 'Pear'}, i:'🍐'}, {w:'Lạnh', t: {ru: 'Холодно', en: 'Cold'}, i:'❄️'}, {w:'Lá', t: {ru: 'Лист', en: 'Leaf'}, i:'🍃'}, {w:'Lửa', t: {ru: 'Огонь', en: 'Fire'}, i:'🔥'}, {w:'Lớn', t: {ru: 'Большой', en: 'Big'}, i:'🐘'}, {w:'Làm', t: {ru: 'Делать', en: 'Do'}, i:'🛠️'}]}
+            { title: 'G', sound: 'gờ', tones: [{w:'gà', t: {ru: 'курица', en: 'chicken'}, i:'🐔'}, {w:'gạo', t: {ru: 'рис (крупа)', en: 'raw rice'}, i:'🌾'}, {w:'gương', t: {ru: 'зеркало', en: 'mirror'}, i:'🪞'}, {w:'ghế', t: {ru: 'стул', en: 'chair'}, i:'🪑'}, {w:'gỗ', t: {ru: 'дерево', en: 'wood'}, i:'🪵'}, {w:'gần', t: {ru: 'близко', en: 'near'}, i:'📍'}]},
+            { title: 'H', sound: 'hờ', tones: [{w:'hoa', t: {ru: 'цветок', en: 'flower'}, i:'🌸'}, {w:'hỏi', t: {ru: 'спрашивать', en: 'ask'}, i:'❓'}, {w:'hát', t: {ru: 'петь', en: 'sing'}, i:'🎤'}, {w:'học', t: {ru: 'учиться', en: 'study'}, i:'📚'}, {w:'hai', t: {ru: 'два', en: 'two'}, i:'2️⃣'}, {w:'hộp', t: {ru: 'коробка', en: 'box'}, i:'📦'}]},
+            { title: 'K', sound: 'ca', tones: [{w:'kéo', t: {ru: 'ножницы', en: 'scissors'}, i:'✂️'}, {w:'kẹo', t: {ru: 'конфета', en: 'candy'}, i:'🍬'}, {w:'kính', t: {ru: 'очки', en: 'glasses'}, i:'👓'}, {w:'ký', t: {ru: 'подпись', en: 'sign'}, i:'✍️'}, {w:'kém', t: {ru: 'хуже', en: 'poor'}, i:'📉'}, {w:'kêu', t: {ru: 'звать', en: 'call'}, i:'🗣️'}]},
+            { title: 'L', sound: 'lờ', tones: [{w:'lê', t: {ru: 'груша', en: 'pear'}, i:'🍐'}, {w:'lạnh', t: {ru: 'холодно', en: 'cold'}, i:'❄️'}, {w:'lá', t: {ru: 'лист', en: 'leaf'}, i:'🍃'}, {w:'lửa', t: {ru: 'огонь', en: 'fire'}, i:'🔥'}, {w:'lớn', t: {ru: 'большой', en: 'big'}, i:'🐘'}, {w:'làm', t: {ru: 'делать', en: 'do'}, i:'🛠️'}]}
+        ]},
+        grid3: { title: "M, N, P, QU", data: [
+            { title: 'M', sound: 'mờ', tones: [{w:'mẹ', t: {ru: 'мама', en: 'mother'}, i:'👩‍🍼'}, {w:'mèo', t: {ru: 'кот', en: 'cat'}, i:'🐈'}, {w:'mũ', t: {ru: 'шляпа', en: 'hat'}, i:'🧢'}, {w:'mưa', t: {ru: 'дождь', en: 'rain'}, i:'🌧️'}, {w:'mắt', t: {ru: 'глаз', en: 'eye'}, i:'👁️'}, {w:'mới', t: {ru: 'новый', en: 'new'}, i:'✨'}]},
+            { title: 'N', sound: 'nờ', tones: [{w:'năm', t: {ru: 'год / пять', en: 'year / five'}, i:'5️⃣'}, {w:'nước', t: {ru: 'вода', en: 'water'}, i:'💧'}, {w:'nón', t: {ru: 'шапка', en: 'hat'}, i:'👒'}, {w:'nắng', t: {ru: 'солнечно', en: 'sunny'}, i:'☀️'}, {w:'nồi', t: {ru: 'кастрюля', en: 'pot'}, i:'🍲'}, {w:'nấu', t: {ru: 'готовить', en: 'cook'}, i:'🍳'}]},
+            { title: 'P', sound: 'pê', tones: [{w:'pin', t: {ru: 'батарейка', en: 'battery'}, i:'🔋'}, {w:'pi-a-nô', t: {ru: 'пианино', en: 'piano'}, i:'🎹'}, {w:'pa-tê', t: {ru: 'паштет', en: 'pate'}, i:'🍞'}, {w:'súp', t: {ru: 'суп', en: 'soup'}, i:'🥣'}, {w:'cúp', t: {ru: 'кубок', en: 'cup'}, i:'🏆'}, {w:'bếp', t: {ru: 'кухня', en: 'kitchen'}, i:'🍳'}]},
+            { title: 'QU', sound: 'quờ', tones: [{w:'quạt', t: {ru: 'вентилятор', en: 'fan'}, i:'🌀'}, {w:'quả', t: {ru: 'фрукт', en: 'fruit'}, i:'🍎'}, {w:'quần', t: {ru: 'штаны', en: 'pants'}, i:'👖'}, {w:'quê', t: {ru: 'деревня', en: 'countryside'}, i:'🏡'}, {w:'quán', t: {ru: 'заведение', en: 'shop/cafe'}, i:'🏪'}, {w:'quên', t: {ru: 'забывать', en: 'forget'}, i:'🤷'}]}
+        ]},
+        grid4: { title: "R, S, T, V", data: [
+            { title: 'R', sound: 'rờ', tones: [{w:'rau', t: {ru: 'овощи', en: 'vegetables'}, i:'🥬'}, {w:'rắn', t: {ru: 'змея', en: 'snake'}, i:'🐍'}, {w:'răng', t: {ru: 'зуб', en: 'tooth'}, i:'🦷'}, {w:'rẻ', t: {ru: 'дешевый', en: 'cheap'}, i:'📉'}, {w:'rừng', t: {ru: 'лес', en: 'forest'}, i:'🌲'}, {w:'rùa', t: {ru: 'черепаха', en: 'turtle'}, i:'🐢'}]},
+            { title: 'S', sound: 'sờ', tones: [{w:'sữa', t: {ru: 'молоко', en: 'milk'}, i:'🥛'}, {w:'sách', t: {ru: 'книга', en: 'book'}, i:'📖'}, {w:'sông', t: {ru: 'река', en: 'river'}, i:'🏞️'}, {w:'sáng', t: {ru: 'утро', en: 'morning'}, i:'🌅'}, {w:'số', t: {ru: 'число', en: 'number'}, i:'🔢'}, {w:'sân', t: {ru: 'двор', en: 'yard'}, i:'🏡'}]},
+            { title: 'T', sound: 'tờ', tones: [{w:'táo', t: {ru: 'яблоко', en: 'apple'}, i:'🍎'}, {w:'tên', t: {ru: 'имя', en: 'name'}, i:'📛'}, {w:'tám', t: {ru: 'восемь', en: 'eight'}, i:'8️⃣'}, {w:'tóc', t: {ru: 'волосы', en: 'hair'}, i:'💇'}, {w:'tai', t: {ru: 'ухо', en: 'ear'}, i:'👂'}, {w:'tiền', t: {ru: 'деньги', en: 'money'}, i:'💵'}]},
+            { title: 'V', sound: 'vờ', tones: [{w:'vịt', t: {ru: 'утка', en: 'duck'}, i:'🦆'}, {w:'vàng', t: {ru: 'желтый', en: 'yellow'}, i:'🟡'}, {w:'váy', t: {ru: 'юбка', en: 'skirt'}, i:'👗'}, {w:'viết', t: {ru: 'писать', en: 'write'}, i:'✍️'}, {w:'vui', t: {ru: 'веселый', en: 'happy'}, i:'😄'}, {w:'vào', t: {ru: 'входить', en: 'enter'}, i:'🚪'}]}
+        ]},
+        grid5: { title: "X, CH, TR, TH", data: [
+            { title: 'X', sound: 'xờ', tones: [{w:'xe', t: {ru: 'машина', en: 'car'}, i:'🚗'}, {w:'xem', t: {ru: 'смотреть', en: 'watch'}, i:'👀'}, {w:'xanh', t: {ru: 'синий/зеленый', en: 'blue/green'}, i:'🔵'}, {w:'xoài', t: {ru: 'манго', en: 'mango'}, i:'🥭'}, {w:'xinh', t: {ru: 'милый', en: 'cute'}, i:'🌸'}, {w:'xin', t: {ru: 'просить', en: 'ask/beg'}, i:'🙏'}]},
+            { title: 'CH', sound: 'chờ', tones: [{w:'chó', t: {ru: 'собака', en: 'dog'}, i:'🐕'}, {w:'chanh', t: {ru: 'лимон', en: 'lemon'}, i:'🍋'}, {w:'chợ', t: {ru: 'рынок', en: 'market'}, i:'🛒'}, {w:'chuột', t: {ru: 'мышь', en: 'mouse'}, i:'🐁'}, {w:'chân', t: {ru: 'нога', en: 'foot'}, i:'🦶'}, {w:'chín', t: {ru: 'девять', en: 'nine'}, i:'9️⃣'}]},
+            { title: 'TR', sound: 'trờ', tones: [{w:'trà', t: {ru: 'чай', en: 'tea'}, i:'🍵'}, {w:'trứng', t: {ru: 'яйцо', en: 'egg'}, i:'🥚'}, {w:'trời', t: {ru: 'небо', en: 'sky'}, i:'☁️'}, {w:'trắng', t: {ru: 'белый', en: 'white'}, i:'⚪'}, {w:'trái', t: {ru: 'лево / фрукт', en: 'left / fruit'}, i:'🍎'}, {w:'tre', t: {ru: 'бамбук', en: 'bamboo'}, i:'🎋'}]},
+            { title: 'TH', sound: 'thờ', tones: [{w:'thịt', t: {ru: 'мясо', en: 'meat'}, i:'🥩'}, {w:'thỏ', t: {ru: 'кролик', en: 'rabbit'}, i:'🐇'}, {w:'tháng', t: {ru: 'месяц', en: 'month'}, i:'📅'}, {w:'thầy', t: {ru: 'учитель', en: 'teacher'}, i:'👨‍🏫'}, {w:'thuốc', t: {ru: 'лекарство', en: 'medicine'}, i:'💊'}, {w:'thơm', t: {ru: 'ароматный', en: 'fragrant'}, i:'🍍'}]}
+        ]},
+        grid6: { title: "PH, KH, NH, GI", data: [
+            { title: 'PH', sound: 'phờ', tones: [{w:'phở', t: {ru: 'суп фо', en: 'pho soup'}, i:'🍜'}, {w:'phố', t: {ru: 'улица', en: 'street'}, i:'🏙️'}, {w:'phòng', t: {ru: 'комната', en: 'room'}, i:'🚪'}, {w:'phim', t: {ru: 'фильм', en: 'movie'}, i:'🎬'}, {w:'phải', t: {ru: 'право', en: 'right'}, i:'➡️'}, {w:'phút', t: {ru: 'минута', en: 'minute'}, i:'⏱️'}]},
+            { title: 'KH', sound: 'khờ', tones: [{w:'không', t: {ru: 'нет / ноль', en: 'no / zero'}, i:'🙅'}, {w:'khăn', t: {ru: 'полотенце', en: 'towel'}, i:'🧻'}, {w:'khỏe', t: {ru: 'здоровый', en: 'healthy'}, i:'💪'}, {w:'khách', t: {ru: 'гость', en: 'guest'}, i:'🚶'}, {w:'khóc', t: {ru: 'плакать', en: 'cry'}, i:'😭'}, {w:'khỉ', t: {ru: 'обезьяна', en: 'monkey'}, i:'🐒'}]},
+            { title: 'NH', sound: 'nhờ', tones: [{w:'nhà', t: {ru: 'дом', en: 'house'}, i:'🏠'}, {w:'nhỏ', t: {ru: 'маленький', en: 'small'}, i:'🤏'}, {w:'nhanh', t: {ru: 'быстрый', en: 'fast'}, i:'⚡'}, {w:'nhớ', t: {ru: 'помнить', en: 'remember'}, i:'🧠'}, {w:'nhiều', t: {ru: 'много', en: 'many'}, i:'👐'}, {w:'nhẫn', t: {ru: 'кольцо', en: 'ring'}, i:'💍'}]},
+            { title: 'GI', sound: 'di', tones: [{w:'giày', t: {ru: 'обувь', en: 'shoes'}, i:'👟'}, {w:'giường', t: {ru: 'кровать', en: 'bed'}, i:'🛏️'}, {w:'giấy', t: {ru: 'бумага', en: 'paper'}, i:'📄'}, {w:'giận', t: {ru: 'злиться', en: 'angry'}, i:'😠'}, {w:'giỏi', t: {ru: 'молодец', en: 'smart/good'}, i:'👍'}, {w:'giờ', t: {ru: 'час / время', en: 'hour / time'}, i:'⏳'}]}
+        ]},
+        grid7: { title: "NG, NGH, GH", data: [
+            { title: 'NG', sound: 'ngờ', tones: [{w:'ngon', t: {ru: 'вкусно', en: 'delicious'}, i:'😋'}, {w:'ngày', t: {ru: 'день', en: 'day'}, i:'📅'}, {w:'người', t: {ru: 'человек', en: 'person'}, i:'👤'}, {w:'ngủ', t: {ru: 'спать', en: 'sleep'}, i:'😴'}, {w:'ngọt', t: {ru: 'сладкий', en: 'sweet'}, i:'🍬'}, {w:'ngắn', t: {ru: 'короткий', en: 'short'}, i:'📏'}]},
+            { title: 'NGH', sound: 'ngờ', tones: [{w:'nghỉ', t: {ru: 'отдыхать', en: 'rest'}, i:'🏖️'}, {w:'nghe', t: {ru: 'слушать', en: 'listen'}, i:'👂'}, {w:'nghề', t: {ru: 'профессия', en: 'job'}, i:'👨‍🔧'}, {w:'nghèo', t: {ru: 'бедный', en: 'poor'}, i:'💸'}, {w:'nghĩ', t: {ru: 'думать', en: 'think'}, i:'🤔'}, {w:'nghệ', t: {ru: 'куркума', en: 'turmeric'}, i:'🥔'}]},
+            { title: 'GH', sound: 'gờ', tones: [{w:'ghế', t: {ru: 'стул', en: 'chair'}, i:'🪑'}, {w:'ghi', t: {ru: 'записывать', en: 'write down'}, i:'📝'}, {w:'ghép', t: {ru: 'соединять', en: 'match/join'}, i:'🧩'}, {w:'ghét', t: {ru: 'ненавидеть', en: 'hate'}, i:'😡'}, {w:'ghẹ', t: {ru: 'краб', en: 'blue crab'}, i:'🦀'}, {w:'ghé', t: {ru: 'заскочить', en: 'drop by'}, i:'🚶'}]}
         ]}
     };
 
     const pronounsData = [
-        { w: 'con', e: '👶', level: 0, t: { ru: 'Ребенок', en: 'Child' } },
-        { w: 'em', e: '👦', level: 1, t: { ru: 'Младший брат/сестра', en: 'Younger sibling' } },
-        { w: 'bạn', e: '🤝', level: 2, t: { ru: 'Друг', en: 'Friend' } },
-        { w: 'anh', e: '🧑', level: 3, t: { ru: 'Старший брат', en: 'Older brother' } },
-        { w: 'chị', e: '👩', level: 3, t: { ru: 'Старшая сестра', en: 'Older sister' } },
-        { w: 'cô', e: '👩‍🦱', level: 4, t: { ru: 'Tетя / Учительница', en: 'Aunt / Female Teacher' } },
-        { w: 'chú', e: '👨‍🦰', level: 4, t: { ru: 'Дядя', en: 'Uncle' } },
-        { w: 'mẹ', e: '👩‍🍼', level: 4, t: { ru: 'Мама', en: 'Mother' } },
-        { w: 'ba', e: '👨‍🍼', level: 4, t: { ru: 'Папа', en: 'Father' } },
-        { w: 'bà', e: '👵', level: 5, t: { ru: 'Бабушка', en: 'Grandmother' } },
-        { w: 'ông', e: '👴', level: 5, t: { ru: 'Дедушка', en: 'Grandfather' } },
-        { w: 'thầy', e: '👨‍🏫', level: 4, t: { ru: 'Учитель', en: 'Male Teacher' } }
+        { w: 'con', e: '👶', level: 0, t: { ru: 'ребенок', en: 'child' } },
+        { w: 'em', e: '👦', level: 1, t: { ru: 'младший брат/сестра', en: 'younger sibling' } },
+        { w: 'bạn', e: '🤝', level: 2, t: { ru: 'друг', en: 'friend' } },
+        { w: 'anh', e: '🧑', level: 3, t: { ru: 'старший брат', en: 'older brother' } },
+        { w: 'chị', e: '👩', level: 3, t: { ru: 'старшая сестра', en: 'older sister' } },
+        { w: 'cô', e: '👩‍🦱', level: 4, t: { ru: 'тетя / учительница', en: 'aunt / female teacher' } },
+        { w: 'chú', e: '👨‍🦰', level: 4, t: { ru: 'дядя', en: 'uncle' } },
+        { w: 'mẹ', e: '👩‍🍼', level: 4, t: { ru: 'мама', en: 'mother' } },
+        { w: 'ba', e: '👨‍🍼', level: 4, t: { ru: 'папа', en: 'father' } },
+        { w: 'bà', e: '👵', level: 5, t: { ru: 'бабушка', en: 'grandmother' } },
+        { w: 'ông', e: '👴', level: 5, t: { ru: 'дедушка', en: 'grandfather' } },
+        { w: 'thầy', e: '👨‍🏫', level: 4, t: { ru: 'учитель', en: 'male teacher' } }
     ];
 
     const vocabularyData = {
@@ -328,25 +357,25 @@
             { w: 'hôm qua', e: '⏪', t: { ru: 'вчера', en: 'yesterday' } },
             { w: 'hôm nay', e: '🔽', t: { ru: 'сегодня', en: 'today' } },
             { w: 'ngày mai', e: '⏩', t: { ru: 'завтра', en: 'tomorrow' } },
-            { w: 'thứ hai', e: '2️⃣', t: { ru: 'понедельник', en: 'Monday' } },
-            { w: 'thứ ba', e: '3️⃣', t: { ru: 'вторник', en: 'Tuesday' } },
-            { w: 'thứ tư', e: '4️⃣', t: { ru: 'среда', en: 'Wednesday' } },
-            { w: 'thứ năm', e: '5️⃣', t: { ru: 'четверг', en: 'Thursday' } },
-            { w: 'thứ sáu', e: '6️⃣', t: { ru: 'пятница', en: 'Friday' } },
-            { w: 'thứ bảy', e: '7️⃣', t: { ru: 'суббота', en: 'Saturday' } },
-            { w: 'chủ nhật', e: '☀️', t: { ru: 'воскресенье', en: 'Sunday' } },
-            { w: 'tháng một', e: '1️⃣', t: { ru: 'январь', en: 'January' } },
-            { w: 'tháng hai', e: '2️⃣', t: { ru: 'февраль', en: 'February' } },
-            { w: 'tháng ba', e: '3️⃣', t: { ru: 'март', en: 'March' } },
-            { w: 'tháng tư', e: '4️⃣', t: { ru: 'апрель', en: 'April' } },
-            { w: 'tháng năm', e: '5️⃣', t: { ru: 'май', en: 'May' } },
-            { w: 'tháng sáu', e: '6️⃣', t: { ru: 'июнь', en: 'June' } },
-            { w: 'tháng bảy', e: '7️⃣', t: { ru: 'июль', en: 'July' } },
-            { w: 'tháng tám', e: '8️⃣', t: { ru: 'август', en: 'August' } },
-            { w: 'tháng chín', e: '9️⃣', t: { ru: 'сентябрь', en: 'September' } },
-            { w: 'tháng mười', e: '🔟', t: { ru: 'октябрь', en: 'October' } },
-            { w: 'tháng mười một', e: '1️⃣1️⃣', t: { ru: 'ноябрь', en: 'November' } },
-            { w: 'tháng mười hai', e: '1️⃣2️⃣', t: { ru: 'декабрь', en: 'December' } }
+            { w: 'thứ hai', e: '2️⃣', t: { ru: 'понедельник', en: 'monday' } },
+            { w: 'thứ ba', e: '3️⃣', t: { ru: 'вторник', en: 'tuesday' } },
+            { w: 'thứ tư', e: '4️⃣', t: { ru: 'среда', en: 'wednesday' } },
+            { w: 'thứ năm', e: '5️⃣', t: { ru: 'четверг', en: 'thursday' } },
+            { w: 'thứ sáu', e: '6️⃣', t: { ru: 'пятница', en: 'friday' } },
+            { w: 'thứ bảy', e: '7️⃣', t: { ru: 'суббота', en: 'saturday' } },
+            { w: 'chủ nhật', e: '☀️', t: { ru: 'воскресенье', en: 'sunday' } },
+            { w: 'tháng một', e: '1️⃣', t: { ru: 'январь', en: 'january' } },
+            { w: 'tháng hai', e: '2️⃣', t: { ru: 'февраль', en: 'february' } },
+            { w: 'tháng ba', e: '3️⃣', t: { ru: 'март', en: 'march' } },
+            { w: 'tháng tư', e: '4️⃣', t: { ru: 'апрель', en: 'april' } },
+            { w: 'tháng năm', e: '5️⃣', t: { ru: 'май', en: 'may' } },
+            { w: 'tháng sáu', e: '6️⃣', t: { ru: 'июнь', en: 'june' } },
+            { w: 'tháng bảy', e: '7️⃣', t: { ru: 'июль', en: 'july' } },
+            { w: 'tháng tám', e: '8️⃣', t: { ru: 'август', en: 'august' } },
+            { w: 'tháng chín', e: '9️⃣', t: { ru: 'сентябрь', en: 'september' } },
+            { w: 'tháng mười', e: '🔟', t: { ru: 'октябрь', en: 'october' } },
+            { w: 'tháng mười một', e: '1️⃣1️⃣', t: { ru: 'ноябрь', en: 'november' } },
+            { w: 'tháng mười hai', e: '1️⃣2️⃣', t: { ru: 'декабрь', en: 'december' } }
         ],
         numbers: [
             { w: 'không', e: '0️⃣', t: { ru: 'ноль', en: 'zero' } },
@@ -446,34 +475,34 @@
             { w: 'còn', e: '🔄', t: { ru: 'а (во встречном вопросе) / еще', en: 'and (in return question) / still' } }
         ],
         phrases: [
-            { w: 'Có món ... không?', e: '🍲', t: { ru: 'Есть ли блюдо...?', en: 'Do you have the dish...?' } },
-            { w: 'Tôi muốn...', e: '🎯', t: { ru: 'Я хочу...', en: 'I want...' } },
-            { w: 'Vui lòng cho...', e: '🤲', t: { ru: 'Дайте, пожалуйста...', en: 'Please give...' } },
-            { w: 'Ít đá, ít đường.', e: '📉', t: { ru: 'Немного льда и сахара.', en: 'Little ice, little sugar.' } },
-            { w: 'Cho em tính tiền nha.', e: '🧾', t: { ru: 'Рассчитайте меня, пожалуйста.', en: 'Check / Bill, please.' } },
-            { w: 'Đi thẳng, rẽ trái, rẽ phải.', e: '🛣️', t: { ru: 'Прямо, налево, направо.', en: 'Straight, turn left, turn right.' } },
-            { w: 'Mắc quá, giảm giá đi!', e: '📉', t: { ru: 'Очень дорого, дайте скидку!', en: 'Too expensive, discount please!' } },
-            { w: 'Tôi đến từ Nga.', e: '🇷🇺', t: { ru: 'Я приехал из России.', en: 'I come from Russia.' } },
-            { w: 'Tôi là người Nga.', e: '🪆', t: { ru: 'Я русский.', en: 'I am Russian.' } },
-            { w: 'Cho tôi một ổ bánh mì với một ly cà phê nha.', e: '🥖☕', t: { ru: 'Дайте один баньми и кофе, пожалуйста.', en: 'One banh mi and coffee, please.' } },
-            { w: 'Cho tôi một ly cà phê không đường không đá.', e: '☕🚫', t: { ru: 'Мне кофе без сахара и без льда.', en: 'Coffee without sugar and ice.' } },
-            { w: 'Rất vui được gặp bạn.', e: '🤝', t: { ru: 'Приятно познакомиться.', en: 'Nice to meet you.' } },
-            { w: 'Đất nước của bạn rất đẹp.', e: '🇻🇳', t: { ru: 'Ваша страна очень красива.', en: 'Your country is very beautiful.' } }
+            { w: 'có món ... không?', e: '🍲', t: { ru: 'есть ли блюдо...?', en: 'do you have the dish...?' } },
+            { w: 'tôi muốn...', e: '🎯', t: { ru: 'я хочу...', en: 'i want...' } },
+            { w: 'vui lòng cho...', e: '🤲', t: { ru: 'дайте, пожалуйста...', en: 'please give...' } },
+            { w: 'ít đá, ít đường.', e: '📉', t: { ru: 'немного льда и сахара.', en: 'little ice, little sugar.' } },
+            { w: 'cho em tính tiền nha.', e: '🧾', t: { ru: 'рассчитайте меня, пожалуйста.', en: 'check / bill, please.' } },
+            { w: 'đi thẳng, rẽ trái, rẽ phải.', e: '🛣️', t: { ru: 'прямо, налево, направо.', en: 'straight, turn left, turn right.' } },
+            { w: 'mắc quá, giảm giá đi!', e: '📉', t: { ru: 'очень дорого, дайте скидку!', en: 'too expensive, discount please!' } },
+            { w: 'tôi đến từ nga.', e: '🇷🇺', t: { ru: 'я приехал из россии.', en: 'i come from russia.' } },
+            { w: 'tôi là người nga.', e: '🪆', t: { ru: 'я русский.', en: 'i am russian.' } },
+            { w: 'cho tôi một ổ bánh mì với một ly cà phê nha.', e: '🥖☕', t: { ru: 'дайте один баньми и кофе, пожалуйста.', en: 'one banh mi and coffee, please.' } },
+            { w: 'cho tôi một ly cà phê không đường không đá.', e: '☕🚫', t: { ru: 'мне кофе без сахара и без льда.', en: 'coffee without sugar and ice.' } },
+            { w: 'rất vui được gặp bạn.', e: '🤝', t: { ru: 'приятно познакомиться.', en: 'nice to meet you.' } },
+            { w: 'đất nước của bạn rất đẹp.', e: '🇻🇳', t: { ru: 'ваша страна очень красива.', en: 'your country is very beautiful.' } }
         ],
         questions: [
-            { w: 'Đây là ai?', e: '👤', t: { ru: 'кто это?', en: 'who is this?' } },
-            { w: 'Đây là cái gì?', e: '📦', t: { ru: 'что это?', en: 'what is this?' } },
-            { w: 'Tên là gì?', e: '📛', t: { ru: 'как твое имя?', en: 'what is your name?' } },
-            { w: 'Ở đâu?', e: '🗺️', t: { ru: 'где?', en: 'where?' } },
+            { w: 'đây là ai?', e: '👤', t: { ru: 'кто это?', en: 'who is this?' } },
+            { w: 'đây là cái gì?', e: '📦', t: { ru: 'что это?', en: 'what is this?' } },
+            { w: 'tên là gì?', e: '📛', t: { ru: 'как твое имя?', en: 'what is your name?' } },
+            { w: 'ở đâu?', e: '🗺️', t: { ru: 'где?', en: 'where?' } },
             { w: '(anh/chị) bao nhiêu tuổi?', e: '🎂', t: { ru: 'сколько тебе лет?', en: 'how old are you?' } },
-            { w: 'Mấy tuổi rồi?', e: '🎈', t: { ru: 'сколько тебе лет? (ребенку)', en: 'how old are you? (child)' } },
-            { w: 'Bao nhiêu tiền?', e: '💵', t: { ru: 'сколько стоит?', en: 'how much is it?' } },
+            { w: 'mấy tuổi rồi?', e: '🎈', t: { ru: 'сколько тебе лет? (ребенку)', en: 'how old are you? (child)' } },
+            { w: 'bao nhiêu tiền?', e: '💵', t: { ru: 'сколько стоит?', en: 'how much is it?' } },
             { w: '(anh/chị) đến từ đâu?', e: '🌍', t: { ru: 'откуда ты друг?', en: 'where are you from?' } },
-            { w: 'Nhà vệ sinh ở đâu?', e: '🚻', t: { ru: 'где туалет?', en: 'where is the restroom?' } },
-            { w: 'Điện thoại của em số mấy?', e: '📱', t: { ru: 'какой твой номер телефона?', en: 'what is your phone number?' } },
+            { w: 'nhà vệ sinh ở đâu?', e: '🚻', t: { ru: 'где туалет?', en: 'where is the restroom?' } },
+            { w: 'điện thoại của em số mấy?', e: '📱', t: { ru: 'какой твой номер телефона?', en: 'what is your phone number?' } },
             { w: '(anh/chị) sinh năm bao nhiêu?', e: '📅', t: { ru: 'какого года ты родился?', en: 'what year were you born?' } },
-            { w: 'Email của em là gì?', e: '📧', t: { ru: 'какой у тебя email?', en: 'what is your email?' } },
-            { w: 'Phòng học (anh/chị) số mấy?', e: '🏫', t: { ru: 'в каком ты классе/кабинете?', en: 'what room is your class?' } }
+            { w: 'email của em là gì?', e: '📧', t: { ru: 'какой у тебя email?', en: 'what is your email?' } },
+            { w: 'phòng học (anh/chị) số mấy?', e: '🏫', t: { ru: 'в каком ты классе/кабинете?', en: 'what room is your class?' } }
         ]
     };
 
@@ -569,7 +598,7 @@
     function initTrainerData() {
         const allWords = getGlobalDictionary();
         let shuffled = shuffleArray([...allWords]);
-        let selected = shuffled.slice(0, 4);
+        let selected = shuffled.slice(0, 5);
         
         trainerLeft = [...selected];
         trainerRight = shuffleArray([...selected]);
@@ -655,7 +684,7 @@
         leftCol.innerHTML = '';
         rightCol.innerHTML = '';
 
-        for(let i = 0; i < 4; i++) {
+        for(let i = 0; i < 5; i++) {
             const lBtn = document.createElement('button');
             lBtn.id = `t-left-${i}`;
             lBtn.className = getTrainerBtnClass('left', i);
@@ -690,7 +719,7 @@
             }
         }
 
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 5; i++) {
             const lBtn = document.getElementById(`t-left-${i}`);
             const rBtn = document.getElementById(`t-right-${i}`);
             if (lBtn) lBtn.className = getTrainerBtnClass('left', i);
