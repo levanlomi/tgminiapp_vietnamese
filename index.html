@@ -721,14 +721,18 @@
     }
 
     function handleTrainerClick(side, index) {
-        if (tIsAnimating) return;
+        // Убрали проверку tIsAnimating! Теперь глобальной паузы нет.
+        
+        // Если кнопка в данный момент исчезает (зеленая или красная), игнорируем клик по ней
+        const clickedBtn = document.getElementById(`t-${side}-${index}`);
+        if (clickedBtn && clickedBtn.disabled) return;
 
         if (side === 'left') {
             if (tSelectedLeft === index) {
                 tSelectedLeft = -1; 
             } else {
                 tSelectedLeft = index;
-                play(trainerLeft[index].w, null);
+                play(trainerLeft[index].w, null); // Звук воспроизводится мгновенно
             }
         } else {
             if (tSelectedRight === index) {
@@ -738,11 +742,12 @@
             }
         }
 
-        for (let i = 0; i < 6; i++) {
+        // Обновляем визуальное выделение (рамки), НО не трогаем те кнопки, которые уже анимируются
+        for (let i = 0; i < 5; i++) { // Учитываем 5 карточек!
             const lBtn = document.getElementById(`t-left-${i}`);
             const rBtn = document.getElementById(`t-right-${i}`);
-            if (lBtn) lBtn.className = getTrainerBtnClass('left', i);
-            if (rBtn) rBtn.className = getTrainerBtnClass('right', i);
+            if (lBtn && !lBtn.disabled) lBtn.className = getTrainerBtnClass('left', i);
+            if (rBtn && !rBtn.disabled) rBtn.className = getTrainerBtnClass('right', i);
         }
 
         if (tSelectedLeft !== -1 && tSelectedRight !== -1) {
@@ -751,7 +756,6 @@
     }
 
     function checkTrainerMatch() {
-        tIsAnimating = true;
         const lIndex = tSelectedLeft;
         const rIndex = tSelectedRight;
         
@@ -761,7 +765,15 @@
         const lBtn = document.getElementById(`t-left-${lIndex}`);
         const rBtn = document.getElementById(`t-right-${rIndex}`);
 
+        // СРАЗУ сбрасываем выбор! Это позволяет мгновенно кликать на другие слова.
+        tSelectedLeft = -1;
+        tSelectedRight = -1;
+
         if (lWord === rWord) {
+            // Блокируем ИМЕННО ЭТУ пару кнопок, чтобы по ним нельзя было кликнуть во время анимации
+            lBtn.disabled = true;
+            rBtn.disabled = true;
+
             lBtn.className = 'bg-green-500/20 border-2 border-green-500 text-green-500 rounded-xl p-3 min-h-[72px] flex items-center justify-center shadow-sm transition-all duration-500 w-full overflow-hidden scale-[1.02]';
             rBtn.className = 'bg-green-500/20 border-2 border-green-500 text-green-500 rounded-xl p-3 min-h-[72px] flex items-center justify-center shadow-sm transition-all duration-500 w-full overflow-hidden scale-[1.02]';
             
@@ -769,24 +781,18 @@
                 tg.HapticFeedback.notificationOccurred('success');
             }
 
-            // ТАЙМЕР 1: Задержка перед тем, как слова начнут исчезать (было 400ms, стало 800ms)
-            // Карточки будут дольше "гореть" зеленым
             setTimeout(() => {
                 lBtn.style.opacity = '0';
                 lBtn.style.transform = 'scale(0.8)';
                 rBtn.style.opacity = '0';
                 rBtn.style.transform = 'scale(0.8)';
                 
-                // ТАЙМЕР 2: Длительность анимации затухания (было 250ms, стало 500ms)
                 setTimeout(() => {
                     const currentWordsOnScreen = [...trainerLeft.map(i => i.w)];
                     const newWord = getRandomWord(currentWordsOnScreen);
                     
                     trainerLeft[lIndex] = newWord;
                     trainerRight[rIndex] = newWord;
-                    
-                    tSelectedLeft = -1;
-                    tSelectedRight = -1;
                     
                     updateTrainerBtnContent('left', lIndex);
                     updateTrainerBtnContent('right', rIndex);
@@ -802,17 +808,21 @@
                     rBtn.style.opacity = '1';
                     rBtn.style.transform = 'scale(1)';
                     
-                    // ТАЙМЕР 3: Длительность анимации проявления новых слов (было 300ms, стало 500ms)
                     setTimeout(() => {
                         lBtn.style = '';
                         rBtn.style = '';
-                        tIsAnimating = false;
+                        // После появления новых слов, разблокируем кнопки
+                        lBtn.disabled = false;
+                        rBtn.disabled = false;
                     }, 500);
                 }, 500);
             }, 800);
 
         } else {
-            // Анимация при ошибке (тряска)
+            // Если ошибка, тоже блокируем только эти две карточки на время "тряски" (0.5 сек)
+            lBtn.disabled = true;
+            rBtn.disabled = true;
+
             lBtn.className = 'bg-red-500/20 border-2 border-red-500 text-red-500 rounded-xl p-3 min-h-[72px] flex items-center justify-center shadow-sm transition-all w-full overflow-hidden shake-anim';
             rBtn.className = 'bg-red-500/20 border-2 border-red-500 text-red-500 rounded-xl p-3 min-h-[72px] flex items-center justify-center shadow-sm transition-all w-full overflow-hidden shake-anim';
             
@@ -821,13 +831,10 @@
             }
 
             setTimeout(() => {
-                tSelectedLeft = -1;
-                tSelectedRight = -1;
-                
-                if (lBtn) lBtn.className = getTrainerBtnClass('left', lIndex);
-                if (rBtn) rBtn.className = getTrainerBtnClass('right', rIndex);
-                
-                tIsAnimating = false;
+                lBtn.className = getTrainerBtnClass('left', lIndex);
+                rBtn.className = getTrainerBtnClass('right', rIndex);
+                lBtn.disabled = false;
+                rBtn.disabled = false;
             }, 500);
         }
     }
