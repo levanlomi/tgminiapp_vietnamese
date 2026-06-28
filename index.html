@@ -176,7 +176,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v12'; 
+    const APP_VERSION = 'v13'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -548,7 +548,10 @@
         return allWords;
     }
 
-    function play(text, btn) {
+  // Добавляем переменную для хранения ссылки на память
+    let currentObjectUrl = null;
+
+    async function play(text, btn) {
         if(btn) btn.classList.add('playing');
         
         if (tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred) {
@@ -580,12 +583,45 @@
             filename = safeName.replace(/_+/g, '_').replace(/^_|_$/g, '');
         }
 
-        globalAudio.src = `./audio_0.75/${filename}.mp3`;
-        globalAudio.playbackRate = currentPlaybackSpeed; 
-        
-        globalAudio.play().catch(e => {
-            console.error(`❌ Ошибка воспроизведения файла ./audio_0.75/${filename}.mp3`, e);
-        });
+        const url = `./audio_0.75/${filename}.mp3`;
+
+        try {
+            // 1. Открываем наш явный кэш
+            const cacheName = `audio-offline-ready-${APP_VERSION}`;
+            const cache = await caches.open(cacheName);
+            let response = await cache.match(url);
+            
+            // 2. Если аудио еще нет в кэше, грузим из сети и СРАЗУ сохраняем
+            if (!response) {
+                response = await fetch(url);
+                if (response.ok) {
+                    await cache.put(url, response.clone());
+                }
+            }
+
+            // 3. Превращаем аудио в Blob (кусок памяти) для мгновенного старта
+            if (response && response.ok) {
+                const blob = await response.blob();
+                
+                // Очищаем старый звук из памяти, чтобы не засорять телефон
+                if (currentObjectUrl) {
+                    URL.revokeObjectURL(currentObjectUrl);
+                }
+                currentObjectUrl = URL.createObjectURL(blob);
+                
+                globalAudio.src = currentObjectUrl;
+                globalAudio.playbackRate = currentPlaybackSpeed; 
+                
+                globalAudio.play().catch(e => {
+                    console.error("Ошибка аудио:", e);
+                });
+            }
+        } catch (error) {
+            // Если кэш недоступен (например, режим инкогнито), fallback на обычный способ
+            globalAudio.src = url;
+            globalAudio.playbackRate = currentPlaybackSpeed; 
+            globalAudio.play().catch(()=>{});
+        }
     }
 
     const mainContainer = document.getElementById('grids-container');
@@ -1510,12 +1546,13 @@
         }
     });
 
-    async function downloadAllAudio() {
+async function downloadAllAudio() {
         const btn = document.getElementById('download-all-btn');
         const icon = document.getElementById('download-icon');
         const spinner = document.getElementById('download-spinner');
         const check = document.getElementById('download-check');
 
+        // Включаем визуальную загрузку
         btn.disabled = true;
         icon.classList.add('hidden');
         spinner.classList.remove('hidden');
@@ -1523,6 +1560,7 @@
         try {
             const allWords = new Set();
 
+            // Собираем все слова
             if (typeof vowelsData !== 'undefined') {
                 Object.values(vowelsData).forEach(g => g.data.forEach(d => d.tones.forEach(t => allWords.add(t.w))));
             }
@@ -1546,19 +1584,37 @@
                 let encoded = encodeURIComponent(cleanText);
                 let safeName = encoded.replace(/%/g, '_').replace(/[^a-z0-9_]/gi, '_');
                 let filename = safeName.replace(/_+/g, '_').replace(/^_|_$/g, '');
-                
                 urlsToFetch.push(`./audio_0.75/${filename}.mp3`);
             });
 
+            // ОТКРЫВАЕМ ХРАНИЛИЩЕ ДЛЯ ТЕКУЩЕЙ ВЕРСИИ
+            const cacheName = `audio-offline-ready-${APP_VERSION}`;
+            const cache = await caches.open(cacheName);
+
+            // Скачиваем и гарантированно кладем в хранилище (Cache Storage)
             const batchSize = 15; 
             for (let i = 0; i < urlsToFetch.length; i += batchSize) {
                 const batch = urlsToFetch.slice(i, i + batchSize);
-                await Promise.all(batch.map(url => fetch(url).catch(e => console.log('Fetch skipped:', url))));
+                
+                await Promise.all(batch.map(async url => {
+                    try {
+                        const cached = await cache.match(url);
+                        if (!cached) { // Грузим, только если файла там еще нет
+                            const response = await fetch(url);
+                            if (response.ok) {
+                                await cache.put(url, response);
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Fetch skipped/failed:', url);
+                    }
+                }));
             }
 
-            // Сохраняем флаг УСПЕХА для конкретной версии
-            localStorage.setItem(`audio-offline-ready-${APP_VERSION}`, 'true');
+            // Запоминаем успех
+            localStorage.setItem(cacheName, 'true');
 
+            // Показываем галочку
             spinner.classList.add('hidden');
             check.classList.remove('hidden');
 
