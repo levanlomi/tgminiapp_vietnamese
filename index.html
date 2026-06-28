@@ -84,7 +84,7 @@
             animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
         }
     </style>
-    
+
     <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -150,12 +150,12 @@
 </div>
 
 
-    <header class="text-center mb-6 mt-1">
+<header class="text-center mb-6 mt-2">
         <h1 class="text-tg-primary text-2xl font-black uppercase tracking-wide leading-tight">Học tiếng Việt</h1>
         <p id="sub-title" class="text-tg-hint text-sm mt-0.5 font-medium transition-colors"></p>
     </header>
 
-    <div class="flex bg-tg-hint/10 p-1 rounded-xl mb-6 border border-tg-hint/20 w-full overflow-x-auto no-scrollbar">
+    <div class="flex bg-tg-hint/10 p-1 rounded-xl mb-3 border border-tg-hint/20 w-full overflow-x-auto no-scrollbar">
         <button id="tab-vowels" class="flex-1 whitespace-nowrap px-2 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-colors bg-tg-primary text-tg-primaryText shadow-sm" onclick="switchTab('vowels')">
             Гласные
         </button>
@@ -919,17 +919,21 @@
         mainContainer.appendChild(dictTitle);
 
         const dictGrid = document.createElement('div');
-        dictGrid.className = 'grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8';
+        // Ставим строго 3 колонки, уменьшаем gap и нижний отступ
+        dictGrid.className = 'grid grid-cols-3 gap-2 mb-4';
 
         pronounsData.forEach(item => {
             const itemBtn = document.createElement('button');
-            itemBtn.className = 'bg-tg-secondaryBg border border-tg-hint/10 rounded-2xl p-4 flex flex-col items-center shadow-sm transition-all active:scale-95 active:border-tg-primary';
+            // Уменьшаем скругление (rounded-xl) и паддинги (p-2)
+            itemBtn.className = 'bg-tg-secondaryBg border border-tg-hint/10 rounded-xl p-2 flex flex-col items-center shadow-sm transition-all active:scale-95 active:border-tg-primary';
             
+            // Уменьшаем иконки, вьетнамский текст и перевод
             itemBtn.innerHTML = `
-                <span class="text-3xl mb-1">${item.e}</span>
-                <span class="text-xl font-black text-tg-primary">${item.w}</span>
-                <span class="text-[0.75rem] text-tg-hint text-center leading-tight mt-1">${item.t[currentLang]}</span>
+                <span class="text-2xl mb-0.5">${item.e}</span>
+                <span class="text-lg font-black text-tg-primary leading-none">${item.w}</span>
+                <span class="text-[0.65rem] text-tg-hint text-center leading-tight mt-1">${item.t[currentLang]}</span>
             `;
+
             itemBtn.onclick = () => play(item.w, itemBtn);
             dictGrid.appendChild(itemBtn);
         });
@@ -1064,7 +1068,7 @@
         mainContainer.classList.add('animate-fade-in');
 
         const subNav = document.createElement('div');
-        subNav.className = 'flex overflow-x-auto no-scrollbar gap-2.5 mb-4 w-full py-1';
+        subNav.className = 'flex overflow-x-auto no-scrollbar gap-2 mb-2 w-full py-1';
         
         const categories = [
             { id: 'top', label: uiLabels[currentLang].top },
@@ -1082,7 +1086,7 @@
             btn.id = `vocab-cat-btn-${cat.id}`;
             const isActive = currentVocabTab === cat.id;
             
-            btn.className = `whitespace-nowrap flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold border transition-all duration-200 active:scale-95 ${
+            btn.className = `whitespace-nowrap flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 active:scale-95 ${
                 isActive 
                     ? 'bg-tg-primary text-tg-primaryText border-tg-primary shadow-sm' 
                     : 'bg-transparent text-tg-text border-tg-hint/30 active:bg-tg-hint/10'
@@ -1117,7 +1121,7 @@
         mainContainer.appendChild(subNav);
 
         const searchContainer = document.createElement('div');
-        searchContainer.className = 'relative w-full mb-6 px-1';
+        searchContainer.className = 'relative w-full mb-3 px-1';
         
         searchContainer.innerHTML = `
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -1125,7 +1129,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
             </div>
-            <input type="text" id="vocab-search" class="w-full bg-tg-bg border border-tg-hint/20 text-tg-text rounded-2xl pl-10 pr-10 py-3 outline-none focus:border-tg-primary focus:ring-1 focus:ring-tg-primary transition-all text-sm" placeholder="${uiLabels[currentLang].searchPlaceholder}">
+            <input type="text" id="vocab-search" class="w-full bg-tg-bg border border-tg-hint/20 text-tg-text rounded-2xl pl-10 pr-10 py-2 outline-none focus:border-tg-primary focus:ring-1 focus:ring-tg-primary transition-all text-sm" placeholder="${uiLabels[currentLang].searchPlaceholder}">
             <button id="clear-search" class="absolute inset-y-0 right-0 pr-4 flex items-center hidden active:scale-90 transition-transform">
                 <svg class="w-5 h-5 text-tg-hint hover:text-tg-text transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -1185,7 +1189,7 @@
         }
 
         const vocabGrid = document.createElement('div');
-        vocabGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full pb-2 touch-pan-y';
+        vocabGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full pb-2 touch-pan-y';
         
         let itemsToRender = [];
         let showPagination = false;
@@ -1231,9 +1235,9 @@
             rowBtn.innerHTML = `
                 <div class="flex items-center gap-3 overflow-hidden">
                     <span class="text-2xl shrink-0 flex items-center justify-center w-8 h-8">${iconContent}</span>
-                    <div class="flex flex-col overflow-hidden">
-                        <span class="font-black text-[1.1rem] text-tg-text truncate">${item.w}</span>
-                        <span class="text-[0.75rem] text-tg-hint truncate mt-0.5">${translation}</span>
+                    <div class="flex flex-col overflow-hidden justify-center">
+                        <span class="font-black text-[1.05rem] text-tg-text truncate leading-tight">${item.w}</span>
+                        <span class="text-[0.75rem] text-tg-hint truncate mt-0.5 leading-tight">${translation}</span>
                     </div>
                 </div>
             `;
