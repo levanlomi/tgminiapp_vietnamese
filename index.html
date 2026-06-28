@@ -176,7 +176,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v13'; 
+    const APP_VERSION = 'v12'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -1234,7 +1234,7 @@
             
             rowBtn.innerHTML = `
                 <div class="flex items-center gap-3 overflow-hidden">
-                    <span class="text-2xl shrink-0 flex items-center justify-center w-8 h-8">${iconContent}</span>
+                    <span class="text-2xl shrink-0 flex items-center justify-center min-w-[2rem] h-8">${iconContent}</span>
                     <div class="flex flex-col overflow-hidden justify-center">
                         <span class="font-black text-[1.05rem] text-tg-text truncate leading-tight">${item.w}</span>
                         <span class="text-[0.75rem] text-tg-hint truncate mt-0.5 leading-tight">${translation}</span>
