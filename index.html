@@ -178,7 +178,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v15'; 
+    const APP_VERSION = 'v16'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -504,7 +504,11 @@
             { w: 'cháo', e: '🥣', t: { ru: 'каша', en: 'porridge' } },
             { w: 'sữa đặc', e: '🥛', t: { ru: 'сгущенка', en: 'condensed milk' } },
             { w: 'rượu', e: '🍶', t: { ru: 'алкоголь', en: 'alcohol' } },
-            { w: 'nước mía', e: '🥤', t: { ru: 'тростниковый сок', en: 'sugarcane juice' } }
+            { w: 'nước mía', e: '🥤', t: { ru: 'тростниковый сок', en: 'sugarcane juice' } },
+            { w: 'bánh mì ngũ cốc', e: '🍞🌾', t: { ru: 'цельнозерновой хлеб', en: 'whole wheat bread' } },
+            { w: 'bánh mì chua', e: '🍞🥛', t: { ru: 'хлеб на закваске', en: 'sourdough bread' } },
+            { w: 'uống ở đây', e: '🥤🏠', t: { ru: 'пить здесь', en: 'drink here' } },
+            { w: 'mang về', e: '🥡', t: { ru: 'с собой (навынос)', en: 'take away / to go' } }
         ],
         particles: [
             { w: 'và', e: '➕', t: { ru: 'и', en: 'and' } },
@@ -532,7 +536,10 @@
             { w: 'cho tôi một ổ bánh mì với một ly cà phê nha.', e: '🥖☕', t: { ru: 'дайте один баньми и кофе, пожалуйста.', en: 'one banh mi and coffee, please.' } },
             { w: 'cho tôi một ly cà phê không đường không đá.', e: '☕🚫', t: { ru: 'мне кофе без сахара и без льда.', en: 'coffee without sugar and ice.' } },
             { w: 'rất vui được gặp bạn.', e: '🤝', t: { ru: 'приятно познакомиться.', en: 'nice to meet you.' } },
-            { w: 'đất nước của bạn rất đẹp.', e: '🇻🇳', t: { ru: 'ваша страна очень красива.', en: 'your country is very beautiful.' } }
+            { w: 'đất nước của bạn rất đẹp.', e: '🇻🇳', t: { ru: 'ваша страна очень красива.', en: 'your country is very beautiful.' } },
+            { w: 'tôi không hiểu. Xin nhắc lại', e: '🤷', t: { ru: 'я не понимаю. пожалуйста, повторите', en: "I don't understand. please repeat" } },
+            { w: 'xin nói chậm lại', e: '🐢', t: { ru: 'пожалуйста, говорите помедленнее', en: 'please speak more slowly' } },
+            { w: 'chú ý', e: '⚠️', t: { ru: 'внимание / обращайте внимание', en: 'pay attention / attention' } }
         ],
         questions: [
             { w: 'đây là ai?', e: '👤', t: { ru: 'кто это?', en: 'who is this?' } },
@@ -548,7 +555,9 @@
             { w: '(anh/chị) sinh năm bao nhiêu?', e: '📅', t: { ru: 'какого года ты родился?', en: 'what year were you born?' } },
             { w: 'email của em là gì?', e: '📧', t: { ru: 'какой у тебя email?', en: 'what is your email?' } },
             { w: 'phòng học (anh/chị) số mấy?', e: '🏫', t: { ru: 'в каком ты классе/кабинете?', en: 'what room is your class?' } },
-            { w: '... hả?', e: '❓', t: { ru: '...правильно? (для уточнения)', en: '...right? (for clarification)' } }
+            { w: '... hả?', e: '❓', t: { ru: '...правильно? (для уточнения)', en: '...right? (for clarification)' } },
+            { w: 'cái này tiếng Việt là gì?', e: '❓🇻🇳', t: { ru: 'как это будет по-вьетнамски?', en: 'how do you say this in Vietnamese?' } },
+            { w: 'ăn ở đây hay mang về?', e: '🍽️', t: { ru: 'кушать здесь или с собой?', en: 'eat here or take away?' } }
         ]
     };
 
