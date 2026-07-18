@@ -178,7 +178,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v17'; 
+    const APP_VERSION = 'v18'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -369,7 +369,19 @@
             { w: 'khó', e: '🤯', t: { ru: 'сложно', en: 'difficult' } },
             { w: 'tuyệt vời', e: '🌟', t: { ru: 'великолепно', en: 'excellent / wonderful' } },
             { w: 'tuyết', e: '❄️', t: { ru: 'снег', en: 'snow' } },
-            { w: 'ký', e: '⚖️', t: { ru: 'килограмм', en: 'kilogram' } }
+            { w: 'ký', e: '⚖️', t: { ru: 'килограмм', en: 'kilogram' } },
+            { w: 'người', e: '👥', t: { ru: 'человек / люди', en: 'people' } },
+            { w: 'nhân viên', e: '🤵', t: { ru: 'персонал / сотрудник', en: 'staff' } },
+            { w: 'khách hàng', e: '👤', t: { ru: 'клиент / покупатель', en: 'customer, client' } },
+            { w: 'bình thường', e: '😐', t: { ru: 'нормально / обычный', en: 'normal' } },
+            { w: 'dở', e: '🤢', t: { ru: 'невкусный / плохой', en: 'disgusting / bad' } },
+            { w: 'đói (bụng)', e: '🤤', t: { ru: 'голодный', en: 'hungry' } },
+            { w: 'no', e: '😌', t: { ru: 'сытый', en: 'full' } },
+            { w: 'hơi', e: '🤏', t: { ru: 'немного (обычно о негативном)', en: 'a little (unfavorable)' } },
+            { w: 'cả hai', e: '✌️', t: { ru: 'оба / и то и другое', en: 'both' } },
+            { w: 'Mỹ', e: '🇺🇸', t: { ru: 'Америка (США)', en: 'America' } },
+            { w: 'trả tiền', e: '💳', t: { ru: 'платить (по счету)', en: 'to pay the bill' } },
+            { w: 'gửi tiền', e: '💵', t: { ru: 'передавать деньги', en: 'to give the money' } }
         ],
         datetime: [
             { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
@@ -508,7 +520,53 @@
             { w: 'bánh mì ngũ cốc', e: '🍞🌾', t: { ru: 'цельнозерновой хлеб', en: 'whole wheat bread' } },
             { w: 'bánh mì chua', e: '🍞🥛', t: { ru: 'хлеб на закваске', en: 'sourdough bread' } },
             { w: 'uống ở đây', e: '🥤🏠', t: { ru: 'пить здесь', en: 'drink here' } },
-            { w: 'mang về', e: '🥡', t: { ru: 'с собой (навынос)', en: 'take away / to go' } }
+            { w: 'mang về', e: '🥡', t: { ru: 'с собой (навынос)', en: 'take away / to go' } },
+            { w: 'trà sữa', e: '🧋', t: { ru: 'молочный чай', en: 'milk tea' } },
+            { w: 'bia', e: '🍺', t: { ru: 'пиво', en: 'beer' } },
+            { w: 'nước ngọt', e: '🥤', t: { ru: 'газировка', en: 'soft drink' } },
+            { w: 'nước dừa', e: '🥥', t: { ru: 'кокосовая вода', en: 'coconut water' } },
+            { w: 'sinh tố', e: '🍹', t: { ru: 'смузи', en: 'smoothie' } },
+            { w: 'kem', e: '🍦', t: { ru: 'мороженое', en: 'ice cream' } },
+            { w: 'tôm', e: '🦐', t: { ru: 'креветка', en: 'shrimp' } },
+            { w: 'cua', e: '🦀', t: { ru: 'краб', en: 'crab' } },
+            { w: 'cá', e: '🐟', t: { ru: 'рыба', en: 'fish' } },
+            { w: 'mực', e: '🦑', t: { ru: 'кальмар', en: 'squid' } },
+            { w: 'hải sản', e: '🦞', t: { ru: 'морепродукты', en: 'seafood' } },
+            { w: 'nấm', e: '🍄', t: { ru: 'грибы', en: 'mushroom' } },
+            { w: 'đậu khuôn', e: '🟩', t: { ru: 'тофу', en: 'tofu' } },
+            { w: 'cà chua', e: '🍅', t: { ru: 'помидор', en: 'tomato' } },
+            { w: 'cà tím', e: '🍆', t: { ru: 'баклажан', en: 'eggplant' } },
+            { w: 'hành lá', e: '🌿', t: { ru: 'зеленый лук', en: 'spring onion' } },
+            { w: 'hành tím', e: '🧅', t: { ru: 'красный лук (шалот)', en: 'shallot / red onion' } },
+            { w: 'tỏi', e: '🧄', t: { ru: 'чеснок', en: 'garlic' } },
+            { w: 'ớt', e: '🌶️', t: { ru: 'перец чили', en: 'chili' } },
+            { w: 'gừng', e: '🫚', t: { ru: 'имбирь', en: 'ginger' } },
+            { w: 'muối', e: '🧂', t: { ru: 'соль', en: 'salt' } },
+            { w: 'tiêu', e: '🧂', t: { ru: 'черный перец', en: 'pepper' } },
+            { w: 'nước mắm', e: '🏺', t: { ru: 'рыбный соус', en: 'fish sauce' } },
+            { w: 'xì dầu / nước tương', e: '🍶', t: { ru: 'соевый соус', en: 'soy sauce' } },
+            { w: 'dầu ăn', e: '🛢️', t: { ru: 'растительное масло', en: 'cooking oil' } },
+            { w: 'bơ', e: '🥑', t: { ru: 'авокадо / сливочное масло', en: 'avocado / butter' } },
+            { w: 'xoài', e: '🥭', t: { ru: 'манго', en: 'mango' } },
+            { w: 'dâu tây', e: '🍓', t: { ru: 'клубника', en: 'strawberry' } },
+            { w: 'chuối', e: '🍌', t: { ru: 'банан', en: 'banana' } },
+            { w: 'thơm / dứa', e: '🍍', t: { ru: 'ананас', en: 'pineapple' } },
+            { w: 'táo', e: '🍎', t: { ru: 'яблоко', en: 'apple' } },
+            { w: 'cam', e: '🍊', t: { ru: 'апельсин', en: 'orange' } },
+            { w: 'chanh dây', e: '🍈', t: { ru: 'маракуйя', en: 'passion fruit' } },
+            { w: 'chanh', e: '🍋', t: { ru: 'лайм / лимон', en: 'lime / lemon' } },
+            { w: 'phần', e: '🍛', t: { ru: 'порция', en: 'portion' } },
+            { w: 'bàn', e: '🪑', t: { ru: 'стол', en: 'table' } },
+            { w: 'lon', e: '🥫', t: { ru: 'банка (жестяная)', en: 'can' } },
+            { w: 'chai', e: '🍾', t: { ru: 'бутылка', en: 'bottle' } },
+            { w: 'tô', e: '🍜', t: { ru: 'большая миска', en: 'big bowl' } },
+            { w: 'thực đơn / menu', e: '📋', t: { ru: 'меню', en: 'menu' } },
+            { w: 'nướng', e: '🔥', t: { ru: 'жарить на гриле', en: 'to grill, grilled' } },
+            { w: 'chiên / rán', e: '🍳', t: { ru: 'жарить в масле', en: 'to fry, fried' } },
+            { w: 'xào', e: '🥘', t: { ru: 'обжаривать (стир-фрай)', en: 'stir-fry, stir-fried' } },
+            { w: 'luộc', e: '🍲', t: { ru: 'варить', en: 'to boil, boiled' } },
+            { w: 'hấp', e: '♨️', t: { ru: 'готовить на пару', en: 'to steam, steamed' } },
+            { w: 'cay', e: '🌶️', t: { ru: 'острый', en: 'spicy' } }
         ],
         particles: [
             { w: 'và', e: '➕', t: { ru: 'и', en: 'and' } },
@@ -539,7 +597,13 @@
             { w: 'đất nước của bạn rất đẹp.', e: '🇻🇳', t: { ru: 'ваша страна очень красива.', en: 'your country is very beautiful.' } },
             { w: 'tôi không hiểu. Xin nhắc lại', e: '🤷', t: { ru: 'я не понимаю. пожалуйста, повторите', en: "I don't understand. please repeat" } },
             { w: 'xin nói chậm lại', e: '🐢', t: { ru: 'пожалуйста, говорите помедленнее', en: 'please speak more slowly' } },
-            { w: 'chú ý', e: '⚠️', t: { ru: 'внимание / обращайте внимание', en: 'pay attention / attention' } }
+            { w: 'chú ý', e: '⚠️', t: { ru: 'внимание / обращайте внимание', en: 'pay attention / attention' } },
+            { w: 'Vậy thôi.', e: '🛑', t: { ru: 'На этом всё / Достаточно.', en: 'That\'s all.' } },
+            { w: 'Của ... hết ...', e: '🧾', t: { ru: 'Ваш счет составляет ...', en: 'Your total (bill) is ...' } },
+            { w: 'Chờ ... chút.', e: '⏱️', t: { ru: 'Подождите немного.', en: 'Wait (for me) a bit.' } },
+            { w: 'xem menu', e: '👀', t: { ru: 'посмотреть меню', en: 'see the menu' } },
+            { w: 'mượn menu', e: '🤲', t: { ru: 'одолжить меню', en: 'borrow the menu' } },
+            { w: 'gọi món', e: '🛎️', t: { ru: 'сделать заказ', en: 'order (food)' } }
         ],
         questions: [
             { w: 'đây là ai?', e: '👤', t: { ru: 'кто это?', en: 'who is this?' } },
