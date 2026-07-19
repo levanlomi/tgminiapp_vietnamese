@@ -85,6 +85,68 @@
         .shake-anim {
             animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
         }
+
+        .trainer-filter-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            z-index: 40;
+            max-height: 280px;
+            overflow-y: auto;
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border: 1px solid color-mix(in srgb, var(--tg-theme-hint-color, #7f8c8d) 30%, transparent);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            padding: 6px;
+        }
+        .trainer-filter-menu.open {
+            display: block;
+        }
+        .trainer-filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            text-align: left;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--tg-theme-text-color, #2c3e50);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .trainer-filter-option:hover,
+        .trainer-filter-option:active {
+            background: color-mix(in srgb, var(--tg-theme-hint-color, #7f8c8d) 12%, transparent);
+        }
+        .trainer-filter-option .check {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1.5px solid color-mix(in srgb, var(--tg-theme-hint-color, #7f8c8d) 45%, transparent);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 10px;
+            line-height: 1;
+            color: transparent;
+        }
+        .trainer-filter-option.selected .check {
+            background: var(--tg-theme-button-color, #1976d2);
+            border-color: var(--tg-theme-button-color, #1976d2);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+        .trainer-filter-option.all-themes {
+            border-bottom: 1px solid color-mix(in srgb, var(--tg-theme-hint-color, #7f8c8d) 20%, transparent);
+            margin-bottom: 4px;
+            padding-bottom: 10px;
+            border-radius: 8px 8px 0 0;
+        }
     </style>
 
     <!-- Yandex.Metrika counter -->
@@ -178,7 +240,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v19'; 
+    const APP_VERSION = 'v20'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -216,9 +278,14 @@
     }
 
     const uiLabels = {
-        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа", questions: "Вопросы", datetime: "Дата и время", searchPlaceholder: "Поиск слов..." },
-        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers", questions: "Questions", datetime: "Date & Time", searchPlaceholder: "Search words..." }
+        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа", questions: "Вопросы", datetime: "Дата и время", searchPlaceholder: "Поиск слов...", allThemes: "Все темы", themesCount: (n) => n === 1 ? '1 тема' : (n < 5 ? `${n} темы` : `${n} тем`), filterThemes: "Темы" },
+        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers", questions: "Questions", datetime: "Date & Time", searchPlaceholder: "Search words...", allThemes: "All themes", themesCount: (n) => n === 1 ? '1 theme' : `${n} themes`, filterThemes: "Themes" }
     };
+
+    const VOCAB_CATEGORY_IDS = ['top', 'datetime', 'verbs', 'cafe', 'particles', 'numbers', 'phrases', 'questions'];
+    // Пустой массив = все темы (поведение по умолчанию)
+    let trainerSelectedCategories = [];
+    let trainerFilterOpen = false;
 
     let selectedSpeaker = 'con';
     let selectedListener = 'mẹ';
@@ -648,6 +715,48 @@
         return allWords;
     }
 
+    function getVocabCategoryList() {
+        return VOCAB_CATEGORY_IDS.map(id => ({
+            id,
+            label: uiLabels[currentLang][id]
+        }));
+    }
+
+    function getTrainerDictionary() {
+        if (trainerSelectedCategories.length === 0) {
+            return getGlobalDictionary();
+        }
+
+        const allWords = [];
+        const seen = new Set();
+
+        function addWord(item) {
+            const icon = item.e || item.i || '';
+            const key = item.w.toLowerCase() + '_' + icon;
+            if (!seen.has(key)) {
+                seen.add(key);
+                allWords.push(item);
+            }
+        }
+
+        trainerSelectedCategories.forEach(id => {
+            const arr = vocabularyData[id];
+            if (arr) arr.forEach(addWord);
+        });
+
+        return allWords;
+    }
+
+    function getTrainerFilterLabel() {
+        if (trainerSelectedCategories.length === 0) {
+            return uiLabels[currentLang].allThemes;
+        }
+        if (trainerSelectedCategories.length === 1) {
+            return uiLabels[currentLang][trainerSelectedCategories[0]];
+        }
+        return uiLabels[currentLang].themesCount(trainerSelectedCategories.length);
+    }
+
   // Добавляем переменную для хранения ссылки на память
     let currentObjectUrl = null;
 
@@ -734,7 +843,7 @@
     let tIsAnimating = false;
 
     function getRandomWord(excludeWords = []) {
-        const all = getGlobalDictionary();
+        const all = getTrainerDictionary();
         const available = all.filter(item => !excludeWords.includes(item.w));
         if (available.length === 0) return all[Math.floor(Math.random() * all.length)];
         return available[Math.floor(Math.random() * available.length)];
@@ -751,12 +860,55 @@
     }
 
     function initTrainerData() {
-        const allWords = getGlobalDictionary();
+        const allWords = getTrainerDictionary();
+        if (allWords.length === 0) {
+            trainerLeft = [];
+            trainerRight = [];
+            return;
+        }
         let shuffled = shuffleArray([...allWords]);
-        let selected = shuffled.slice(0, 6);
+        const count = Math.min(6, shuffled.length);
+        let selected = shuffled.slice(0, count);
         
         trainerLeft = [...selected];
         trainerRight = shuffleArray([...selected]);
+    }
+
+    function toggleTrainerCategory(categoryId) {
+        if (categoryId === 'all') {
+            trainerSelectedCategories = [];
+            trainerFilterOpen = false;
+        } else {
+            const idx = trainerSelectedCategories.indexOf(categoryId);
+            if (idx >= 0) {
+                trainerSelectedCategories.splice(idx, 1);
+            } else {
+                trainerSelectedCategories.push(categoryId);
+            }
+            trainerFilterOpen = true;
+        }
+        initTrainerData();
+        tSelectedLeft = -1;
+        tSelectedRight = -1;
+        renderTrainerSection();
+    }
+
+    function toggleTrainerFilterMenu(event) {
+        if (event) event.stopPropagation();
+        trainerFilterOpen = !trainerFilterOpen;
+        const menu = document.getElementById('trainer-filter-menu');
+        const chevron = document.getElementById('trainer-filter-chevron');
+        if (menu) menu.classList.toggle('open', trainerFilterOpen);
+        if (chevron) chevron.style.transform = trainerFilterOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+
+    function closeTrainerFilterMenu() {
+        if (!trainerFilterOpen) return;
+        trainerFilterOpen = false;
+        const menu = document.getElementById('trainer-filter-menu');
+        const chevron = document.getElementById('trainer-filter-chevron');
+        if (menu) menu.classList.remove('open');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
     }
 
     function renderTrainerSection() {
@@ -765,15 +917,44 @@
         void mainContainer.offsetWidth;
         mainContainer.classList.add('animate-fade-in');
 
+        const categories = getVocabCategoryList();
+        const isAll = trainerSelectedCategories.length === 0;
+        const filterLabel = getTrainerFilterLabel();
+
+        const categoryOptionsHtml = categories.map(cat => {
+            const selected = trainerSelectedCategories.includes(cat.id);
+            return `
+                <button type="button" class="trainer-filter-option ${selected ? 'selected' : ''}" onclick="toggleTrainerCategory('${cat.id}')">
+                    <span class="check">✓</span>
+                    <span>${cat.label}</span>
+                </button>
+            `;
+        }).join('');
+
         const header = document.createElement('div');
-        header.className = 'flex justify-between items-center w-full mb-6 mt-2 border-b-2 border-tg-hint/20 pb-2';
+        header.className = 'flex justify-between items-center gap-2 w-full mb-6 mt-2 border-b-2 border-tg-hint/20 pb-2';
         header.innerHTML = `
-            <div class="font-bold text-tg-primary uppercase tracking-widest text-sm flex items-center gap-2">
+            <div class="font-bold text-tg-primary uppercase tracking-widest text-sm flex items-center gap-2 shrink-0">
                 🎮 ${currentLang === 'ru' ? 'Тренажер слов' : 'Word Trainer'}
             </div>
-            <button class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform flex items-center gap-1 shadow-sm" onclick="trainerReroll()">
-                🎲 ${currentLang === 'ru' ? 'Обновить' : 'Reroll'}
-            </button>
+            <div class="flex items-center gap-2 min-w-0 flex-1 justify-end">
+                <div class="relative min-w-0 flex-1 max-w-[220px]" id="trainer-filter-wrap">
+                    <button type="button" id="trainer-filter-btn" class="w-full bg-tg-hint/10 border border-tg-hint/20 text-tg-text px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform flex items-center justify-between gap-2 shadow-sm" onclick="toggleTrainerFilterMenu(event)">
+                        <span class="truncate">${filterLabel}</span>
+                        <span id="trainer-filter-chevron" class="text-[10px] opacity-70 transition-transform duration-200 shrink-0" style="transform: ${trainerFilterOpen ? 'rotate(180deg)' : 'rotate(0deg)'}">▼</span>
+                    </button>
+                    <div id="trainer-filter-menu" class="trainer-filter-menu ${trainerFilterOpen ? 'open' : ''}" onclick="event.stopPropagation()">
+                        <button type="button" class="trainer-filter-option all-themes ${isAll ? 'selected' : ''}" onclick="toggleTrainerCategory('all')">
+                            <span class="check">✓</span>
+                            <span>${uiLabels[currentLang].allThemes}</span>
+                        </button>
+                        ${categoryOptionsHtml}
+                    </div>
+                </div>
+                <button class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform flex items-center gap-1 shadow-sm shrink-0" onclick="trainerReroll()">
+                    🎲 ${currentLang === 'ru' ? 'Обновить' : 'Reroll'}
+                </button>
+            </div>
         `;
         mainContainer.appendChild(header);
 
@@ -839,7 +1020,16 @@
         leftCol.innerHTML = '';
         rightCol.innerHTML = '';
 
-        for(let i = 0; i < 6; i++) {
+        const count = trainerLeft.length;
+        if (count === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'col-span-2 text-center text-tg-hint text-sm py-8';
+            empty.textContent = currentLang === 'ru' ? 'Нет слов в выбранных темах' : 'No words in selected themes';
+            leftCol.parentElement.appendChild(empty);
+            return;
+        }
+
+        for(let i = 0; i < count; i++) {
             const lBtn = document.createElement('button');
             lBtn.id = `t-left-${i}`;
             lBtn.className = getTrainerBtnClass('left', i);
@@ -879,7 +1069,7 @@
         }
 
         // Обновляем визуальное выделение (рамки), НО не трогаем те кнопки, которые уже анимируются
-        for (let i = 0; i < 5; i++) { // Учитываем 5 карточек!
+        for (let i = 0; i < trainerLeft.length; i++) {
             const lBtn = document.getElementById(`t-left-${i}`);
             const rBtn = document.getElementById(`t-right-${i}`);
             if (lBtn && !lBtn.disabled) lBtn.className = getTrainerBtnClass('left', i);
@@ -977,12 +1167,20 @@
 
     function trainerReroll() {
         if (tIsAnimating) return;
+        closeTrainerFilterMenu();
         initTrainerData();
         tSelectedLeft = -1;
         tSelectedRight = -1;
         renderTrainerSection();
     }
     // ==========================================
+
+    document.addEventListener('click', (e) => {
+        const wrap = document.getElementById('trainer-filter-wrap');
+        if (wrap && !wrap.contains(e.target)) {
+            closeTrainerFilterMenu();
+        }
+    });
 
 
     function renderGrids(dataObj) {
