@@ -240,7 +240,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v21'; 
+    const APP_VERSION = 'v22'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -278,8 +278,8 @@
     }
 
     const uiLabels = {
-        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа", questions: "Вопросы", datetime: "Дата и время", searchPlaceholder: "Поиск слов...", allThemes: "Все темы", themesCount: (n) => n === 1 ? '1 тема' : (n < 5 ? `${n} темы` : `${n} тем`), filterThemes: "Темы" },
-        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers", questions: "Questions", datetime: "Date & Time", searchPlaceholder: "Search words...", allThemes: "All themes", themesCount: (n) => n === 1 ? '1 theme' : `${n} themes`, filterThemes: "Themes" }
+        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа", questions: "Вопросы", datetime: "Дата и время", searchPlaceholder: "Поиск: vi, ru, en...", allThemes: "Все темы", themesCount: (n) => n === 1 ? '1 тема' : (n < 5 ? `${n} темы` : `${n} тем`), filterThemes: "Темы" },
+        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers", questions: "Questions", datetime: "Date & Time", searchPlaceholder: "Search: vi, ru, en...", allThemes: "All themes", themesCount: (n) => n === 1 ? '1 theme' : `${n} themes`, filterThemes: "Themes" }
     };
 
     const VOCAB_CATEGORY_IDS = ['top', 'datetime', 'verbs', 'cafe', 'particles', 'numbers', 'phrases', 'questions'];
@@ -448,7 +448,8 @@
             { w: 'cả hai', e: '✌️', t: { ru: 'оба / и то и другое', en: 'both' } },
             { w: 'Mỹ', e: '🇺🇸', t: { ru: 'Америка (США)', en: 'America' } },
             { w: 'trả tiền', e: '💳', t: { ru: 'платить (по счету)', en: 'to pay the bill' } },
-            { w: 'gửi tiền', e: '💵', t: { ru: 'передавать деньги', en: 'to give the money' } }
+            { w: 'gửi tiền', e: '💵', t: { ru: 'передавать деньги', en: 'to give the money' } },
+            { w: 'tầng', e: '🛗', t: { ru: 'этаж', en: 'floor' } }
         ],
         datetime: [
             { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
@@ -633,7 +634,8 @@
             { w: 'xào', e: '🥘', t: { ru: 'обжаривать (стир-фрай)', en: 'stir-fry, stir-fried' } },
             { w: 'luộc', e: '🍲', t: { ru: 'варить', en: 'to boil, boiled' } },
             { w: 'hấp', e: '♨️', t: { ru: 'готовить на пару', en: 'to steam, steamed' } },
-            { w: 'cay', e: '🌶️', t: { ru: 'острый', en: 'spicy' } }
+            { w: 'cay', e: '🌶️', t: { ru: 'острый', en: 'spicy' } },
+            { w: 'quay', e: '🍖', t: { ru: 'запеченный на вертеле', en: 'roasted / spit-roasted' } }
         ],
         particles: [
             { w: 'và', e: '➕', t: { ru: 'и', en: 'and' } },
@@ -755,6 +757,45 @@
             return uiLabels[currentLang][trainerSelectedCategories[0]];
         }
         return uiLabels[currentLang].themesCount(trainerSelectedCategories.length);
+    }
+
+    function stripVietnameseTones(str) {
+        return str.toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd')
+            .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a')
+            .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e')
+            .replace(/ì|í|ị|ỉ|ĩ/g, 'i')
+            .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o')
+            .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u')
+            .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+    }
+
+    function normalizeSearchText(str) {
+        return stripVietnameseTones(str).replace(/\s+/g, ' ').trim();
+    }
+
+    function matchesVocabSearch(item, query) {
+        const q = query.toLowerCase();
+        const qPlain = normalizeSearchText(query);
+        if (!q) return true;
+
+        const wordVi = item.w.toLowerCase();
+        const wordViPlain = normalizeSearchText(item.w);
+        const transRu = item.t?.ru ? item.t.ru.toLowerCase() : '';
+        const transEn = item.t?.en ? item.t.en.toLowerCase() : '';
+
+        if (wordVi.includes(q) || wordViPlain.includes(qPlain)) return true;
+        if (transRu.includes(q) || transEn.includes(q)) return true;
+        if (qPlain && (transRu.includes(qPlain) || transEn.includes(qPlain))) return true;
+
+        const viParts = item.w.split(/[/,()]/).map(p => p.trim()).filter(Boolean);
+        return viParts.some(part => {
+            const partLower = part.toLowerCase();
+            const partPlain = normalizeSearchText(part);
+            return partLower.includes(q) || partPlain.includes(qPlain);
+        });
     }
 
   // Добавляем переменную для хранения ссылки на память
@@ -1487,12 +1528,7 @@
                 clearBtn.classList.remove('hidden');
                 
                 const allWords = getGlobalDictionary();
-                const filtered = allWords.filter(item => {
-                    const wordVi = item.w.toLowerCase();
-                    const transRu = item.t.ru ? item.t.ru.toLowerCase() : '';
-                    const transEn = item.t.en ? item.t.en.toLowerCase() : '';
-                    return wordVi.includes(query) || transRu.includes(query) || transEn.includes(query);
-                });
+                const filtered = allWords.filter(item => matchesVocabSearch(item, query));
                 
                 renderVocabPageOnly(filtered); 
             } else {
