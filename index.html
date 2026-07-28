@@ -170,6 +170,13 @@
   
 <!-- ВЕРХНЯЯ ПАНЕЛЬ С КНОПКАМИ -->
 <div class="absolute top-0 left-0 flex flex-col items-start gap-1 z-10">
+    <!-- КНОПКА ПОИСКА В СЛОВАРЕ -->
+    <button id="search-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text w-10 h-8 rounded-lg active:scale-95 transition-transform flex items-center justify-center shadow-sm" onclick="openVocabSearch()" title="Поиск слов">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+    </button>
     <!-- КНОПКА ТРЕНАЖЕРА -->
     <button id="trainer-toggle" class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text font-black w-10 h-8 rounded-lg text-[16px] active:scale-95 transition-transform flex items-center justify-center shadow-sm" onclick="switchTab('trainer')" title="Тренажер слов">
         🎮
@@ -240,7 +247,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v22'; 
+    const APP_VERSION = 'v23'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -449,7 +456,19 @@
             { w: 'Mỹ', e: '🇺🇸', t: { ru: 'Америка (США)', en: 'America' } },
             { w: 'trả tiền', e: '💳', t: { ru: 'платить (по счету)', en: 'to pay the bill' } },
             { w: 'gửi tiền', e: '💵', t: { ru: 'передавать деньги', en: 'to give the money' } },
-            { w: 'tầng', e: '🛗', t: { ru: 'этаж', en: 'floor' } }
+            { w: 'tầng', e: '🛗', t: { ru: 'этаж', en: 'floor' } },
+            { w: 'Nga', e: '🇷🇺', t: { ru: 'Россия', en: 'Russia' } },
+            { w: 'Mát-xcơva', e: '🇷🇺', t: { ru: 'Москва', en: 'Moscow' } },
+            { w: 'Việt Nam', e: '🇻🇳', t: { ru: 'Вьетнам', en: 'Vietnam' } },
+            { w: 'Đà Nẵng', e: '🏖️', t: { ru: 'Дананг', en: 'Da Nang' } },
+            { w: 'Nha Trang', e: '🌴', t: { ru: 'Нячанг', en: 'Nha Trang' } },
+            { w: 'Hà Nội', e: '🏛️', t: { ru: 'Ханой', en: 'Hanoi' } },
+            { w: 'Nhật Bản', e: '🇯🇵', t: { ru: 'Япония', en: 'Japan' } },
+            { w: 'Hàn Quốc', e: '🇰🇷', t: { ru: 'Южная Корея', en: 'South Korea' } },
+            { w: 'Trung Quốc', e: '🇨🇳', t: { ru: 'Китай', en: 'China' } },
+            { w: 'Úc', e: '🇦🇺', t: { ru: 'Австралия', en: 'Australia' } },
+            { w: 'Anh', e: '🇬🇧', t: { ru: 'Англия', en: 'England' } },
+            { w: 'Pháp', e: '🇫🇷', t: { ru: 'Франция', en: 'France' } }
         ],
         datetime: [
             { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
@@ -484,7 +503,9 @@
             { w: 'tháng chín', e: '9️⃣', t: { ru: 'сентябрь', en: 'september' } },
             { w: 'tháng mười', e: '🔟', t: { ru: 'октябрь', en: 'october' } },
             { w: 'tháng mười một', e: '1️⃣1️⃣', t: { ru: 'ноябрь', en: 'november' } },
-            { w: 'tháng mười hai', e: '1️⃣2️⃣', t: { ru: 'декабрь', en: 'december' } }
+            { w: 'tháng mười hai', e: '1️⃣2️⃣', t: { ru: 'декабрь', en: 'december' } },
+            { w: 'đang', e: '⏳', t: { ru: 'сейчас (в процессе действия)', en: 'currently (continuous marker)' } },
+            { w: 'bây giờ', e: '⌚', t: { ru: 'сейчас (в данный момент)', en: 'now / right now' } }
         ],
         numbers: [
             { w: 'không', e: '0️⃣', t: { ru: 'ноль', en: 'zero' } },
@@ -624,7 +645,7 @@
             { w: 'chanh dây', e: '🍈', t: { ru: 'маракуйя', en: 'passion fruit' } },
             { w: 'chanh', e: '🍋', t: { ru: 'лайм / лимон', en: 'lime / lemon' } },
             { w: 'phần', e: '🍛', t: { ru: 'порция', en: 'portion' } },
-            { w: 'bàn', e: '🪑', t: { ru: 'стол', en: 'table' } },
+            { w: 'bàn', i: svgTable, isSvg: true, t: { ru: 'стол', en: 'table' } },
             { w: 'lon', e: '🥫', t: { ru: 'банка (жестяная)', en: 'can' } },
             { w: 'chai', e: '🍾', t: { ru: 'бутылка', en: 'bottle' } },
             { w: 'tô', e: '🍜', t: { ru: 'большая миска', en: 'big bowl' } },
@@ -635,7 +656,8 @@
             { w: 'luộc', e: '🍲', t: { ru: 'варить', en: 'to boil, boiled' } },
             { w: 'hấp', e: '♨️', t: { ru: 'готовить на пару', en: 'to steam, steamed' } },
             { w: 'cay', e: '🌶️', t: { ru: 'острый', en: 'spicy' } },
-            { w: 'quay', e: '🍖', t: { ru: 'запеченный на вертеле', en: 'roasted / spit-roasted' } }
+            { w: 'quay', e: '🍖', t: { ru: 'запеченный на вертеле', en: 'roasted / spit-roasted' } },
+            { w: 'bạch tuộc', e: '🐙', t: { ru: 'осьминог', en: 'octopus' } }
         ],
         particles: [
             { w: 'và', e: '➕', t: { ru: 'и', en: 'and' } },
@@ -695,19 +717,28 @@
     };
 
     // 1. УМНЫЙ СБОРЩИК ГЛОБАЛЬНОГО СЛОВАРЯ (С ПРИОРИТЕТАМИ И БЕЗ ДУБЛИКАТОВ)
-    function getGlobalDictionary() {
+    function getWordDedupKeys(item) {
+        const full = item.w.toLowerCase().trim();
+        const parts = full.split('/').map(p => p.replace(/\(.*?\)/g, '').trim()).filter(Boolean);
+        return parts.length > 0 ? [...new Set([full, ...parts])] : [full];
+    }
+
+    function createWordCollector() {
         const allWords = [];
-        const seen = new Set(); 
+        const seen = new Set();
 
         function addWord(item) {
-            const icon = item.e || item.i || '';
-            const key = item.w.toLowerCase() + '_' + icon;
-            
-            if (!seen.has(key)) {
-                seen.add(key);
-                allWords.push(item);
-            }
+            const keys = getWordDedupKeys(item);
+            if (keys.some(k => seen.has(k))) return;
+            keys.forEach(k => seen.add(k));
+            allWords.push(item);
         }
+
+        return { allWords, addWord };
+    }
+
+    function getGlobalDictionary() {
+        const { allWords, addWord } = createWordCollector();
 
         Object.values(vocabularyData).forEach(arr => arr.forEach(addWord));
         pronounsData.forEach(addWord);
@@ -729,17 +760,7 @@
             return getGlobalDictionary();
         }
 
-        const allWords = [];
-        const seen = new Set();
-
-        function addWord(item) {
-            const icon = item.e || item.i || '';
-            const key = item.w.toLowerCase() + '_' + icon;
-            if (!seen.has(key)) {
-                seen.add(key);
-                allWords.push(item);
-            }
-        }
+        const { allWords, addWord } = createWordCollector();
 
         trainerSelectedCategories.forEach(id => {
             const arr = vocabularyData[id];
@@ -1709,6 +1730,18 @@
         else if (currentTab === 'pronouns') renderPronounsSection();
     }
 
+    function openVocabSearch() {
+        if (currentTab !== 'vocabulary') {
+            switchTab('vocabulary');
+        }
+        requestAnimationFrame(() => {
+            const searchInput = document.getElementById('vocab-search');
+            if (!searchInput) return;
+            searchInput.focus();
+            searchInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    }
+
     function switchTab(tabName) {
         currentTab = tabName;
         const btnVowels = document.getElementById('tab-vowels');
@@ -1716,6 +1749,7 @@
         const btnPronouns = document.getElementById('tab-pronouns');
         const btnVocab = document.getElementById('tab-vocabulary');
         const btnTrainer = document.getElementById('trainer-toggle');
+        const btnSearch = document.getElementById('search-toggle');
         
         const activeClass = ['bg-tg-primary', 'text-tg-primaryText', 'shadow-sm'];
         const inactiveClass = ['text-tg-text', 'bg-transparent'];
@@ -1727,6 +1761,10 @@
         
         btnTrainer.classList.remove('bg-tg-primary', 'text-tg-primaryText');
         btnTrainer.classList.add('bg-tg-hint/10', 'text-tg-text');
+        if (btnSearch) {
+            btnSearch.classList.remove('bg-tg-primary', 'text-tg-primaryText');
+            btnSearch.classList.add('bg-tg-hint/10', 'text-tg-text');
+        }
 
         if (tabName === 'vowels') {
             btnVowels.classList.add(...activeClass);
@@ -1743,6 +1781,10 @@
         } else if (tabName === 'vocabulary') {
             btnVocab.classList.add(...activeClass);
             btnVocab.classList.remove(...inactiveClass);
+            if (btnSearch) {
+                btnSearch.classList.remove('bg-tg-hint/10', 'text-tg-text');
+                btnSearch.classList.add('bg-tg-primary', 'text-tg-primaryText');
+            }
             vocabPageIndex = 0; 
             renderVocabularySection();
         } else if (tabName === 'trainer') {
