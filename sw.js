@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tieng-viet-24'; // <--- Изменяем версию кэша каждый раз при обновлении кода
+const CACHE_NAME = 'tieng-viet-25'; // <--- Изменяем версию кэша каждый раз при обновлении кода
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
