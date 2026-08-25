@@ -247,7 +247,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v23'; 
+    const APP_VERSION = 'v24'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -458,7 +458,7 @@
             { w: 'gửi tiền', e: '💵', t: { ru: 'передавать деньги', en: 'to give the money' } },
             { w: 'tầng', e: '🛗', t: { ru: 'этаж', en: 'floor' } },
             { w: 'Nga', e: '🇷🇺', t: { ru: 'Россия', en: 'Russia' } },
-            { w: 'Mát-xcơva', e: '🇷🇺', t: { ru: 'Москва', en: 'Moscow' } },
+            { w: 'Mát-xcơ-va', e: '🇷🇺', t: { ru: 'Москва', en: 'Moscow' } },
             { w: 'Việt Nam', e: '🇻🇳', t: { ru: 'Вьетнам', en: 'Vietnam' } },
             { w: 'Đà Nẵng', e: '🏖️', t: { ru: 'Дананг', en: 'Da Nang' } },
             { w: 'Nha Trang', e: '🌴', t: { ru: 'Нячанг', en: 'Nha Trang' } },
@@ -468,7 +468,32 @@
             { w: 'Trung Quốc', e: '🇨🇳', t: { ru: 'Китай', en: 'China' } },
             { w: 'Úc', e: '🇦🇺', t: { ru: 'Австралия', en: 'Australia' } },
             { w: 'Anh', e: '🇬🇧', t: { ru: 'Англия', en: 'England' } },
-            { w: 'Pháp', e: '🇫🇷', t: { ru: 'Франция', en: 'France' } }
+            { w: 'Pháp', e: '🇫🇷', t: { ru: 'Франция', en: 'France' } },
+            { w: 'làm việc tự do', e: '💻', t: { ru: 'фрилансер', en: 'freelancer' } },
+            { w: 'làm việc từ xa', e: '🏠', t: { ru: 'удаленщик', en: 'remote worker' } },
+            { w: 'các bạn', e: '👫', t: { ru: 'все друзья / ребята', en: 'friends / you guys' } },
+            { w: 'nghề', e: '🛠️', t: { ru: 'профессия / род деятельности', en: 'occupation / profession' } },
+            { w: 'giáo viên', e: '👩‍🏫', t: { ru: 'преподаватель', en: 'teacher' } },
+            { w: 'học sinh', e: '🎒', t: { ru: 'школьник', en: 'student (school)' } },
+            { w: 'sinh viên', e: '🎓', t: { ru: 'студент (вуза)', en: 'student (university)' } },
+            { w: 'học viên', e: '📝', t: { ru: 'учащийся на курсах', en: 'trainee / learner' } },
+            { w: 'đầu bếp', e: '👨‍🍳', t: { ru: 'повар', en: 'chef / cook' } },
+            { w: 'lễ tân', e: '🛎️', t: { ru: 'ресепшн / администратор', en: 'receptionist' } },
+            { w: 'văn phòng', e: '🏢', t: { ru: 'офис', en: 'office' } },
+            { w: 'nhân viên văn phòng', e: '🧑‍💼', t: { ru: 'офисный сотрудник', en: 'office worker' } },
+            { w: 'tài xế', e: '🚕', t: { ru: 'таксист / водитель', en: 'driver' } },
+            { w: 'quản lý', e: '👔', t: { ru: 'менеджер / управляющий', en: 'manager' } },
+            { w: 'nhân viên marketing', e: '📊', t: { ru: 'сотрудник маркетинга', en: 'marketing staff' } },
+            { w: 'nhà chiến lược', e: '♟️', t: { ru: 'стратег', en: 'strategist' } },
+            { w: 'kế toán', e: '🧮', t: { ru: 'бухгалтер', en: 'accountant' } },
+            { w: 'ngân hàng', e: '🏦', t: { ru: 'банк', en: 'bank' } },
+            { w: 'quán tạp hóa', e: '🛒', t: { ru: 'магазин у дома / бакалея', en: 'grocery store / convenience store' } },
+            { w: 'khách sạn', e: '🏨', t: { ru: 'отель', en: 'hotel' } },
+            { w: 'công ty', e: '🏢', t: { ru: 'компания', en: 'company' } },
+            { w: 'công trình', e: '🏗️', t: { ru: 'стройка / объект', en: 'construction site' } },
+            { w: 'ngoại ngữ', e: '🗣️', t: { ru: 'иностранный язык', en: 'foreign language' } },
+            { w: 'tiếng mẹ đẻ', e: '🤱', t: { ru: 'родной язык', en: 'mother tongue / native language' } },
+            { w: 'trung tâm', e: '🎯', t: { ru: 'центр', en: 'center' } }
         ],
         datetime: [
             { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
@@ -657,7 +682,12 @@
             { w: 'hấp', e: '♨️', t: { ru: 'готовить на пару', en: 'to steam, steamed' } },
             { w: 'cay', e: '🌶️', t: { ru: 'острый', en: 'spicy' } },
             { w: 'quay', e: '🍖', t: { ru: 'запеченный на вертеле', en: 'roasted / spit-roasted' } },
-            { w: 'bạch tuộc', e: '🐙', t: { ru: 'осьминог', en: 'octopus' } }
+            { w: 'bạch tuộc', e: '🐙', t: { ru: 'осьминог', en: 'octopus' } },
+            { w: 'phục vụ', e: '💁', t: { ru: 'официант', en: 'waiter / waitress' } },
+            { w: 'quán', e: '🏪', t: { ru: 'небольшое место / заведение', en: 'small shop / local place' } },
+            { w: 'quán ăn', e: '🍜', t: { ru: 'небольшой ресторан', en: 'eatery / small restaurant' } },
+            { w: 'quán cà phê', e: '☕', t: { ru: 'местное кафе', en: 'coffee shop' } },
+            { w: 'quán nước', e: '🧃', t: { ru: 'лавка с напитками', en: 'drink stall' } }
         ],
         particles: [
             { w: 'và', e: '➕', t: { ru: 'и', en: 'and' } },
@@ -670,7 +700,9 @@
             { w: 'quá', e: '📈', t: { ru: 'слишком / очень', en: 'too / very' } },
             { w: 'hoặc', e: '🔀', t: { ru: 'или (в утверждениях)', en: 'or (in statements)' } },
             { w: 'còn', e: '🔄', t: { ru: 'а (во встречном вопросе) / еще', en: 'and (in return question) / still' } },
-            { w: 'vậy', e: '💡', t: { ru: 'тогда', en: 'then' } }
+            { w: 'vậy', e: '💡', t: { ru: 'тогда', en: 'then' } },
+            { w: 'đều', e: '👯', t: { ru: 'все (после подлежащих)', en: 'all (adverb for subjects)' } },
+            { w: 'dạ', e: '🙇', t: { ru: 'да (вежливо старшим)', en: 'yes (polite to elders)' } }
         ],
         phrases: [
             { w: 'có món ... không?', e: '🍲', t: { ru: 'есть ли блюдо...?', en: 'do you have the dish...?' } },
@@ -694,7 +726,9 @@
             { w: 'Chờ ... chút.', e: '⏱️', t: { ru: 'Подождите немного.', en: 'Wait (for me) a bit.' } },
             { w: 'xem menu', e: '👀', t: { ru: 'посмотреть меню', en: 'see the menu' } },
             { w: 'mượn menu', e: '🤲', t: { ru: 'одолжить меню', en: 'borrow the menu' } },
-            { w: 'gọi món', e: '🛎️', t: { ru: 'сделать заказ', en: 'order (food)' } }
+            { w: 'gọi món', e: '🛎️', t: { ru: 'сделать заказ', en: 'order (food)' } },
+            { w: 'tôi làm nhân viên marketing', e: '📈', t: { ru: 'я работаю маркетологом', en: 'I work as a marketer' } },
+            { w: 'không được', e: '🚫', t: { ru: 'строгий отказ (нельзя)', en: 'not allowed / absolutely not' } }
         ],
         questions: [
             { w: 'đây là ai?', e: '👤', t: { ru: 'кто это?', en: 'who is this?' } },
@@ -712,7 +746,11 @@
             { w: 'phòng học (anh/chị) số mấy?', e: '🏫', t: { ru: 'в каком ты классе/кабинете?', en: 'what room is your class?' } },
             { w: '... hả?', e: '❓', t: { ru: '...правильно? (для уточнения)', en: '...right? (for clarification)' } },
             { w: 'cái này tiếng Việt là gì?', e: '❓🇻🇳', t: { ru: 'как это будет по-вьетнамски?', en: 'how do you say this in Vietnamese?' } },
-            { w: 'ăn ở đây hay mang về?', e: '🍽️', t: { ru: 'кушать здесь или с собой?', en: 'eat here or take away?' } }
+            { w: 'ăn ở đây hay mang về?', e: '🍽️', t: { ru: 'кушать здесь или с собой?', en: 'eat here or take away?' } },
+            { w: 'bạn là người nước nào?', e: '🌍', t: { ru: 'какой ты национальности?', en: 'what nationality are you?' } },
+            { w: 'quê của bạn ở đâu?', e: '🏡', t: { ru: 'где твой родной город?', en: 'where is your hometown?' } },
+            { w: 'bạn làm nghề gì?', e: '💼', t: { ru: 'кем ты работаешь?', en: 'what is your job?' } }
+            
         ]
     };
 
