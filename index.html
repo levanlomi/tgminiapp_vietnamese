@@ -247,7 +247,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v25'; 
+    const APP_VERSION = 'v26'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -493,7 +493,16 @@
             { w: 'công trình', e: '🏗️', t: { ru: 'стройка / объект', en: 'construction site' } },
             { w: 'ngoại ngữ', e: '🗣️', t: { ru: 'иностранный язык', en: 'foreign language' } },
             { w: 'tiếng mẹ đẻ', e: '🤱', t: { ru: 'родной язык', en: 'mother tongue / native language' } },
-            { w: 'trung tâm', e: '🎯', t: { ru: 'центр', en: 'center' } }
+            { w: 'trung tâm', e: '🎯', t: { ru: 'центр', en: 'center' } },
+            { w: 'công việc', e: '💼', t: { ru: 'работа', en: 'work / job' } },
+            { w: 'gần', e: '📍', t: { ru: 'рядом / близко', en: 'near / close' } },
+            { w: 'xa', e: '🔭', t: { ru: 'далеко', en: 'far' } },
+            { w: 'thành phố', e: '🏙️', t: { ru: 'город', en: 'city' } },
+            { w: 'tỉnh', e: '🗺️', t: { ru: 'провинция', en: 'province' } },
+            { w: 'quận', e: '🏘️', t: { ru: 'район', en: 'district' } },
+            { w: 'quê', e: '🏡', t: { ru: 'деревня / родной край', en: 'countryside / hometown' } },
+            { w: 'ở đây', e: '👇', t: { ru: 'тут / здесь', en: 'here' } },
+            { w: 'ở đó', e: '👉', t: { ru: 'там', en: 'there' } }
         ],
         datetime: [
             { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
@@ -530,7 +539,22 @@
             { w: 'tháng mười một', e: '1️⃣1️⃣', t: { ru: 'ноябрь', en: 'november' } },
             { w: 'tháng mười hai', e: '1️⃣2️⃣', t: { ru: 'декабрь', en: 'december' } },
             { w: 'đang', e: '⏳', t: { ru: 'сейчас (в процессе действия)', en: 'currently (continuous marker)' } },
-            { w: 'bây giờ', e: '⌚', t: { ru: 'сейчас (в данный момент)', en: 'now / right now' } }
+            { w: 'bây giờ', e: '⌚', t: { ru: 'сейчас (в данный момент)', en: 'now / right now' } },
+            { w: 'nửa', e: '🌗', t: { ru: 'половина', en: 'half' } },
+            { w: 'đồng hồ', e: '⌚', t: { ru: 'часы (предмет)', en: 'clock / watch' } },
+            { w: 'buổi sáng', e: '🌅', t: { ru: 'утро', en: 'morning' } },
+            { w: 'buổi trưa', e: '☀️', t: { ru: 'полдень', en: 'noon' } },
+            { w: 'buổi chiều', e: '🌇', t: { ru: 'день (после полудня)', en: 'afternoon' } },
+            { w: 'buổi tối', e: '🌃', t: { ru: 'вечер', en: 'evening' } },
+            { w: 'buổi đêm', e: '🌙', t: { ru: 'ночь', en: 'night' } },
+            { w: 'khuya', e: '🌌', t: { ru: 'поздняя ночь', en: 'late night' } },
+            { w: 'kém', e: '📉', t: { ru: 'без чего-то (о времени)', en: 'to / less (time)' } },
+            { w: 'đúng', e: '🎯', t: { ru: 'ровно (о времени) / верно', en: 'exactly / right' } },
+            { w: 'năm giờ rưỡi', e: '🕠', t: { ru: '5:30', en: '5:30' } },
+            { w: 'năm giờ sáng', e: '🌅', t: { ru: '5 утра', en: '5 AM' } },
+            { w: 'năm giờ chiều', e: '🌇', t: { ru: '5 дня', en: '5 PM' } },
+            { w: 'nửa đêm', e: '🕛', t: { ru: 'полночь', en: 'midnight' } },
+            { w: 'ba giờ đúng', e: '🕒', t: { ru: 'ровно три часа', en: 'exactly three o\'clock' } }
         ],
         numbers: [
             { w: 'không', e: '0️⃣', t: { ru: 'ноль', en: 'zero' } },
@@ -598,7 +622,11 @@
             { w: 'hiểu', e: '💡', t: { ru: 'понимать', en: 'understand' } },
             { w: 'làm', e: '🛠️', t: { ru: 'делать', en: 'do / make' } },
             { w: 'thích', e: '👍', t: { ru: 'нравиться', en: 'like' } },
-            { w: 'hỏi', e: '❓', t: { ru: 'спрашивать', en: 'ask' } }
+            { w: 'hỏi', e: '❓', t: { ru: 'спрашивать', en: 'ask' } },
+            { w: 'ăn sáng', e: '🥐', t: { ru: 'завтракать', en: 'to have breakfast' } },
+            { w: 'ăn trưa', e: '🍛', t: { ru: 'обедать', en: 'to have lunch' } },
+            { w: 'ăn tối', e: '🍝', t: { ru: 'ужинать', en: 'to have dinner' } },
+            { w: 'sống', e: '❤️', t: { ru: 'жить', en: 'to live' } }
         ],
         cafe: [
             { w: 'nhà hàng', e: '🏨', t: { ru: 'ресторан', en: 'restaurant' } },
@@ -687,7 +715,10 @@
             { w: 'quán', e: '🏪', t: { ru: 'небольшое место / заведение', en: 'small shop / local place' } },
             { w: 'quán ăn', e: '🍜', t: { ru: 'небольшой ресторан', en: 'eatery / small restaurant' } },
             { w: 'quán cà phê', e: '☕', t: { ru: 'местное кафе', en: 'coffee shop' } },
-            { w: 'quán nước', e: '🧃', t: { ru: 'лавка с напитками', en: 'drink stall' } }
+            { w: 'quán nước', e: '🧃', t: { ru: 'лавка с напитками', en: 'drink stall' } },
+            { w: 'bữa sáng', e: '🍳', t: { ru: 'завтрак', en: 'breakfast' } },
+            { w: 'bữa trưa', e: '🍲', t: { ru: 'обед', en: 'lunch' } },
+            { w: 'bữa tối', e: '🍽️', t: { ru: 'ужин', en: 'dinner' } }
         ],
         particles: [
             { w: 'và', e: '➕', t: { ru: 'и', en: 'and' } },
@@ -702,7 +733,9 @@
             { w: 'còn', e: '🔄', t: { ru: 'а (во встречном вопросе) / еще', en: 'and (in return question) / still' } },
             { w: 'vậy', e: '💡', t: { ru: 'тогда', en: 'then' } },
             { w: 'đều', e: '👯', t: { ru: 'все (после подлежащих)', en: 'all (adverb for subjects)' } },
-            { w: 'dạ', e: '🙇', t: { ru: 'да (вежливо старшим)', en: 'yes (polite to elders)' } }
+            { w: 'dạ', e: '🙇', t: { ru: 'да (вежливо старшим)', en: 'yes (polite to elders)' } },
+            { w: 'bằng', e: '🟰', t: { ru: 'равно (=)', en: 'equal to (=)' } },
+            { w: 'sẽ', e: '🔮', t: { ru: 'буду (маркер будущего)', en: 'will (future marker)' } }
         ],
         phrases: [
             { w: 'có món ... không?', e: '🍲', t: { ru: 'есть ли блюдо...?', en: 'do you have the dish...?' } },
@@ -728,7 +761,8 @@
             { w: 'mượn menu', e: '🤲', t: { ru: 'одолжить меню', en: 'borrow the menu' } },
             { w: 'gọi món', e: '🛎️', t: { ru: 'сделать заказ', en: 'order (food)' } },
             { w: 'tôi làm nhân viên marketing', e: '📈', t: { ru: 'я работаю маркетологом', en: 'I work as a marketer' } },
-            { w: 'không được', e: '🚫', t: { ru: 'строгий отказ (нельзя)', en: 'not allowed / absolutely not' } }
+            { w: 'không được', e: '🚫', t: { ru: 'строгий отказ (нельзя)', en: 'not allowed / absolutely not' } },
+            { w: 'Anh sống ở thành phố Đà Nẵng', e: '🏖️', t: { ru: 'я живу в городе Дананг', en: 'I live in Da Nang city' } }
         ],
         questions: [
             { w: 'đây là ai?', e: '👤', t: { ru: 'кто это?', en: 'who is this?' } },
@@ -749,7 +783,12 @@
             { w: 'ăn ở đây hay mang về?', e: '🍽️', t: { ru: 'кушать здесь или с собой?', en: 'eat here or take away?' } },
             { w: 'bạn là người nước nào?', e: '🌍', t: { ru: 'какой ты национальности?', en: 'what nationality are you?' } },
             { w: 'quê của bạn ở đâu?', e: '🏡', t: { ru: 'где твой родной город?', en: 'where is your hometown?' } },
-            { w: 'bạn làm nghề gì?', e: '💼', t: { ru: 'кем ты работаешь?', en: 'what is your job?' } }
+            { w: 'bạn làm nghề gì?', e: '💼', t: { ru: 'кем ты работаешь?', en: 'what is your job?' } },
+            { w: 'bây giờ là mấy giờ?', e: '⌚', t: { ru: 'сейчас сколько времени?', en: 'what time is it now?' } },
+            { w: 'em ơi, mấy giờ rồi?', e: '🗣️', t: { ru: '[младший], сколько времени?', en: 'excuse me, what time is it?' } },
+            { w: 'em sống ở đâu?', e: '🗺️', t: { ru: 'где ты живешь?', en: 'where do you live?' } },
+            { w: 'nhà của bạn ở đường nào?', e: '🏠', t: { ru: 'на какой улице твой дом?', en: 'what street is your house on?' } },
+            { w: 'nào', e: '❓', t: { ru: 'какой?', en: 'which?' } }
             
         ]
     };
