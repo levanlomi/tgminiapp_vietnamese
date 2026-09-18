@@ -247,7 +247,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v26'; 
+    const APP_VERSION = 'v27'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -502,7 +502,12 @@
             { w: 'quận', e: '🏘️', t: { ru: 'район', en: 'district' } },
             { w: 'quê', e: '🏡', t: { ru: 'деревня / родной край', en: 'countryside / hometown' } },
             { w: 'ở đây', e: '👇', t: { ru: 'тут / здесь', en: 'here' } },
-            { w: 'ở đó', e: '👉', t: { ru: 'там', en: 'there' } }
+            { w: 'ở đó', e: '👉', t: { ru: 'там', en: 'there' } },
+            { w: 'câu hỏi', e: '❓', t: { ru: 'вопрос', en: 'question' } },
+            { w: 'này', e: '👇', t: { ru: 'эта / этот', en: 'this' } },
+            { w: 'sinh nhật', e: '🎂', t: { ru: 'день рождения', en: 'birthday' } },
+            { w: 'đỉnh', e: '🏔️🔥', t: { ru: 'круто / вершина', en: 'awesome / peak' } },
+            { w: 'cái khăn lau', e: '🧻', t: { ru: 'полотенце для вытирания / тряпка', en: 'towel / wiping cloth' } }
         ],
         datetime: [
             { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
@@ -554,7 +559,15 @@
             { w: 'năm giờ sáng', e: '🌅', t: { ru: '5 утра', en: '5 AM' } },
             { w: 'năm giờ chiều', e: '🌇', t: { ru: '5 дня', en: '5 PM' } },
             { w: 'nửa đêm', e: '🕛', t: { ru: 'полночь', en: 'midnight' } },
-            { w: 'ba giờ đúng', e: '🕒', t: { ru: 'ровно три часа', en: 'exactly three o\'clock' } }
+            { w: 'ba giờ đúng', e: '🕒', t: { ru: 'ровно три часа', en: 'exactly three o\'clock' } },
+            { w: 'hằng ngày', e: '🔁', t: { ru: 'ежедневно (как рутина)', en: 'daily / on a daily basis' } },
+            { w: 'mỗi ngày', e: '📅', t: { ru: 'каждый день', en: 'every day' } },
+            { w: 'trước', e: '⏪', t: { ru: 'прошлый / перед', en: 'before / previous' } },
+            { w: 'sau', e: '⏩', t: { ru: 'следующий / после', en: 'after / next' } },
+            { w: 'hôm kia', e: '🔙', t: { ru: 'позавчера', en: 'day before yesterday' } },
+            { w: 'ngày kia', e: '🔜', t: { ru: 'послезавтра', en: 'day after tomorrow' } },
+            { w: 'trong tuần', e: '🏢', t: { ru: 'в течение недели (будни)', en: 'weekdays' } },
+            { w: 'cuối tuần', e: '🌴', t: { ru: 'конец недели (выходные)', en: 'weekend' } }
         ],
         numbers: [
             { w: 'không', e: '0️⃣', t: { ru: 'ноль', en: 'zero' } },
@@ -626,7 +639,21 @@
             { w: 'ăn sáng', e: '🥐', t: { ru: 'завтракать', en: 'to have breakfast' } },
             { w: 'ăn trưa', e: '🍛', t: { ru: 'обедать', en: 'to have lunch' } },
             { w: 'ăn tối', e: '🍝', t: { ru: 'ужинать', en: 'to have dinner' } },
-            { w: 'sống', e: '❤️', t: { ru: 'жить', en: 'to live' } }
+            { w: 'sống', e: '❤️', t: { ru: 'жить', en: 'to live' } },
+            { w: 'ngủ dậy', e: '🥱', t: { ru: 'просыпаться', en: 'wake up' } },
+            { w: 'đi làm', e: '💼', t: { ru: 'идти на работу', en: 'go to work' } },
+            { w: 'tập thể dục', e: '🏃', t: { ru: 'делать зарядку / спорт', en: 'exercise / work out' } },
+            { w: 'đi ngủ', e: '🛌', t: { ru: 'идти спать', en: 'go to sleep' } },
+            { w: 'xem tivi', e: '📺', t: { ru: 'смотреть ТВ', en: 'watch TV' } },
+            { w: 'nghe nhạc', e: '🎧', t: { ru: 'слушать музыку', en: 'listen to music' } },
+            { w: 'chơi game', e: '🎮', t: { ru: 'играть в игры', en: 'play games' } },
+            { w: 'đọc sách', e: '📖', t: { ru: 'читать книгу', en: 'read a book' } },
+            { w: 'nấu ăn', e: '🍳', t: { ru: 'готовить еду', en: 'cook' } },
+            { w: 'làm việc nhà', e: '🧹', t: { ru: 'делать работу по дому', en: 'do housework' } },
+            { w: 'đi tắm', e: '🚿', t: { ru: 'идти в душ', en: 'take a shower' } },
+            { w: 'trả lời', e: '💬', t: { ru: 'отвечать', en: 'answer / reply' } },
+            { w: 'nói về', e: '🗣️', t: { ru: 'говорить о', en: 'talk about' } },
+            { w: 'lau', e: '🧽', t: { ru: 'вытирать / мыть', en: 'wipe / clean' } }
         ],
         cafe: [
             { w: 'nhà hàng', e: '🏨', t: { ru: 'ресторан', en: 'restaurant' } },
@@ -735,7 +762,12 @@
             { w: 'đều', e: '👯', t: { ru: 'все (после подлежащих)', en: 'all (adverb for subjects)' } },
             { w: 'dạ', e: '🙇', t: { ru: 'да (вежливо старшим)', en: 'yes (polite to elders)' } },
             { w: 'bằng', e: '🟰', t: { ru: 'равно (=)', en: 'equal to (=)' } },
-            { w: 'sẽ', e: '🔮', t: { ru: 'буду (маркер будущего)', en: 'will (future marker)' } }
+            { w: 'sẽ', e: '🔮', t: { ru: 'буду (маркер будущего)', en: 'will (future marker)' } },
+            { w: 'sau đó', e: '⏭️', t: { ru: 'затем / после этого', en: 'then / after that' } },
+            { w: 'khi', e: '⏳', t: { ru: 'когда (во время чего-то)', en: 'when / while' } },
+            { w: 'từ', e: '↩️', t: { ru: 'из / от', en: 'from' } },
+            { w: 'từ ... đến', e: '↔️', t: { ru: 'с ... по / от ... до', en: 'from ... to' } },
+            { w: 'thôi', e: '✋', t: { ru: 'хватит / достаточно', en: 'enough / stop' } }
         ],
         phrases: [
             { w: 'có món ... không?', e: '🍲', t: { ru: 'есть ли блюдо...?', en: 'do you have the dish...?' } },
@@ -762,7 +794,15 @@
             { w: 'gọi món', e: '🛎️', t: { ru: 'сделать заказ', en: 'order (food)' } },
             { w: 'tôi làm nhân viên marketing', e: '📈', t: { ru: 'я работаю маркетологом', en: 'I work as a marketer' } },
             { w: 'không được', e: '🚫', t: { ru: 'строгий отказ (нельзя)', en: 'not allowed / absolutely not' } },
-            { w: 'Anh sống ở thành phố Đà Nẵng', e: '🏖️', t: { ru: 'я живу в городе Дананг', en: 'I live in Da Nang city' } }
+            { w: 'Anh sống ở thành phố Đà Nẵng', e: '🏖️', t: { ru: 'я живу в городе Дананг', en: 'I live in Da Nang city' } },
+            { w: 'xong rồi', e: '✅', t: { ru: 'закончив / готово', en: 'finished / done' } },
+            { w: 'sau khi ... xong', e: '🏁', t: { ru: 'после того, как закончил ...', en: 'after finishing ...' } },
+            { w: 'đi thôi', e: '🚀', t: { ru: 'поехали / пошли', en: 'let\'s go' } },
+            { w: 'ăn thôi', e: '🍽️', t: { ru: 'давай кушать', en: 'let\'s eat' } },
+            { w: 'uống thôi', e: '🍻', t: { ru: 'пора пить', en: 'let\'s drink' } },
+            { w: 'đi cà phê thôi', e: '☕', t: { ru: 'пошли пить кофе', en: 'let\'s go for coffee' } },
+            { w: 'làm thôi', e: '💪', t: { ru: 'давай делать', en: 'let\'s do it' } },
+            { w: 'học thôi', e: '📚', t: { ru: 'за учебу!', en: 'let\'s study' } }
         ],
         questions: [
             { w: 'đây là ai?', e: '👤', t: { ru: 'кто это?', en: 'who is this?' } },
