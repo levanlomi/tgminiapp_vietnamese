@@ -247,7 +247,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v27'; 
+    const APP_VERSION = 'v28'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -507,7 +507,19 @@
             { w: 'này', e: '👇', t: { ru: 'эта / этот', en: 'this' } },
             { w: 'sinh nhật', e: '🎂', t: { ru: 'день рождения', en: 'birthday' } },
             { w: 'đỉnh', e: '🏔️🔥', t: { ru: 'круто / вершина', en: 'awesome / peak' } },
-            { w: 'cái khăn lau', e: '🧻', t: { ru: 'полотенце для вытирания / тряпка', en: 'towel / wiping cloth' } }
+            { w: 'cái khăn lau', e: '🧻', t: { ru: 'полотенце для вытирания / тряпка', en: 'towel / wiping cloth' } },
+            { w: 'bận', e: '🏃', t: { ru: 'занят', en: 'busy' } },
+            { w: 'rảnh', e: '🛋️', t: { ru: 'свободен', en: 'free / available' } },
+            { w: 'nhà thuốc', e: '💊', t: { ru: 'аптека', en: 'pharmacy' } },
+            { w: 'đám cưới', e: '💒', t: { ru: 'свадьба', en: 'wedding' } },
+            { w: 'độ', e: '🌡️', t: { ru: 'градус', en: 'degree' } },
+            { w: 'tiệc', e: '🥳', t: { ru: 'вечеринка', en: 'party' } },
+            { w: 'họp', e: '👔', t: { ru: 'рабочая встреча (собрание)', en: 'meeting' } },
+            { w: 'công tác', e: '🧳', t: { ru: 'командировка', en: 'business trip' } },
+            { w: 'phỏng vấn', e: '🎤', t: { ru: 'собеседование', en: 'interview' } },
+            { w: 'nha sĩ', e: '🦷', t: { ru: 'дантист', en: 'dentist' } },
+            { w: 'người nước ngoài', e: '🌍', t: { ru: 'иностранец', en: 'foreigner' } },
+            { w: 'chắc là', e: '🤔', t: { ru: 'может быть / наверное', en: 'maybe / probably' } }
         ],
         datetime: [
             { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
@@ -567,7 +579,11 @@
             { w: 'hôm kia', e: '🔙', t: { ru: 'позавчера', en: 'day before yesterday' } },
             { w: 'ngày kia', e: '🔜', t: { ru: 'послезавтра', en: 'day after tomorrow' } },
             { w: 'trong tuần', e: '🏢', t: { ru: 'в течение недели (будни)', en: 'weekdays' } },
-            { w: 'cuối tuần', e: '🌴', t: { ru: 'конец недели (выходные)', en: 'weekend' } }
+            { w: 'cuối tuần', e: '🌴', t: { ru: 'конец недели (выходные)', en: 'weekend' } },
+            { w: 'nửa tiếng', e: '⏱️', t: { ru: 'полчаса', en: 'half an hour' } },
+            { w: 'hai tư trên bảy', e: '🔄', t: { ru: '24/7 ', en: '24/7' } },
+            { w: 'mai mốt', e: '🔮', t: { ru: 'в будущем / на днях', en: 'in the future / soon' } },
+            { w: 'trước đây', e: '🔙', t: { ru: 'ранее / раньше', en: 'previously / before' } }
         ],
         numbers: [
             { w: 'không', e: '0️⃣', t: { ru: 'ноль', en: 'zero' } },
@@ -653,7 +669,16 @@
             { w: 'đi tắm', e: '🚿', t: { ru: 'идти в душ', en: 'take a shower' } },
             { w: 'trả lời', e: '💬', t: { ru: 'отвечать', en: 'answer / reply' } },
             { w: 'nói về', e: '🗣️', t: { ru: 'говорить о', en: 'talk about' } },
-            { w: 'lau', e: '🧽', t: { ru: 'вытирать / мыть', en: 'wipe / clean' } }
+            { w: 'lau', e: '🧽', t: { ru: 'вытирать / мыть', en: 'wipe / clean' } },
+            { w: 'cưới', e: '💍', t: { ru: 'жениться / выходить замуж', en: 'to marry' } },
+            { w: 'thăm', e: '👋', t: { ru: 'навестить (в гостях)', en: 'to visit' } },
+            { w: 'quay lại', e: '↩️', t: { ru: 'вернуться', en: 'to return' } },
+            { w: 'định', e: '💭', t: { ru: 'планировать / намереваться', en: 'to plan / intend' } },
+            { w: 'quên', e: '🤦', t: { ru: 'забыть', en: 'to forget' } },
+            { w: 'nói đùa', e: '😜', t: { ru: 'шутить', en: 'to joke' } },
+            { w: 'thèm', e: '🤤', t: { ru: 'жаждать / хотеть (еду)', en: 'to crave' } },
+            { w: 'nhớ', e: '🧠', t: { ru: 'помнить / скучать', en: 'to remember / to miss' } },
+            { w: 'thấy', e: '👁️', t: { ru: 'видеть / считать / чувствовать', en: 'to see / feel / think' } }
         ],
         cafe: [
             { w: 'nhà hàng', e: '🏨', t: { ru: 'ресторан', en: 'restaurant' } },
@@ -745,7 +770,10 @@
             { w: 'quán nước', e: '🧃', t: { ru: 'лавка с напитками', en: 'drink stall' } },
             { w: 'bữa sáng', e: '🍳', t: { ru: 'завтрак', en: 'breakfast' } },
             { w: 'bữa trưa', e: '🍲', t: { ru: 'обед', en: 'lunch' } },
-            { w: 'bữa tối', e: '🍽️', t: { ru: 'ужин', en: 'dinner' } }
+            { w: 'bữa tối', e: '🍽️', t: { ru: 'ужин', en: 'dinner' } },
+            { w: 'vị', e: '👅', t: { ru: 'вкус', en: 'taste / flavor' } },
+            { w: 'mùi', e: '👃', t: { ru: 'запах', en: 'smell' } },
+            { w: 'sầu riêng', e: '🍈', t: { ru: 'дуриан', en: 'durian' } }
         ],
         particles: [
             { w: 'và', e: '➕', t: { ru: 'и', en: 'and' } },
@@ -767,7 +795,12 @@
             { w: 'khi', e: '⏳', t: { ru: 'когда (во время чего-то)', en: 'when / while' } },
             { w: 'từ', e: '↩️', t: { ru: 'из / от', en: 'from' } },
             { w: 'từ ... đến', e: '↔️', t: { ru: 'с ... по / от ... до', en: 'from ... to' } },
-            { w: 'thôi', e: '✋', t: { ru: 'хватит / достаточно', en: 'enough / stop' } }
+            { w: 'thôi', e: '✋', t: { ru: 'хватит / достаточно', en: 'enough / stop' } },
+            { w: 'vào', e: '📅', t: { ru: 'в (о дате, дне, месяце)', en: 'in / on (time)' } },
+            { w: 'đã', e: '✅', t: { ru: 'уже (маркер прошлого)', en: 'already (past marker)' } },
+            { w: 'nữa', e: '➕', t: { ru: 'еще / спустя (продолжительность)', en: 'more / further' } },
+            { w: 'sắp', e: '🔜', t: { ru: 'скоро (маркер скорого будущего)', en: 'soon / about to' } },
+            { w: 'vậy là', e: '💡', t: { ru: 'итак / значит', en: 'so... / then...' } }
         ],
         phrases: [
             { w: 'có món ... không?', e: '🍲', t: { ru: 'есть ли блюдо...?', en: 'do you have the dish...?' } },
@@ -828,7 +861,10 @@
             { w: 'em ơi, mấy giờ rồi?', e: '🗣️', t: { ru: '[младший], сколько времени?', en: 'excuse me, what time is it?' } },
             { w: 'em sống ở đâu?', e: '🗺️', t: { ru: 'где ты живешь?', en: 'where do you live?' } },
             { w: 'nhà của bạn ở đường nào?', e: '🏠', t: { ru: 'на какой улице твой дом?', en: 'what street is your house on?' } },
-            { w: 'nào', e: '❓', t: { ru: 'какой?', en: 'which?' } }
+            { w: 'nào', e: '❓', t: { ru: 'какой?', en: 'which?' } },
+            { w: 'khi nào?', e: '⏰', t: { ru: 'когда?', en: 'when?' } },
+            { w: 'bao lâu?', e: '⏳', t: { ru: 'как долго?', en: 'how long?' } },
+            { w: 'bao lâu nữa?', e: '⏱️', t: { ru: 'как скоро? / сколько еще?', en: 'how much longer?' } }
             
         ]
     };
