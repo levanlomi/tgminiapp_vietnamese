@@ -393,7 +393,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v32'; 
+    const APP_VERSION = 'v33'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -2605,6 +2605,16 @@
         }
     }
 
+    function handleReadingListGesture() {
+        const diffX = readingTouchEndX - readingTouchStartX;
+        const diffY = readingTouchEndY - readingTouchStartY;
+        const minSwipe = 50;
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > minSwipe) {
+            if (diffX < 0) navigateReadingPage(1);
+            else navigateReadingPage(-1);
+        }
+    }
+
     function lookupReadingTranslation(token) {
         if (!token || !token.w || token.w.trim() === '' || token.w === '\n') return null;
         if (/^[.,!?;:…]+$/.test(token.w)) return null;
@@ -2871,20 +2881,30 @@
         mainContainer.appendChild(list);
 
         if (totalPages > 1) {
+            list.addEventListener('touchstart', e => {
+                readingTouchStartX = e.changedTouches[0].screenX;
+                readingTouchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
+            list.addEventListener('touchend', e => {
+                readingTouchEndX = e.changedTouches[0].screenX;
+                readingTouchEndY = e.changedTouches[0].screenY;
+                handleReadingListGesture();
+            }, { passive: true });
+
             const paginationControls = document.createElement('div');
-            paginationControls.className = 'flex items-center justify-center gap-4 mt-5 mb-4 w-full select-none';
+            paginationControls.className = 'flex items-center gap-2 mt-5 mb-4 w-full max-w-full select-none box-border';
 
             const prevBtn = document.createElement('button');
-            prevBtn.className = `p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${readingPageIndex === 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
+            prevBtn.className = `shrink-0 p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${readingPageIndex === 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
             prevBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
             prevBtn.onclick = () => navigateReadingPage(-1);
 
             const dotsContainer = document.createElement('div');
-            dotsContainer.className = 'flex items-center gap-2';
+            dotsContainer.className = 'flex-1 min-w-0 flex items-center justify-center gap-2 overflow-x-auto no-scrollbar';
             for (let i = 0; i < totalPages; i++) {
                 const dot = document.createElement('button');
                 const isActive = i === readingPageIndex;
-                dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
+                dot.className = `shrink-0 w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
                 dot.onclick = () => {
                     readingPageIndex = i;
                     renderReadingListView();
@@ -2893,7 +2913,7 @@
             }
 
             const nextBtn = document.createElement('button');
-            nextBtn.className = `p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${readingPageIndex === totalPages - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
+            nextBtn.className = `shrink-0 p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${readingPageIndex === totalPages - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
             nextBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`;
             nextBtn.onclick = () => navigateReadingPage(1);
 
@@ -3496,19 +3516,19 @@
 
         if (showPagination) {
             const paginationControls = document.createElement('div');
-            paginationControls.className = 'flex items-center justify-center gap-4 mt-6 mb-8 w-full select-none';
+            paginationControls.className = 'flex items-center gap-2 mt-6 mb-8 w-full max-w-full select-none box-border';
 
             const prevBtn = document.createElement('button');
-            prevBtn.className = `p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
+            prevBtn.className = `shrink-0 p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
             prevBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
             prevBtn.onclick = () => navigateVocabPage(-1);
 
             const dotsContainer = document.createElement('div');
-            dotsContainer.className = 'flex items-center gap-2';
+            dotsContainer.className = 'flex-1 min-w-0 flex items-center justify-center gap-2 overflow-x-auto no-scrollbar';
             for (let i = 0; i < totalPages; i++) {
                 const dot = document.createElement('button');
                 const isActive = i === vocabPageIndex;
-                dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
+                dot.className = `shrink-0 w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
                 dot.onclick = () => {
                     vocabPageIndex = i;
                     renderVocabPageOnly();
@@ -3517,7 +3537,7 @@
             }
 
             const nextBtn = document.createElement('button');
-            nextBtn.className = `p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === totalPages - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
+            nextBtn.className = `shrink-0 p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === totalPages - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
             nextBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`;
             nextBtn.onclick = () => navigateVocabPage(1);
 
