@@ -74,6 +74,27 @@
             scrollbar-width: none;
         }
 
+        .pager-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            gap: 8px;
+        }
+        .pager-dots {
+            flex: 1 1 auto;
+            min-width: 0;
+            margin: 0 2px;
+            padding: 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         /* Анимация ошибки для тренажера */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -196,7 +217,20 @@
             border-radius: 1rem;
             padding: 14px 12px 14px 14px;
         }
+        .reading-play-stack {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            z-index: 6;
+            transition: height 0.28s ease;
+        }
+        .reading-play-stack.has-replay {
+            height: 92px;
+        }
         .reading-play-fab {
+            position: relative;
+            z-index: 2;
             width: 40px;
             height: 40px;
             border-radius: 9999px;
@@ -212,6 +246,34 @@
         }
         .reading-play-fab:active {
             transform: scale(0.94);
+        }
+        .reading-replay-fab {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            color: #1a1a1a;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            opacity: 0;
+            transform: translateY(0) scale(0.92);
+            pointer-events: none;
+            transition: transform 0.28s ease, opacity 0.22s ease;
+        }
+        .reading-replay-fab.visible {
+            opacity: 1;
+            transform: translateY(52px) scale(1);
+            pointer-events: auto;
+        }
+        .reading-replay-fab:active {
+            transform: translateY(52px) scale(0.94);
         }
         .reading-text-panel .reading-body {
             flex: 1;
@@ -393,7 +455,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v33'; 
+    const APP_VERSION = 'v37'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -431,8 +493,8 @@
     }
 
     const uiLabels = {
-        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа", questions: "Вопросы", datetime: "Дата и время", searchPlaceholder: "Поиск: vi, ru, en...", allThemes: "Все темы", themesCount: (n) => n === 1 ? '1 тема' : (n < 5 ? `${n} темы` : `${n} тем`), filterThemes: "Темы", readingTitle: "Чтение", readingBack: "К списку", readingPlay: "Слушать", readingPause: "Пауза", readingEmpty: "Нет текстов в выбранных темах", readingHint: "Нажмите на слово, чтобы увидеть перевод", readingWithTr: "С переводом", readingNoTr: "Без перевода" },
-        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers", questions: "Questions", datetime: "Date & Time", searchPlaceholder: "Search: vi, ru, en...", allThemes: "All themes", themesCount: (n) => n === 1 ? '1 theme' : `${n} themes`, filterThemes: "Themes", readingTitle: "Reading", readingBack: "Back to list", readingPlay: "Listen", readingPause: "Pause", readingEmpty: "No texts in selected themes", readingHint: "Tap a word to see the translation", readingWithTr: "With translation", readingNoTr: "No translation" }
+        ru: { subtitle: "Учим вьетнамский язык", vowels: "Гласные", consonants: "Согласные", pronouns: "Местоимения", vocabulary: "Словарь", dictTitle: "Словарь местоимений", trainerTitle: "Тренажер обращений", speakerLabel: "Кто говорит (Я):", listenerLabel: "Кому говорит (Собеседник):", top: "TOP слов", verbs: "Глаголы", cafe: "Кафе/Ресторан", particles: "Служебные слова", phrases: "Фразы", numbers: "Числа", questions: "Вопросы", datetime: "Дата и время", searchPlaceholder: "Поиск: vi, ru, en...", allThemes: "Все темы", themesCount: (n) => n === 1 ? '1 тема' : (n < 5 ? `${n} темы` : `${n} тем`), filterThemes: "Темы", readingTitle: "Чтение", readingBack: "К списку", readingPlay: "Слушать", readingPause: "Пауза", readingReplay: "Сначала", readingEmpty: "Нет текстов в выбранных темах", readingHint: "Нажмите на слово, чтобы увидеть перевод", readingWithTr: "С переводом", readingNoTr: "Без перевода" },
+        en: { subtitle: "Learn Vietnamese", vowels: "Vowels", consonants: "Consonants", pronouns: "Pronouns", vocabulary: "Vocabulary", dictTitle: "Pronouns Dictionary", trainerTitle: "Greetings Simulator", speakerLabel: "Who is speaking (I):", listenerLabel: "Speaking to (Listener):", top: "TOP Words", verbs: "Verbs", cafe: "Cafe/Restaurant", particles: "Connectors & Words", phrases: "Phrases", numbers: "Numbers", questions: "Questions", datetime: "Date & Time", searchPlaceholder: "Search: vi, ru, en...", allThemes: "All themes", themesCount: (n) => n === 1 ? '1 theme' : `${n} themes`, filterThemes: "Themes", readingTitle: "Reading", readingBack: "Back to list", readingPlay: "Listen", readingPause: "Pause", readingReplay: "Replay", readingEmpty: "No texts in selected themes", readingHint: "Tap a word to see the translation", readingWithTr: "With translation", readingNoTr: "No translation" }
     };
 
     const VOCAB_CATEGORY_IDS = ['top', 'datetime', 'verbs', 'cafe', 'particles', 'numbers', 'phrases', 'questions'];
@@ -444,6 +506,7 @@
     let readingActiveId = null;
     let readingViewMode = 'list'; // 'list' | 'text'
     let readingPlayingId = null;
+    let readingReplayAvailable = false;
     let readingTimeUpdateHandler = null;
     let readingEndedHandler = null;
     let readingPageIndex = 0;
@@ -856,7 +919,10 @@
             { w: 'gia hạn', e: '📝', t: { ru: 'продлевать', en: 'extend' } },
             { w: 'đi gia hạn visa', e: '🛂', t: { ru: 'визаран / продлевать визу', en: 'go for visa extension' } },
             { w: 'đi trên đường', e: '🛣️', t: { ru: 'идти по улице / быть в пути', en: 'walk on the street / be on the road' } },
-            { w: 'đi ra đường', e: '🚪', t: { ru: 'выходить на улицу', en: 'go outside' } }
+            { w: 'đi ra đường', e: '🚪', t: { ru: 'выходить на улицу', en: 'go outside' } },
+            { w: 'tìm', e: '🔍', t: { ru: 'искать', en: 'to search / look for' } },
+            { w: 'tìm thấy', e: '🎯', t: { ru: 'найти', en: 'to find' } },
+            { w: 'thấy vui', e: '😄', t: { ru: 'радоваться / чувствовать радость', en: 'to feel happy' } }
         ],
         cafe: [
             { w: 'nhà hàng', e: '🏨', t: { ru: 'ресторан', en: 'restaurant' } },
@@ -981,7 +1047,9 @@
             { w: 'vậy là', e: '💡', t: { ru: 'итак / значит', en: 'so... / then...' } },
             { w: 'vì', e: '💡', t: { ru: 'потому что / из-за', en: 'because / due to' } },
             { w: 'trên', e: '⬆️', t: { ru: 'на (поверхности)', en: 'on / above' } },
-            { w: 'trong', e: '📥', t: { ru: 'в / внутри', en: 'in / inside' } }
+            { w: 'trong', e: '📥', t: { ru: 'в / внутри', en: 'in / inside' } },
+            { w: 'ít nhất', e: '🤏', t: { ru: 'минимум / как минимум', en: 'at least / minimum' } },
+            { w: 'không quá', e: '≦', t: { ru: 'не более (чем)', en: 'no more than / not exceeding' } }
         ],
         phrases: [
             { w: 'có món ... không?', e: '🍲', t: { ru: 'есть ли блюдо...?', en: 'do you have the dish...?' } },
@@ -1144,10 +1212,10 @@
             id: 'numbers_01',
             category: 'numbers',
             title: { ru: 'Сколько стоит?', en: 'How much is it?' },
-            audioText: 'Cái này bao nhiêu tiền? Nó có giá một trăm nghìn đồng.',
+            audioText: 'Cái này bao nhiêu tiền? Cái này một trăm nghìn đồng.',
             sentences: [
                 { text: "Cái này bao nhiêu tiền?", t: { ru: "Сколько это стоит?", en: "How much is this?" } },
-                { text: "Nó có giá một trăm nghìn đồng.", t: { ru: "Оно стоит сто тысяч донгов.", en: "It costs one hundred thousand dong." } }
+                { text: "Cái này một trăm nghìn đồng.", t: { ru: "Это сто тысяч донгов.", en: "This is one hundred thousand dong." } }
             ],
             gloss: {
                 'cái': { ru: 'этот / штука', en: 'this / item' },
@@ -1155,9 +1223,6 @@
                 'bao': { ru: 'сколько (в вопросе)', en: 'how (much/many)' },
                 'nhiêu': { ru: 'сколько', en: 'much / many' },
                 'tiền': { ru: 'деньги / цена', en: 'money / price' },
-                'nó': { ru: 'он / оно', en: 'it / he' },
-                'có': { ru: 'есть / имеет', en: 'have / there is' },
-                'giá': { ru: 'цена', en: 'price' },
                 'một': { ru: 'один', en: 'one' },
                 'trăm': { ru: 'сто', en: 'hundred' },
                 'nghìn': { ru: 'тысяча', en: 'thousand' },
@@ -1959,6 +2024,167 @@
                 'vào': { ru: 'в', en: 'in / into' },
                 'buổi': { ru: 'часть дня', en: 'time of day' }
             }
+        },
+        {
+            id: 'questions_long_02',
+            category: 'questions',
+            title: { ru: 'Когда домой?', en: 'When are you going home?' },
+            audioText: 'Minh ơi, nghe nói Minh về nước hả? Ừ. Ngày mốt mình về. Về bao lâu? Mình về một tháng. Có mua gì mang về không? Có. Mình định mua sầu riêng. Ở Nga không có, mình thèm lắm.',
+            lines: [
+                { speaker: 'Lan', text: 'Minh ơi, nghe nói Minh về nước hả?', t: { ru: 'Минь, говорят, ты едешь на родину?', en: 'Minh, I heard you are going back home, right?' } },
+                { speaker: 'Minh', text: 'Ừ. Ngày mốt mình về.', t: { ru: 'Да. Послезавтра еду.', en: 'Yeah. I am going the day after tomorrow.' } },
+                { speaker: 'Lan', text: 'Về bao lâu?', t: { ru: 'На сколько едешь?', en: 'For how long?' } },
+                { speaker: 'Minh', text: 'Mình về một tháng.', t: { ru: 'На один месяц.', en: 'I am going for one month.' } },
+                { speaker: 'Lan', text: 'Có mua gì mang về không?', t: { ru: 'Купишь что-нибудь с собой?', en: 'Will you buy anything to take back?' } },
+                { speaker: 'Minh', text: 'Có. Mình định mua sầu riêng. Ở Nga không có, mình thèm lắm.', t: { ru: 'Да. Хочу купить дуриан. В России его нет, очень хочется.', en: 'Yes. I plan to buy durian. There is none in Russia, I crave it a lot.' } }
+            ],
+            gloss: {
+                'minh': { ru: 'Минь (имя)', en: 'Minh (name)' },
+                'ơi': { ru: 'эй / обращение', en: 'hey / vocative' },
+                'nghe': { ru: 'слышать', en: 'hear' },
+                'nói': { ru: 'говорить', en: 'say / speak' },
+                'về': { ru: 'возвращаться', en: 'return / go back' },
+                'nước': { ru: 'страна / родина', en: 'country / homeland' },
+                'hả': { ru: 'да? / правда?', en: 'right? / huh?' },
+                'ừ': { ru: 'да / угу', en: 'yeah / uh-huh' },
+                'ngày': { ru: 'день', en: 'day' },
+                'mốt': { ru: 'послезавтра (часть)', en: 'day after tomorrow (part)' },
+                'mình': { ru: 'я (неформ.)', en: 'I (casual)' },
+                'bao': { ru: 'сколько', en: 'how' },
+                'lâu': { ru: 'долго', en: 'long' },
+                'một': { ru: 'один', en: 'one' },
+                'tháng': { ru: 'месяц', en: 'month' },
+                'có': { ru: 'есть / да', en: 'have / yes' },
+                'mua': { ru: 'покупать', en: 'buy' },
+                'gì': { ru: 'что', en: 'what' },
+                'mang': { ru: 'нести / брать', en: 'carry / take' },
+                'không': { ru: 'нет / ли?', en: 'no / question' },
+                'định': { ru: 'планировать', en: 'plan / intend' },
+                'sầu': { ru: 'дуриан (часть)', en: 'durian (part)' },
+                'riêng': { ru: 'дуриан (часть)', en: 'durian (part)' },
+                'ở': { ru: 'в', en: 'in / at' },
+                'nga': { ru: 'Россия', en: 'Russia' },
+                'thèm': { ru: 'хотеть (еду)', en: 'crave' },
+                'lắm': { ru: 'очень', en: 'very / a lot' },
+                'lan': { ru: 'Лан (имя)', en: 'Lan (name)' }
+            }
+        },
+        {
+            id: 'phrases_long_02',
+            category: 'phrases',
+            title: { ru: 'Дуриан', en: 'Durian' },
+            audioText: 'Bạn thích ăn sầu riêng không? Ừ. Mình thấy sầu riêng ngon ơi là ngon. Nhiều người nước ngoài không thích. Nam quên rồi. Mình là người Việt Nam mà.',
+            lines: [
+                { speaker: 'Nam', text: 'Bạn thích ăn sầu riêng không?', t: { ru: 'Тебе нравится есть дуриан?', en: 'Do you like eating durian?' } },
+                { speaker: 'Hương', text: 'Ừ. Mình thấy sầu riêng ngon ơi là ngon.', t: { ru: 'Да. Дуриан очень-очень вкусный.', en: 'Yeah. I find durian so, so delicious.' } },
+                { speaker: 'Nam', text: 'Nhiều người nước ngoài không thích.', t: { ru: 'Многие иностранцы не любят.', en: 'Many foreigners do not like it.' } },
+                { speaker: 'Hương', text: 'Nam quên rồi. Mình là người Việt Nam mà.', t: { ru: 'Нам забыл. Я же вьетнамка.', en: 'Nam forgot. I am Vietnamese, you know.' } }
+            ],
+            gloss: {
+                'bạn': { ru: 'ты / друг', en: 'you / friend' },
+                'thích': { ru: 'нравиться', en: 'like' },
+                'ăn': { ru: 'есть', en: 'eat' },
+                'sầu': { ru: 'дуриан (часть)', en: 'durian (part)' },
+                'riêng': { ru: 'дуриан (часть)', en: 'durian (part)' },
+                'không': { ru: 'нет / ли?', en: 'no / question' },
+                'ừ': { ru: 'да / угу', en: 'yeah' },
+                'mình': { ru: 'я (неформ.)', en: 'I (casual)' },
+                'thấy': { ru: 'видеть / считать', en: 'see / find' },
+                'ngon': { ru: 'вкусно', en: 'delicious' },
+                'ơi': { ru: 'очень (в «ngon ơi là ngon»)', en: 'so (in “so delicious”)' },
+                'là': { ru: 'есть', en: 'is' },
+                'nhiều': { ru: 'много', en: 'many' },
+                'người': { ru: 'человек / люди', en: 'person / people' },
+                'nước': { ru: 'страна', en: 'country' },
+                'ngoài': { ru: 'вне / заграничный', en: 'outside / foreign' },
+                'nam': { ru: 'Нам (имя)', en: 'Nam (name)' },
+                'quên': { ru: 'забыть', en: 'forget' },
+                'rồi': { ru: 'уже', en: 'already' },
+                'việt': { ru: 'вьетнамский', en: 'Vietnamese' },
+                'mà': { ru: 'же / ведь', en: 'you know / but' },
+                'hương': { ru: 'Хыонг (имя)', en: 'Huong (name)' }
+            }
+        },
+        {
+            id: 'questions_long_03',
+            category: 'questions',
+            title: { ru: 'Жить во Вьетнаме', en: 'Living in Vietnam' },
+            audioText: 'Em tên gì? Dạ, em tên là Alex. Em làm gì ở đây? Dạ, em làm giáo viên tiếng Anh. Sống ở Việt Nam em thích không? Dạ, em thích lắm. Em định sống ở đây một năm nữa.',
+            lines: [
+                { speaker: 'Phương', text: 'Em tên gì?', t: { ru: 'Как тебя зовут?', en: 'What is your name?' } },
+                { speaker: 'Alex', text: 'Dạ, em tên là Alex.', t: { ru: 'Меня зовут Алекс.', en: 'My name is Alex.' } },
+                { speaker: 'Phương', text: 'Em làm gì ở đây?', t: { ru: 'Чем ты здесь занимаешься?', en: 'What do you do here?' } },
+                { speaker: 'Alex', text: 'Dạ, em làm giáo viên tiếng Anh.', t: { ru: 'Я учитель английского.', en: 'I am an English teacher.' } },
+                { speaker: 'Phương', text: 'Sống ở Việt Nam em thích không?', t: { ru: 'Тебе нравится жить во Вьетнаме?', en: 'Do you like living in Vietnam?' } },
+                { speaker: 'Alex', text: 'Dạ, em thích lắm. Em định sống ở đây một năm nữa.', t: { ru: 'Очень нравится. Планирую жить здесь ещё год.', en: 'I like it a lot. I plan to live here one more year.' } }
+            ],
+            gloss: {
+                'em': { ru: 'младший / ты', en: 'younger one / you' },
+                'tên': { ru: 'имя', en: 'name' },
+                'gì': { ru: 'что', en: 'what' },
+                'dạ': { ru: 'да (вежливо)', en: 'yes (polite)' },
+                'là': { ru: 'есть', en: 'am / is' },
+                'alex': { ru: 'Алекс (имя)', en: 'Alex (name)' },
+                'làm': { ru: 'делать / работать', en: 'do / work' },
+                'ở': { ru: 'в / здесь', en: 'in / at' },
+                'đây': { ru: 'здесь', en: 'here' },
+                'giáo': { ru: 'учитель (часть)', en: 'teacher (part)' },
+                'viên': { ru: 'учитель (часть)', en: 'teacher (part)' },
+                'tiếng': { ru: 'язык', en: 'language' },
+                'anh': { ru: 'английский (часть) / вы', en: 'English (part) / you' },
+                'sống': { ru: 'жить', en: 'live' },
+                'việt': { ru: 'вьетнамский', en: 'Vietnamese' },
+                'nam': { ru: 'нам (в названии страны)', en: 'Nam (in country name)' },
+                'thích': { ru: 'нравиться', en: 'like' },
+                'không': { ru: 'ли? / нет', en: 'question / no' },
+                'lắm': { ru: 'очень', en: 'very / a lot' },
+                'định': { ru: 'планировать', en: 'plan / intend' },
+                'một': { ru: 'один', en: 'one' },
+                'năm': { ru: 'год', en: 'year' },
+                'nữa': { ru: 'ещё', en: 'more / another' },
+                'phương': { ru: 'Фыонг (имя)', en: 'Phuong (name)' }
+            }
+        },
+        {
+            id: 'top_long_03',
+            category: 'top',
+            title: { ru: 'Милые вьетнамцы', en: 'Lovely Vietnamese people' },
+            audioText: 'Em học tiếng Việt lâu chưa? Dạ một năm rồi, chị. Em học ở đâu? Dạ em học ở trên đường. Mọi người dạy em. Ủa? Người Việt dễ thương hả? Dạ. Dễ thương giống em, đúng không chị?',
+            lines: [
+                { speaker: 'Chị', text: 'Em học tiếng Việt lâu chưa?', t: { ru: 'Давно учишь вьетнамский?', en: 'Have you been learning Vietnamese for long?' } },
+                { speaker: 'Em', text: 'Dạ một năm rồi, chị.', t: { ru: 'Уже год, старшая сестра.', en: 'One year already, chị.' } },
+                { speaker: 'Chị', text: 'Em học ở đâu?', t: { ru: 'Где учишься?', en: 'Where do you study?' } },
+                { speaker: 'Em', text: 'Dạ em học ở trên đường. Mọi người dạy em.', t: { ru: 'На улице. Все меня учат.', en: 'On the street. Everyone teaches me.' } },
+                { speaker: 'Chị', text: 'Ủa? Người Việt dễ thương hả?', t: { ru: 'Ой? Вьетнамцы милые, да?', en: 'Oh? Vietnamese people are lovely, right?' } },
+                { speaker: 'Em', text: 'Dạ. Dễ thương giống em, đúng không chị?', t: { ru: 'Да. Милые, как и вы, правда?', en: 'Yes. Lovely like you, right?' } }
+            ],
+            gloss: {
+                'em': { ru: 'младший / ты', en: 'younger one / you' },
+                'học': { ru: 'учить', en: 'study / learn' },
+                'tiếng': { ru: 'язык', en: 'language' },
+                'việt': { ru: 'вьетнамский', en: 'Vietnamese' },
+                'lâu': { ru: 'долго', en: 'long' },
+                'chưa': { ru: 'ещё не / ли уже', en: 'not yet / yet' },
+                'dạ': { ru: 'да (вежливо)', en: 'yes (polite)' },
+                'một': { ru: 'один', en: 'one' },
+                'năm': { ru: 'год', en: 'year' },
+                'rồi': { ru: 'уже', en: 'already' },
+                'chị': { ru: 'старшая сестра / вы', en: 'older sister / you' },
+                'ở': { ru: 'в', en: 'in / at' },
+                'đâu': { ru: 'где', en: 'where' },
+                'trên': { ru: 'на', en: 'on' },
+                'đường': { ru: 'улица / дорога', en: 'street / road' },
+                'mọi': { ru: 'все', en: 'every / all' },
+                'người': { ru: 'человек / люди', en: 'person / people' },
+                'dạy': { ru: 'учить (преподавать)', en: 'teach' },
+                'ủa': { ru: 'ой / а?', en: 'oh / huh?' },
+                'dễ': { ru: 'лёгкий / милый (часть)', en: 'easy / cute (part)' },
+                'thương': { ru: 'любить / милый (часть)', en: 'love / cute (part)' },
+                'hả': { ru: 'да?', en: 'right?' },
+                'giống': { ru: 'похож / как', en: 'like / similar' },
+                'đúng': { ru: 'верно', en: 'correct / right' },
+                'không': { ru: 'ли? / нет', en: 'question / no' }
+            }
         }
     ];
 
@@ -2694,8 +2920,10 @@
         clearReadingAudioListeners();
         try { globalAudio.pause(); } catch (e) {}
         readingPlayingId = null;
+        readingReplayAvailable = false;
         if (resetHighlight) resetReadingHighlight();
         updateReadingPlayButton();
+        updateReadingReplayButton();
     }
 
     function resetReadingHighlight() {
@@ -2748,6 +2976,45 @@
             : '<polygon points="7,5 19,12 7,19"></polygon>';
     }
 
+    function updateReadingReplayButton() {
+        const stack = document.getElementById('reading-play-stack');
+        const btn = document.getElementById('reading-replay-btn');
+        if (!stack || !btn) return;
+        const show = readingReplayAvailable && readingActiveId;
+        stack.classList.toggle('has-replay', show);
+        if (show) {
+            requestAnimationFrame(() => btn.classList.add('visible'));
+        } else {
+            btn.classList.remove('visible');
+        }
+    }
+
+    function attachReadingAudioListeners(item) {
+        clearReadingAudioListeners();
+        readingTimeUpdateHandler = () => updateReadingHighlight();
+        readingEndedHandler = () => {
+            readingPlayingId = null;
+            document.querySelectorAll('#reading-body .reading-word').forEach(el => {
+                el.classList.remove('active');
+                el.classList.add('read');
+            });
+            updateReadingPlayButton();
+            updateReadingReplayButton();
+        };
+        globalAudio.addEventListener('timeupdate', readingTimeUpdateHandler);
+        globalAudio.addEventListener('ended', readingEndedHandler);
+    }
+
+    async function startReadingPlayback(item) {
+        resetReadingHighlight();
+        readingPlayingId = item.id;
+        readingReplayAvailable = true;
+        attachReadingAudioListeners(item);
+        await play(item.audioText, null, getReadingAudioKey(item));
+        updateReadingPlayButton();
+        updateReadingReplayButton();
+    }
+
     async function toggleReadingPlayback() {
         const item = readingData.find(r => r.id === readingActiveId);
         if (!item) return;
@@ -2763,26 +3030,29 @@
                 await globalAudio.play();
             } catch (e) {}
             updateReadingPlayButton();
+            updateReadingReplayButton();
             return;
         }
 
-        clearReadingAudioListeners();
-        readingPlayingId = item.id;
-        resetReadingHighlight();
-        await play(item.audioText, null, getReadingAudioKey(item));
+        await startReadingPlayback(item);
+    }
 
-        readingTimeUpdateHandler = () => updateReadingHighlight();
-        readingEndedHandler = () => {
-            readingPlayingId = null;
-            document.querySelectorAll('#reading-body .reading-word').forEach(el => {
-                el.classList.remove('active');
-                el.classList.add('read');
-            });
+    async function restartReadingPlayback() {
+        const item = readingData.find(r => r.id === readingActiveId);
+        if (!item) return;
+
+        resetReadingHighlight();
+        if (readingPlayingId === item.id && globalAudio.src) {
+            try {
+                globalAudio.currentTime = 0;
+                await globalAudio.play();
+            } catch (e) {}
             updateReadingPlayButton();
-        };
-        globalAudio.addEventListener('timeupdate', readingTimeUpdateHandler);
-        globalAudio.addEventListener('ended', readingEndedHandler);
-        updateReadingPlayButton();
+            updateReadingReplayButton();
+            return;
+        }
+
+        await startReadingPlayback(item);
     }
 
     function renderReadingSection() {
@@ -2892,7 +3162,7 @@
             }, { passive: true });
 
             const paginationControls = document.createElement('div');
-            paginationControls.className = 'flex items-center gap-2 mt-5 mb-4 w-full max-w-full select-none box-border';
+            paginationControls.className = 'pager-row mt-5 mb-4 select-none';
 
             const prevBtn = document.createElement('button');
             prevBtn.className = `shrink-0 p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${readingPageIndex === 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
@@ -2900,11 +3170,12 @@
             prevBtn.onclick = () => navigateReadingPage(-1);
 
             const dotsContainer = document.createElement('div');
-            dotsContainer.className = 'flex-1 min-w-0 flex items-center justify-center gap-2 overflow-x-auto no-scrollbar';
+            dotsContainer.className = 'pager-dots no-scrollbar';
             for (let i = 0; i < totalPages; i++) {
                 const dot = document.createElement('button');
                 const isActive = i === readingPageIndex;
                 dot.className = `shrink-0 w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
+                if (isActive) dot.dataset.active = '1';
                 dot.onclick = () => {
                     readingPageIndex = i;
                     renderReadingListView();
@@ -2921,6 +3192,7 @@
             paginationControls.appendChild(dotsContainer);
             paginationControls.appendChild(nextBtn);
             mainContainer.appendChild(paginationControls);
+            scrollPagerDotIntoView(dotsContainer);
         }
     }
 
@@ -3017,6 +3289,11 @@
         wrap.appendChild(body);
 
         const isPlaying = readingPlayingId === item.id && !globalAudio.paused;
+        const showReplay = readingReplayAvailable && readingActiveId === item.id;
+        const playStack = document.createElement('div');
+        playStack.id = 'reading-play-stack';
+        playStack.className = `reading-play-stack${showReplay ? ' has-replay' : ''}`;
+
         const playBtn = document.createElement('button');
         playBtn.type = 'button';
         playBtn.id = 'reading-play-btn';
@@ -3028,7 +3305,22 @@
             toggleReadingPlayback();
         };
         playBtn.innerHTML = `<svg id="reading-play-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">${isPlaying ? '<rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect>' : '<polygon points="7,5 19,12 7,19"></polygon>'}</svg>`;
-        wrap.appendChild(playBtn);
+
+        const replayBtn = document.createElement('button');
+        replayBtn.type = 'button';
+        replayBtn.id = 'reading-replay-btn';
+        replayBtn.className = `reading-replay-fab${showReplay ? ' visible' : ''}`;
+        replayBtn.setAttribute('aria-label', uiLabels[currentLang].readingReplay);
+        replayBtn.title = uiLabels[currentLang].readingReplay;
+        replayBtn.onclick = (e) => {
+            e.stopPropagation();
+            restartReadingPlayback();
+        };
+        replayBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>`;
+
+        playStack.appendChild(playBtn);
+        playStack.appendChild(replayBtn);
+        wrap.appendChild(playStack);
         mainContainer.appendChild(wrap);
 
         const filtered = getFilteredReadings();
@@ -3046,9 +3338,7 @@
 
             const navHint = document.createElement('div');
             navHint.className = 'text-center text-tg-hint text-[11px] flex-1';
-            navHint.textContent = currentLang === 'ru'
-                ? `${textIdx + 1} / ${filtered.length} · ← →`
-                : `${textIdx + 1} / ${filtered.length} · ← →`;
+            navHint.textContent = `${textIdx + 1} / ${filtered.length}`;
 
             const nextTextBtn = document.createElement('button');
             nextTextBtn.type = 'button';
@@ -3292,6 +3582,17 @@
         }, 10);
     }
 
+    function scrollPagerDotIntoView(dotsContainer) {
+        if (!dotsContainer) return;
+        const active = dotsContainer.querySelector('[data-active="1"]');
+        if (!active) return;
+        requestAnimationFrame(() => {
+            const track = dotsContainer;
+            const left = active.offsetLeft - (track.clientWidth - active.offsetWidth) / 2;
+            track.scrollLeft = Math.max(0, left);
+        });
+    }
+
     window.navigateVocabPage = function(direction) {
         const currentData = vocabularyData[currentVocabTab];
         const isMobile = window.innerWidth < 640;
@@ -3516,7 +3817,7 @@
 
         if (showPagination) {
             const paginationControls = document.createElement('div');
-            paginationControls.className = 'flex items-center gap-2 mt-6 mb-8 w-full max-w-full select-none box-border';
+            paginationControls.className = 'pager-row mt-6 mb-8 select-none';
 
             const prevBtn = document.createElement('button');
             prevBtn.className = `shrink-0 p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
@@ -3524,11 +3825,12 @@
             prevBtn.onclick = () => navigateVocabPage(-1);
 
             const dotsContainer = document.createElement('div');
-            dotsContainer.className = 'flex-1 min-w-0 flex items-center justify-center gap-2 overflow-x-auto no-scrollbar';
+            dotsContainer.className = 'pager-dots no-scrollbar';
             for (let i = 0; i < totalPages; i++) {
                 const dot = document.createElement('button');
                 const isActive = i === vocabPageIndex;
                 dot.className = `shrink-0 w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
+                if (isActive) dot.dataset.active = '1';
                 dot.onclick = () => {
                     vocabPageIndex = i;
                     renderVocabPageOnly();
@@ -3545,6 +3847,7 @@
             paginationControls.appendChild(dotsContainer);
             paginationControls.appendChild(nextBtn);
             pageContainer.appendChild(paginationControls);
+            scrollPagerDotIntoView(dotsContainer);
         }
     }
 
