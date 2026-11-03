@@ -455,7 +455,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v37'; 
+    const APP_VERSION = 'v38'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -745,7 +745,18 @@
             { w: 'chắc là', e: '🤔', t: { ru: 'может быть / наверное', en: 'maybe / probably' } },
             { w: 'dễ thương', e: '🥰', t: { ru: 'милый', en: 'cute / lovely' } },
             { w: 'giống', e: '👯', t: { ru: 'такой же / похожий', en: 'same / similar' } },
-            { w: 'khác', e: '🔀', t: { ru: 'разный / другой', en: 'different' } }
+            { w: 'khác', e: '🔀', t: { ru: 'разный / другой', en: 'different' } },
+            { w: 'huấn luyện viên', e: '🏋️‍♂️', t: { ru: 'тренер', en: 'coach / trainer' } },
+            { w: 'chủ nhà', e: '🔑', t: { ru: 'владелец дома / арендодатель', en: 'landlord / house owner' } },
+            { w: 'chán', e: '🥱', t: { ru: 'скучный / скучно', en: 'boring / bored' } },
+            { w: 'siêu thị', e: '🛒', t: { ru: 'супермаркет', en: 'supermarket' } },
+            { w: 'nhà thờ', e: '⛪', t: { ru: 'церковь', en: 'church' } },
+            { w: 'bên', e: '↕️', t: { ru: 'сторона', en: 'side' } },
+            { w: 'ở giữa', e: '↔️', t: { ru: 'между / посередине', en: 'in the middle / between' } },
+            { w: 'đối diện', e: '🔄', t: { ru: 'напротив', en: 'opposite' } },
+            { w: 'bên cạnh', e: '🏠🏡', t: { ru: 'рядом / по соседству', en: 'next to / beside' } },
+            { w: 'cho em hỏi', e: '🙋‍♂️', t: { ru: 'позвольте спросить...', en: 'excuse me, may I ask...' } },
+            { w: 'tiếp', e: '⏩', t: { ru: 'дальше / продолжай', en: 'next / continue' } }
         ],
         datetime: [
             { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
@@ -922,7 +933,13 @@
             { w: 'đi ra đường', e: '🚪', t: { ru: 'выходить на улицу', en: 'go outside' } },
             { w: 'tìm', e: '🔍', t: { ru: 'искать', en: 'to search / look for' } },
             { w: 'tìm thấy', e: '🎯', t: { ru: 'найти', en: 'to find' } },
-            { w: 'thấy vui', e: '😄', t: { ru: 'радоваться / чувствовать радость', en: 'to feel happy' } }
+            { w: 'thấy vui', e: '😄', t: { ru: 'радоваться / чувствовать радость', en: 'to feel happy' } },
+            { w: 'đặt', e: '📅', t: { ru: 'забронировать', en: 'to book / reserve' } },
+            { w: 'rẽ trái', e: '⬅️', t: { ru: 'поворот налево', en: 'turn left' } },
+            { w: 'rẽ phải', e: '➡️', t: { ru: 'поворот направо', en: 'turn right' } },
+            { w: 'đi thẳng', e: '⬆️', t: { ru: 'идти прямо', en: 'go straight' } },
+            { w: 'dừng lại', e: '🛑', t: { ru: 'стоп / остановиться', en: 'stop / halt' } },
+            { w: 'đi tiếp', e: '🚶‍♂️', t: { ru: 'продолжай идти', en: 'keep going / keep walking' } }
         ],
         cafe: [
             { w: 'nhà hàng', e: '🏨', t: { ru: 'ресторан', en: 'restaurant' } },
@@ -1084,7 +1101,8 @@
             { w: 'uống thôi', e: '🍻', t: { ru: 'пора пить', en: 'let\'s drink' } },
             { w: 'đi cà phê thôi', e: '☕', t: { ru: 'пошли пить кофе', en: 'let\'s go for coffee' } },
             { w: 'làm thôi', e: '💪', t: { ru: 'давай делать', en: 'let\'s do it' } },
-            { w: 'học thôi', e: '📚', t: { ru: 'за учебу!', en: 'let\'s study' } }
+            { w: 'học thôi', e: '📚', t: { ru: 'за учебу!', en: 'let\'s study' } },
+            { w: 'chúc ngon miệng', e: '🍽️', t: { ru: 'приятного аппетита', en: 'enjoy your meal / bon appetit' } }
         ],
         questions: [
             { w: 'đây là ai?', e: '👤', t: { ru: 'кто это?', en: 'who is this?' } },
