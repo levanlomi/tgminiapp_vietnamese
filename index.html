@@ -455,7 +455,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v38'; 
+    const APP_VERSION = 'v39'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -756,7 +756,14 @@
             { w: 'đối diện', e: '🔄', t: { ru: 'напротив', en: 'opposite' } },
             { w: 'bên cạnh', e: '🏠🏡', t: { ru: 'рядом / по соседству', en: 'next to / beside' } },
             { w: 'cho em hỏi', e: '🙋‍♂️', t: { ru: 'позвольте спросить...', en: 'excuse me, may I ask...' } },
-            { w: 'tiếp', e: '⏩', t: { ru: 'дальше / продолжай', en: 'next / continue' } }
+            { w: 'tiếp', e: '⏩', t: { ru: 'дальше / продолжай', en: 'next / continue' } },
+            { w: 'bệnh viện', e: '🏥', t: { ru: 'больница', en: 'hospital' } },
+            { w: 'cây ATM', e: '🏧', t: { ru: 'банкомат', en: 'ATM machine' } },
+            { w: 'cây xăng', e: '⛽', t: { ru: 'заправка', en: 'gas station' } },
+            { w: 'mù đường', e: '😢🗺️', t: { ru: 'плохо ориентироваться на местности', en: 'bad with directions' } },
+            { w: 'dễ đi', e: '🟢', t: { ru: 'легкая дорога', en: 'easy road / easy to travel' } },
+            { w: 'khó đi', e: '🔴', t: { ru: 'сложная дорога', en: 'rough road / hard to travel' } },
+            { w: 'bằng nhau', e: '⚖️', t: { ru: 'одинаковые / равные', en: 'equal / same' } }
         ],
         datetime: [
             { w: 'giây', e: '⏱️', t: { ru: 'секунда', en: 'second' } },
@@ -939,7 +946,11 @@
             { w: 'rẽ phải', e: '➡️', t: { ru: 'поворот направо', en: 'turn right' } },
             { w: 'đi thẳng', e: '⬆️', t: { ru: 'идти прямо', en: 'go straight' } },
             { w: 'dừng lại', e: '🛑', t: { ru: 'стоп / остановиться', en: 'stop / halt' } },
-            { w: 'đi tiếp', e: '🚶‍♂️', t: { ru: 'продолжай идти', en: 'keep going / keep walking' } }
+            { w: 'đi tiếp', e: '🚶‍♂️', t: { ru: 'продолжай идти', en: 'keep going / keep walking' } },
+            { w: 'đi theo', e: '🏃‍♂️', t: { ru: 'следовать / идти за', en: 'to follow' } },
+            { w: 'lạc đường', e: '🗺️', t: { ru: 'заблудиться / потеряться', en: 'to get lost' } },
+            { w: 'sợ', e: '😨', t: { ru: 'бояться', en: 'to be afraid / fear' } },
+            { w: 'lùi lại', e: '🔙', t: { ru: 'сдать назад / отступить', en: 'to reverse / back up' } }
         ],
         cafe: [
             { w: 'nhà hàng', e: '🏨', t: { ru: 'ресторан', en: 'restaurant' } },
@@ -1066,7 +1077,11 @@
             { w: 'trên', e: '⬆️', t: { ru: 'на (поверхности)', en: 'on / above' } },
             { w: 'trong', e: '📥', t: { ru: 'в / внутри', en: 'in / inside' } },
             { w: 'ít nhất', e: '🤏', t: { ru: 'минимум / как минимум', en: 'at least / minimum' } },
-            { w: 'không quá', e: '≦', t: { ru: 'не более (чем)', en: 'no more than / not exceeding' } }
+            { w: 'không quá', e: '≦', t: { ru: 'не более (чем)', en: 'no more than / not exceeding' } },
+            { w: 'khoảng', e: '📊', t: { ru: 'примерно / около', en: 'approximately / around' } },
+            { w: 'mét', e: '📏', t: { ru: 'метр', en: 'meter' } },
+            { w: 'ki-lô-mét', e: '🛣️', t: { ru: 'километр', en: 'kilometer' } },
+            { w: 'một mình', e: '👤', t: { ru: 'один / в одиночку', en: 'alone / by oneself' } }
         ],
         phrases: [
             { w: 'có món ... không?', e: '🍲', t: { ru: 'есть ли блюдо...?', en: 'do you have the dish...?' } },
@@ -1134,7 +1149,9 @@
             { w: 'bao lâu nữa?', e: '⏱️', t: { ru: 'как скоро? / сколько еще?', en: 'how much longer?' } },
             { w: 'vì sao?', e: '❓', t: { ru: 'почему?', en: 'why?' } },
             { w: 'bao lâu rồi?', e: '⏳', t: { ru: 'как долго уже?', en: 'how long already?' } },
-            { w: 'là sao?', e: '🤔', t: { ru: 'в смысле? / как это?', en: 'what do you mean? / how so?' } }
+            { w: 'là sao?', e: '🤔', t: { ru: 'в смысле? / как это?', en: 'what do you mean? / how so?' } },
+            { w: 'đi thế nào?', e: '🧭', t: { ru: 'как пройти / добраться?', en: 'how to get there?' } },
+            { w: 'đi đường nào?', e: '🗺️', t: { ru: 'какой дорогой идти?', en: 'which way / road to take?' } }
             
         ]
     };
