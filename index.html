@@ -86,13 +86,79 @@
             flex: 1 1 auto;
             min-width: 0;
             margin: 0 2px;
-            padding: 0 6px;
+            padding: 4px 8px;
+            height: 28px;
+            box-sizing: border-box;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            gap: 8px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            justify-content: space-between;
+            gap: 2px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--tg-theme-hint-color, #7f8c8d) 12%, transparent);
+            border: 1px solid color-mix(in srgb, var(--tg-theme-hint-color, #7f8c8d) 22%, transparent);
+            touch-action: none;
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .pager-dots.is-scrubbing {
+            cursor: grabbing;
+        }
+        .pager-dot {
+            flex: 1 1 0;
+            min-width: 6px;
+            max-width: 14px;
+            height: 22px;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .pager-dot::after {
+            content: '';
+            display: block;
+            width: 100%;
+            max-width: 3px;
+            height: 10px;
+            border-radius: 2px;
+            background: color-mix(in srgb, var(--tg-theme-hint-color, #7f8c8d) 55%, transparent);
+            transition: all 0.25s ease;
+        }
+        .pager-dot[data-active="1"] {
+            flex: 0 0 auto;
+            min-width: 18px;
+            max-width: 22px;
+        }
+        .pager-dot[data-active="1"]::after {
+            max-width: 18px;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--tg-theme-button-color, #1976d2);
+        }
+
+        @keyframes vocab-order-flip {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            40% { opacity: 0; transform: translateY(10px) scale(0.98); }
+            41% { opacity: 0; transform: translateY(-10px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .vocab-order-flip {
+            animation: vocab-order-flip 0.42s ease both;
+        }
+        @keyframes vocab-cat-reorder {
+            0% { transform: scale(1); }
+            35% { transform: scale(1.08); }
+            70% { transform: scale(0.97); }
+            100% { transform: scale(1); }
+        }
+        .vocab-cat-reorder {
+            animation: vocab-cat-reorder 0.38s ease;
         }
 
         /* Анимация ошибки для тренажера */
@@ -455,7 +521,7 @@
 <script>
     // МЕНЯЙ ЭТУ ВЕРСИЮ каждый раз, когда добавляешь новые слова (например, 'v11', 'v12' и т.д.)
     // Она сбросит зеленую галочку скачивания, чтобы подгрузить новые аудио.
-    const APP_VERSION = 'v39'; 
+    const APP_VERSION = 'v44'; 
 
     const tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
@@ -476,7 +542,8 @@
     let isUnlocked = false;
     let currentTab = 'vowels';
     let currentVocabTab = 'top';
-    let vocabPageIndex = 0; 
+    let vocabPageIndex = 0;
+    let vocabOrderReversed = false; 
     let currentTheme = 'light';
     
     let globalDictionary = [];
@@ -501,6 +568,7 @@
     // Пустой массив = все темы (поведение по умолчанию)
     let trainerSelectedCategories = [];
     let trainerFilterOpen = false;
+    let trainerAgeMode = 'all'; // 'all' | 'new' | 'old'
     let readingSelectedCategories = [];
     let readingFilterOpen = false;
     let readingActiveId = null;
@@ -2276,19 +2344,49 @@
         }));
     }
 
+    function takeCategoryAgeSlice(arr, mode) {
+        if (!arr || arr.length === 0) return [];
+        if (mode === 'all') return arr;
+        const count = Math.max(1, Math.ceil(arr.length * 0.3));
+        if (mode === 'new') return arr.slice(-count);
+        if (mode === 'old') return arr.slice(0, count);
+        return arr;
+    }
+
     function getTrainerDictionary() {
-        if (trainerSelectedCategories.length === 0) {
+        if (trainerAgeMode === 'all' && trainerSelectedCategories.length === 0) {
             return getGlobalDictionary();
         }
 
-        const { allWords, addWord } = createWordCollector();
+        const categoryIds = trainerSelectedCategories.length === 0
+            ? VOCAB_CATEGORY_IDS
+            : trainerSelectedCategories;
 
-        trainerSelectedCategories.forEach(id => {
+        const { allWords, addWord } = createWordCollector();
+        categoryIds.forEach(id => {
             const arr = vocabularyData[id];
-            if (arr) arr.forEach(addWord);
+            if (!arr) return;
+            takeCategoryAgeSlice(arr, trainerAgeMode).forEach(addWord);
         });
 
         return allWords;
+    }
+
+    function getTrainerAgeModeLabel() {
+        if (trainerAgeMode === 'new') return currentLang === 'ru' ? 'Новые' : 'New';
+        if (trainerAgeMode === 'old') return currentLang === 'ru' ? 'Старые' : 'Old';
+        return currentLang === 'ru' ? 'Все' : 'All';
+    }
+
+    function cycleTrainerAgeMode() {
+        if (tIsAnimating) return;
+        const order = ['all', 'new', 'old'];
+        trainerAgeMode = order[(order.indexOf(trainerAgeMode) + 1) % order.length];
+        closeTrainerFilterMenu();
+        initTrainerData();
+        tSelectedLeft = -1;
+        tSelectedRight = -1;
+        renderTrainerSection();
     }
 
     function getTrainerFilterLabel() {
@@ -2541,6 +2639,9 @@
                         ${categoryOptionsHtml}
                     </div>
                 </div>
+                <button type="button" id="trainer-age-btn" class="${trainerAgeMode !== 'all' ? 'bg-tg-primary/15 border-tg-primary/40 text-tg-primary' : 'bg-tg-hint/10 border-tg-hint/20 text-tg-text'} px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform shadow-sm shrink-0 border" onclick="cycleTrainerAgeMode()" title="${currentLang === 'ru' ? 'Новые / Все / Старые' : 'New / All / Old'}">
+                    ${getTrainerAgeModeLabel()}
+                </button>
                 <button class="bg-tg-hint/10 border border-tg-hint/20 text-tg-text px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform flex items-center gap-1 shadow-sm shrink-0" onclick="trainerReroll()">
                     🎲 ${currentLang === 'ru' ? 'Обновить' : 'Reroll'}
                 </button>
@@ -2836,13 +2937,71 @@
         renderReadingSection();
     }
 
+    function createReadingListButton(item) {
+        let preview = '';
+        if (item.lines && item.lines.length) {
+            const first = item.lines[0];
+            preview = `${first.speaker}: ${first.text}`;
+        } else {
+            preview = item.audioText.split(/[.!?]/)[0].trim();
+        }
+        const catLabel = uiLabels[currentLang][item.category] || item.category;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'w-full text-left bg-tg-secondaryBg border border-tg-hint/20 rounded-xl px-3 py-3 active:scale-[0.99] transition-transform shadow-sm';
+        btn.onclick = () => openReadingText(item.id);
+        btn.innerHTML = `
+            <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                    <div class="font-bold text-tg-text text-sm leading-snug">${item.title[currentLang] || item.title.en}</div>
+                    <div class="text-tg-hint text-xs mt-1 line-clamp-2 leading-relaxed">${preview}…</div>
+                </div>
+                <span class="shrink-0 text-[10px] font-bold uppercase tracking-wide text-tg-primary/80 bg-tg-primary/10 px-2 py-1 rounded-md">${catLabel}</span>
+            </div>
+        `;
+        return btn;
+    }
+
+    function jumpReadingPage(index, { soft = false } = {}) {
+        const items = getFilteredReadings();
+        const totalPages = Math.max(1, Math.ceil(items.length / READING_PAGE_SIZE));
+        const next = Math.max(0, Math.min(totalPages - 1, index));
+
+        if (!soft) {
+            readingPageIndex = next;
+            renderReadingListView();
+            return;
+        }
+
+        if (next === readingPageIndex) return;
+        readingPageIndex = next;
+
+        const list = document.getElementById('reading-list');
+        const pagerRow = mainContainer.querySelector('.pager-row');
+        const dotsContainer = pagerRow?.querySelector('.pager-dots');
+        const prevBtn = pagerRow?.querySelector('button:first-of-type');
+        const nextBtn = pagerRow?.querySelector('button:last-of-type');
+
+        if (!list || !dotsContainer) {
+            renderReadingListView();
+            return;
+        }
+
+        const pageItems = items.slice(
+            readingPageIndex * READING_PAGE_SIZE,
+            (readingPageIndex + 1) * READING_PAGE_SIZE
+        );
+        list.innerHTML = '';
+        pageItems.forEach(item => list.appendChild(createReadingListButton(item)));
+        syncPagerActiveState(dotsContainer, readingPageIndex, totalPages, prevBtn, nextBtn);
+    }
+
     function navigateReadingPage(direction) {
         const items = getFilteredReadings();
         const totalPages = Math.max(1, Math.ceil(items.length / READING_PAGE_SIZE));
         const next = readingPageIndex + direction;
         if (next < 0 || next >= totalPages) return;
-        readingPageIndex = next;
-        renderReadingListView();
+        jumpReadingPage(next);
     }
 
     function navigateReadingText(direction) {
@@ -3142,6 +3301,7 @@
         mainContainer.appendChild(header);
 
         const list = document.createElement('div');
+        list.id = 'reading-list';
         list.className = 'flex flex-col gap-2 w-full';
 
         if (items.length === 0) {
@@ -3159,30 +3319,7 @@
             (readingPageIndex + 1) * READING_PAGE_SIZE
         );
 
-        pageItems.forEach(item => {
-            let preview = '';
-            if (item.lines && item.lines.length) {
-                const first = item.lines[0];
-                preview = `${first.speaker}: ${first.text}`;
-            } else {
-                preview = item.audioText.split(/[.!?]/)[0].trim();
-            }
-            const catLabel = uiLabels[currentLang][item.category] || item.category;
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'w-full text-left bg-tg-secondaryBg border border-tg-hint/20 rounded-xl px-3 py-3 active:scale-[0.99] transition-transform shadow-sm';
-            btn.onclick = () => openReadingText(item.id);
-            btn.innerHTML = `
-                <div class="flex items-start justify-between gap-2">
-                    <div class="min-w-0">
-                        <div class="font-bold text-tg-text text-sm leading-snug">${item.title[currentLang] || item.title.en}</div>
-                        <div class="text-tg-hint text-xs mt-1 line-clamp-2 leading-relaxed">${preview}…</div>
-                    </div>
-                    <span class="shrink-0 text-[10px] font-bold uppercase tracking-wide text-tg-primary/80 bg-tg-primary/10 px-2 py-1 rounded-md">${catLabel}</span>
-                </div>
-            `;
-            list.appendChild(btn);
-        });
+        pageItems.forEach(item => list.appendChild(createReadingListButton(item)));
         mainContainer.appendChild(list);
 
         if (totalPages > 1) {
@@ -3209,14 +3346,13 @@
             for (let i = 0; i < totalPages; i++) {
                 const dot = document.createElement('button');
                 const isActive = i === readingPageIndex;
-                dot.className = `shrink-0 w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
+                dot.type = 'button';
+                dot.className = 'pager-dot';
+                dot.setAttribute('aria-label', `Page ${i + 1}`);
                 if (isActive) dot.dataset.active = '1';
-                dot.onclick = () => {
-                    readingPageIndex = i;
-                    renderReadingListView();
-                };
                 dotsContainer.appendChild(dot);
             }
+            bindPagerScrub(dotsContainer, (index) => jumpReadingPage(index, { soft: true }));
 
             const nextBtn = document.createElement('button');
             nextBtn.className = `shrink-0 p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${readingPageIndex === totalPages - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
@@ -3628,8 +3764,179 @@
         });
     }
 
+    function syncPagerActiveState(dotsContainer, activeIndex, totalPages, prevBtn, nextBtn) {
+        if (!dotsContainer) return;
+        dotsContainer.querySelectorAll('.pager-dot').forEach((dot, i) => {
+            if (i === activeIndex) dot.dataset.active = '1';
+            else delete dot.dataset.active;
+        });
+        if (prevBtn) {
+            const atStart = activeIndex <= 0;
+            prevBtn.classList.toggle('opacity-30', atStart);
+            prevBtn.classList.toggle('cursor-not-allowed', atStart);
+            prevBtn.classList.toggle('pointer-events-none', atStart);
+        }
+        if (nextBtn) {
+            const atEnd = activeIndex >= totalPages - 1;
+            nextBtn.classList.toggle('opacity-30', atEnd);
+            nextBtn.classList.toggle('cursor-not-allowed', atEnd);
+            nextBtn.classList.toggle('pointer-events-none', atEnd);
+        }
+        scrollPagerDotIntoView(dotsContainer);
+    }
+
+    function bindPagerScrub(dotsContainer, onSelectPage) {
+        if (!dotsContainer || dotsContainer.dataset.scrubBound === '1') return;
+        dotsContainer.dataset.scrubBound = '1';
+
+        let scrubbing = false;
+        let lastIndex = -1;
+
+        const indexFromClientX = (clientX) => {
+            const total = dotsContainer.querySelectorAll('.pager-dot').length;
+            if (total <= 0) return null;
+            const rect = dotsContainer.getBoundingClientRect();
+            if (rect.width <= 0) return null;
+            const ratio = (clientX - rect.left) / rect.width;
+            const clamped = Math.min(1, Math.max(0, ratio));
+            return Math.min(total - 1, Math.floor(clamped * total));
+        };
+
+        const applyFromEvent = (e) => {
+            const idx = indexFromClientX(e.clientX);
+            if (idx == null || idx === lastIndex) return;
+            lastIndex = idx;
+            onSelectPage(idx);
+            try {
+                if (tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged) {
+                    tg.HapticFeedback.selectionChanged();
+                }
+            } catch (_) {}
+        };
+
+        dotsContainer.addEventListener('pointerdown', (e) => {
+            if (e.button != null && e.button !== 0) return;
+            scrubbing = true;
+            lastIndex = -1;
+            dotsContainer.classList.add('is-scrubbing');
+            try { dotsContainer.setPointerCapture(e.pointerId); } catch (_) {}
+            applyFromEvent(e);
+            e.preventDefault();
+        });
+
+        dotsContainer.addEventListener('pointermove', (e) => {
+            if (!scrubbing) return;
+            applyFromEvent(e);
+        });
+
+        const endScrub = () => {
+            if (!scrubbing) return;
+            scrubbing = false;
+            lastIndex = -1;
+            dotsContainer.classList.remove('is-scrubbing');
+        };
+
+        dotsContainer.addEventListener('pointerup', endScrub);
+        dotsContainer.addEventListener('pointercancel', endScrub);
+    }
+
+    function createVocabWordButton(item) {
+        const rowBtn = document.createElement('button');
+        rowBtn.className = 'bg-tg-secondaryBg rounded-xl p-3 flex items-center justify-between shadow-sm active:scale-95 transition-transform border border-tg-hint/10 w-full text-left';
+        const translation = item.t[currentLang] || item.t['en'];
+        let iconContent = '';
+        if (item.e) {
+            iconContent = item.e;
+        } else if (item.isSvg) {
+            iconContent = `<span class="icon-wrap w-6 h-6 flex items-center justify-center">${item.i}</span>`;
+        } else {
+            iconContent = item.i;
+        }
+        rowBtn.innerHTML = `
+            <div class="flex items-center gap-3 overflow-hidden">
+                <span class="text-2xl shrink-0 flex items-center justify-center min-w-[2rem] h-8">${iconContent}</span>
+                <div class="flex flex-col overflow-hidden justify-center">
+                    <span class="font-black text-[1.05rem] text-tg-text truncate leading-tight">${item.w}</span>
+                    <span class="text-[0.75rem] text-tg-hint truncate mt-0.5 leading-tight">${translation}</span>
+                </div>
+            </div>
+        `;
+        rowBtn.onclick = () => play(item.w, rowBtn);
+        return rowBtn;
+    }
+
+    function fillVocabGrid(vocabGrid, itemsToRender) {
+        vocabGrid.innerHTML = '';
+        if (itemsToRender.length === 0) {
+            vocabGrid.innerHTML = `
+                <div class="col-span-1 sm:col-span-2 text-center text-tg-hint py-8 text-sm">
+                    ${currentLang === 'ru' ? 'Ничего не найдено 😕' : 'Nothing found 😕'}
+                </div>
+            `;
+            return;
+        }
+        itemsToRender.forEach(item => {
+            vocabGrid.appendChild(createVocabWordButton(item));
+        });
+    }
+
+    function jumpVocabPage(index, { soft = false } = {}) {
+        const currentData = getCurrentVocabWords();
+        const isMobile = window.innerWidth < 640;
+        const pageSize = isMobile ? 7 : 10;
+        const totalPages = Math.max(1, Math.ceil(currentData.length / pageSize));
+        const next = Math.max(0, Math.min(totalPages - 1, index));
+
+        if (!soft) {
+            vocabPageIndex = next;
+            renderVocabPageOnly();
+            return;
+        }
+
+        if (next === vocabPageIndex) return;
+        vocabPageIndex = next;
+
+        const pageContainer = document.getElementById('vocab-page-container');
+        const vocabGrid = document.getElementById('vocab-grid');
+        const dotsContainer = pageContainer?.querySelector('.pager-dots');
+        const pagerRow = pageContainer?.querySelector('.pager-row');
+        const prevBtn = pagerRow?.querySelector('button:first-of-type');
+        const nextBtn = pagerRow?.querySelector('button:last-of-type');
+
+        if (!vocabGrid || !dotsContainer) {
+            renderVocabPageOnly();
+            return;
+        }
+
+        const itemsToRender = currentData.slice(vocabPageIndex * pageSize, (vocabPageIndex + 1) * pageSize);
+        fillVocabGrid(vocabGrid, itemsToRender);
+        syncPagerActiveState(dotsContainer, vocabPageIndex, totalPages, prevBtn, nextBtn);
+    }
+
+    function getCurrentVocabWords() {
+        const data = vocabularyData[currentVocabTab] || [];
+        return vocabOrderReversed ? data.slice().reverse() : data;
+    }
+
+    function updateVocabCategoryButtons(categories) {
+        categories.forEach(c => {
+            const b = document.getElementById(`vocab-cat-btn-${c.id}`);
+            if (!b) return;
+            const active = currentVocabTab === c.id;
+            const reversedActive = active && vocabOrderReversed;
+            b.className = `whitespace-nowrap flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 active:scale-95 ${
+                active
+                    ? 'bg-tg-primary text-tg-primaryText border-tg-primary shadow-sm'
+                    : 'bg-transparent text-tg-text border-tg-hint/30 active:bg-tg-hint/10'
+            }`;
+            b.innerHTML = reversedActive
+                ? `<span class="inline-flex items-center gap-1">${c.label}<svg class="w-3 h-3 opacity-90" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span>`
+                : c.label;
+        });
+    }
+
     window.navigateVocabPage = function(direction) {
-        const currentData = vocabularyData[currentVocabTab];
+        const currentData = getCurrentVocabWords();
         const isMobile = window.innerWidth < 640;
         const pageSize = isMobile ? 7 : 10;
         const totalPages = Math.ceil(currentData.length / pageSize);
@@ -3679,6 +3986,7 @@
             const btn = document.createElement('button');
             btn.id = `vocab-cat-btn-${cat.id}`;
             const isActive = currentVocabTab === cat.id;
+            const reversedActive = isActive && vocabOrderReversed;
             
             btn.className = `whitespace-nowrap flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 active:scale-95 ${
                 isActive 
@@ -3686,28 +3994,30 @@
                     : 'bg-transparent text-tg-text border-tg-hint/30 active:bg-tg-hint/10'
             }`;
             
-            btn.innerText = cat.label;
+            btn.innerHTML = reversedActive
+                ? `<span class="inline-flex items-center gap-1">${cat.label}<svg class="w-3 h-3 opacity-90" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span>`
+                : cat.label;
             btn.onclick = () => {
-                if (currentVocabTab === cat.id) return;
-                currentVocabTab = cat.id;
-                vocabPageIndex = 0; 
-                
                 const searchInput = document.getElementById('vocab-search');
-                if(searchInput) searchInput.value = '';
-                document.getElementById('clear-search').classList.add('hidden');
+                if (searchInput) searchInput.value = '';
+                const clearBtn = document.getElementById('clear-search');
+                if (clearBtn) clearBtn.classList.add('hidden');
 
-                categories.forEach(c => {
-                    const b = document.getElementById(`vocab-cat-btn-${c.id}`);
-                    if (b) {
-                        const active = currentVocabTab === c.id;
-                        b.className = `whitespace-nowrap flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold border transition-all duration-200 active:scale-95 ${
-                            active 
-                                ? 'bg-tg-primary text-tg-primaryText border-tg-primary shadow-sm' 
-                                : 'bg-transparent text-tg-text border-tg-hint/30 active:bg-tg-hint/10'
-                        }`;
-                    }
-                });
-                
+                if (currentVocabTab === cat.id) {
+                    vocabOrderReversed = !vocabOrderReversed;
+                    vocabPageIndex = 0;
+                    updateVocabCategoryButtons(categories);
+                    btn.classList.remove('vocab-cat-reorder');
+                    void btn.offsetWidth;
+                    btn.classList.add('vocab-cat-reorder');
+                    renderVocabPageOnly(null, true);
+                    return;
+                }
+
+                currentVocabTab = cat.id;
+                vocabOrderReversed = false;
+                vocabPageIndex = 0;
+                updateVocabCategoryButtons(categories);
                 renderVocabPageOnly();
             };
             subNav.appendChild(btn);
@@ -3765,19 +4075,20 @@
         renderVocabPageOnly();
     }
 
-    function renderVocabPageOnly(filteredData = null) {
+    function renderVocabPageOnly(filteredData = null, animateOrderFlip = false) {
         const pageContainer = document.getElementById('vocab-page-container');
         if (!pageContainer) return;
 
         pageContainer.innerHTML = '';
         
         if (!filteredData) {
-            pageContainer.classList.remove('animate-fade-in');
+            pageContainer.classList.remove('animate-fade-in', 'vocab-order-flip');
             void pageContainer.offsetWidth;
-            pageContainer.classList.add('animate-fade-in');
+            pageContainer.classList.add(animateOrderFlip ? 'vocab-order-flip' : 'animate-fade-in');
         }
 
         const vocabGrid = document.createElement('div');
+        vocabGrid.id = 'vocab-grid';
         vocabGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full pb-2 touch-pan-y';
         
         let itemsToRender = [];
@@ -3786,16 +4097,8 @@
 
         if (filteredData) {
             itemsToRender = filteredData;
-            
-            if (itemsToRender.length === 0) {
-                vocabGrid.innerHTML = `
-                    <div class="col-span-1 sm:col-span-2 text-center text-tg-hint py-8 text-sm">
-                        ${currentLang === 'ru' ? 'Ничего не найдено 😕' : 'Nothing found 😕'}
-                    </div>
-                `;
-            }
         } else {
-            const currentData = vocabularyData[currentVocabTab];
+            const currentData = getCurrentVocabWords();
             const isMobile = window.innerWidth < 640;
             const pageSize = isMobile ? 7 : 10;
             totalPages = Math.ceil(currentData.length / pageSize);
@@ -3805,35 +4108,8 @@
             itemsToRender = currentData.slice(vocabPageIndex * pageSize, (vocabPageIndex + 1) * pageSize);
             showPagination = totalPages > 1;
         }
-        
-        itemsToRender.forEach(item => {
-            const rowBtn = document.createElement('button');
-            rowBtn.className = 'bg-tg-secondaryBg rounded-xl p-3 flex items-center justify-between shadow-sm active:scale-95 transition-transform border border-tg-hint/10 w-full text-left';
-            
-            const translation = item.t[currentLang] || item.t['en'];
-            
-            let iconContent = '';
-            if (item.e) {
-                iconContent = item.e;
-            } else if (item.isSvg) {
-                iconContent = `<span class="icon-wrap w-6 h-6 flex items-center justify-center">${item.i}</span>`;
-            } else {
-                iconContent = item.i;
-            }
-            
-            rowBtn.innerHTML = `
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <span class="text-2xl shrink-0 flex items-center justify-center min-w-[2rem] h-8">${iconContent}</span>
-                    <div class="flex flex-col overflow-hidden justify-center">
-                        <span class="font-black text-[1.05rem] text-tg-text truncate leading-tight">${item.w}</span>
-                        <span class="text-[0.75rem] text-tg-hint truncate mt-0.5 leading-tight">${translation}</span>
-                    </div>
-                </div>
-            `;
-            
-            rowBtn.onclick = () => play(item.w, rowBtn);
-            vocabGrid.appendChild(rowBtn);
-        });
+
+        fillVocabGrid(vocabGrid, itemsToRender);
 
         if (!filteredData) {
             vocabGrid.addEventListener('touchstart', e => {
@@ -3864,14 +4140,13 @@
             for (let i = 0; i < totalPages; i++) {
                 const dot = document.createElement('button');
                 const isActive = i === vocabPageIndex;
-                dot.className = `shrink-0 w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-tg-primary w-5' : 'bg-tg-hint/30'}`;
+                dot.type = 'button';
+                dot.className = 'pager-dot';
+                dot.setAttribute('aria-label', `Page ${i + 1}`);
                 if (isActive) dot.dataset.active = '1';
-                dot.onclick = () => {
-                    vocabPageIndex = i;
-                    renderVocabPageOnly();
-                };
                 dotsContainer.appendChild(dot);
             }
+            bindPagerScrub(dotsContainer, (index) => jumpVocabPage(index, { soft: true }));
 
             const nextBtn = document.createElement('button');
             nextBtn.className = `shrink-0 p-2 rounded-xl border border-tg-hint/20 text-tg-text active:scale-95 transition-all ${vocabPageIndex === totalPages - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''}`;
